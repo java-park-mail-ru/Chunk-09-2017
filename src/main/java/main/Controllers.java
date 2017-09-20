@@ -42,7 +42,7 @@ public class Controllers {
     @GetMapping(path = "/exit")
     public ResponseEntity exit(HttpSession httpSession) {
 
-        httpSession.setAttribute("username", null);
+        httpSession.invalidate();
         return new ResponseEntity(HttpStatus.OK);
     }
 

@@ -67,14 +67,14 @@ class User {
     public String getUsername() {
         return username;
     }
-    public String getPassword() {
-        return password;
-    }
     public String getEmail() {
         return email;
     }
-    public String getOldPassword() {
+    String getOldPassword() {
         return oldPassword;
+    }
+    String getPassword() {
+        return password;
     }
 
     public void setUsername(String username) {
@@ -83,11 +83,11 @@ class User {
     public void setEmail(String email) {
         this.email = email;
     }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public void setOldPassword(String oldPassword) {
+    void setOldPassword(String oldPassword) {
         this.oldPassword = oldPassword;
+    }
+    void setPassword(String password) {
+        this.password = password;
     }
 
     // Response-classes
