@@ -1,4 +1,4 @@
-package main;
+package application;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -23,11 +23,13 @@ class User {
 
     public void updateProfile(final User newProfile) {
 
-        if (!newProfile.username.isEmpty())
+        if (!newProfile.username.isEmpty()) {
             this.username = newProfile.username;
+        }
 
-        if (!newProfile.email.isEmpty())
+        if (!newProfile.email.isEmpty()) {
             this.email = newProfile.email;
+        }
 
         if (!newProfile.password.isEmpty()) {
             this.oldPassword = this.password;
@@ -48,31 +50,34 @@ class User {
 
     @Override
     public String toString() {
-        return "Username:\t" + this.username + '\n' +
-                "Email:\t" + this.email + '\n' +
-                "Password:\t" + this.password + '\n';
+        return "Username:\t" + this.username + '\n'
+                + "Email:\t" + this.email + '\n'
+                + "Password:\t" + this.password + '\n';
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof User)) return false;
-        final User second = (User) obj;
-        return (this.username.equals(second.username) &&
-                this.password.equals(second.password) &&
-                this.email.equals(second.email));
-    }
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (!(obj instanceof User)) return false;
+//        final User second = (User) obj;
+//        return (this.username.equals(second.username) &&
+//                this.password.equals(second.password) &&
+//                this.email.equals(second.email));
+//    }
 
 
     // Getters & setters
     public String getUsername() {
         return username;
     }
+
     public String getEmail() {
         return email;
     }
+
     String getOldPassword() {
         return oldPassword;
     }
+
     String getPassword() {
         return password;
     }
@@ -80,50 +85,16 @@ class User {
     public void setUsername(String username) {
         this.username = username;
     }
+
     public void setEmail(String email) {
         this.email = email;
     }
+
     void setOldPassword(String oldPassword) {
         this.oldPassword = oldPassword;
     }
+
     void setPassword(String password) {
         this.password = password;
-    }
-
-    // Response-classes
-    public static class Response {}
-
-    public static final class Profile extends Response {
-
-        private String username;
-        private String email;
-
-        Profile(String username, String email) {
-            this.username = username;
-            this.email = email;
-        }
-        Profile(User user) {
-            this.username = user.getUsername();
-            this.email = user.getEmail();
-        }
-
-        public String getUsername() {
-            return this.username;
-        }
-        public String getEmail() {
-            return email;
-        }
-    }
-
-    public static final class BadRequest extends Response {
-        private String errorMessage;
-
-        BadRequest(String errorMessage) {
-            this.errorMessage = errorMessage;
-        }
-
-        public String getErrorMessage() {
-            return errorMessage;
-        }
     }
 }
