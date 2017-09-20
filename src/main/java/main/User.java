@@ -3,7 +3,7 @@ package main;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class User {
+class User {
 
     @JsonProperty("username")
     private String username;
@@ -52,5 +52,34 @@ public class User {
         return (this.username.equals(second.username) &&
                 this.password.equals(second.password) &&
                 this.email.equals(second.email));
+    }
+
+    public static class Response {};
+
+    public static final class Authorization extends Response {
+        private String username;
+
+        Authorization(@JsonProperty("username") String username) {
+            this.username = username;
+        }
+        Authorization(User user) {
+            this.username = user.getUsername();
+        }
+
+        public String getUsername() {
+            return this.username;
+        }
+    }
+
+    public static final class BadRequest extends Response {
+        private String errorMessage;
+
+        BadRequest(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
     }
 }
