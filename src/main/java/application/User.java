@@ -55,16 +55,6 @@ class User {
                 + "Password:\t" + this.password + '\n';
     }
 
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (!(obj instanceof User)) return false;
-//        final User second = (User) obj;
-//        return (this.username.equals(second.username) &&
-//                this.password.equals(second.password) &&
-//                this.email.equals(second.email));
-//    }
-
-
     // Getters & setters
     public String getUsername() {
         return username;

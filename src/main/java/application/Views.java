@@ -5,7 +5,7 @@ public class Views {
     static final int MIN_USERNAME_LENGTH = 4;
     static final int MIN_PASSWORD_LENGTH = 6;
 
-    public static class Response {}
+    public static class Response { }
 
     public static final class Profile extends Response {
 
@@ -16,6 +16,7 @@ public class Views {
             this.username = username;
             this.email = email;
         }
+
         Profile(User user) {
             this.username = user.getUsername();
             this.email = user.getEmail();
@@ -24,6 +25,7 @@ public class Views {
         public String getUsername() {
             return this.username;
         }
+
         public String getEmail() {
             return email;
         }

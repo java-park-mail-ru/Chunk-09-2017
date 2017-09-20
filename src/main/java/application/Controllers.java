@@ -1,13 +1,9 @@
 package application;
 
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.servlet.http.HttpSession;
 import java.util.HashSet;
@@ -71,7 +67,57 @@ public class Controllers {
         );
     }
 
+    @PostMapping(path = "/settings", consumes = "application/json")
+    public ResponseEntity<? extends Views.Response> change(
+            @RequestBody User parseBody,
+            HttpSession httpSession) {
 
+        // Проверки
+        final String oldUsername = (String) httpSession.getAttribute("username");
+        if (oldUsername == null) {
+            return new ResponseEntity<Views.Response>(
+                    responseHeader,
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+        final User currentUser = User.findUser(users, oldUsername);
+        if (currentUser == null) {
+            return new ResponseEntity<Views.BadRequest>(
+                    new Views.BadRequest("Профиль не найден"),
+                    responseHeader,
+                    HttpStatus.GONE
+            );
+        }
+        if (!currentUser.getPassword().equals(parseBody.getOldPassword())) {
+            return new ResponseEntity<Views.BadRequest>(
+                    new Views.BadRequest("Неверный пароль"),
+                    responseHeader,
+                    HttpStatus.FORBIDDEN
+            );
+        }
+        users.remove(currentUser);
+        if (User.findUser(users, parseBody.getUsername()) != null) {
+            users.add(currentUser);
+            return new ResponseEntity<Views.BadRequest>(
+                    new Views.BadRequest("Пользователь с таким именем уже существует!"),
+                    responseHeader,
+                    HttpStatus.FORBIDDEN
+            );
+        }
+        if (User.findUser(users, parseBody.getEmail()) != null) {
+            users.add(currentUser);
+            return new ResponseEntity<Views.BadRequest>(
+                    new Views.BadRequest("Пользователь с такой почтой уже существует!"),
+                    responseHeader,
+                    HttpStatus.FORBIDDEN
+            );
+        }
+
+        currentUser.updateProfile(parseBody);
+        users.add(currentUser);
+        httpSession.setAttribute("username", currentUser.getUsername());
+        return new ResponseEntity<Views.Response>(responseHeader, HttpStatus.OK);
+    }
 
     @PostMapping(path = "/sign_up", consumes = "application/json")
     public ResponseEntity<? extends Views.Response> signUp(
@@ -144,55 +190,4 @@ public class Controllers {
         );
     }
 
-    @PostMapping(path = "/settings", consumes = "application/json")
-    public ResponseEntity<? extends Views.Response> change(
-            @RequestBody User parseBody,
-            HttpSession httpSession) {
-
-        // Проверки
-        final String oldUsername = (String) httpSession.getAttribute("username");
-        if (oldUsername == null) {
-            return new ResponseEntity<Views.Response>(
-                    responseHeader,
-                    HttpStatus.UNAUTHORIZED
-            );
-        }
-        final User currentUser = User.findUser(users, oldUsername);
-        if (currentUser == null) {
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Профиль не найден"),
-                    responseHeader,
-                    HttpStatus.GONE
-            );
-        }
-        if (!currentUser.getPassword().equals(parseBody.getOldPassword())) {
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Неверный пароль"),
-                    responseHeader,
-                    HttpStatus.FORBIDDEN
-            );
-        }
-        users.remove(currentUser);
-        if (User.findUser(users, parseBody.getUsername()) != null) {
-            users.add(currentUser);
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Пользователь с таким именем уже существует!"),
-                    responseHeader,
-                    HttpStatus.FORBIDDEN
-            );
-        }
-        if (User.findUser(users, parseBody.getEmail()) != null) {
-            users.add(currentUser);
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Пользователь с такой почтой уже существует!"),
-                    responseHeader,
-                    HttpStatus.FORBIDDEN
-            );
-        }
-
-        currentUser.updateProfile(parseBody);
-        users.add(currentUser);
-        httpSession.setAttribute("username", currentUser.getUsername());
-        return new ResponseEntity<Views.Response>(responseHeader, HttpStatus.OK);
-    }
 }
