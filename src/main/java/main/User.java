@@ -3,6 +3,8 @@ package main;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.HashSet;
+
 class User {
 
     @JsonProperty("username")
@@ -14,28 +16,33 @@ class User {
     @JsonProperty("password")
     private String password;
 
-    public String getUsername() {
-        return username;
+    @JsonProperty("old_password")
+    private String oldPassword;
+
+
+    public void updateProfile(final User newProfile) {
+
+        if (newProfile.username != null)
+            this.username = newProfile.username;
+
+        if (newProfile.email != null)
+            this.username = newProfile.email;
+
+        if (newProfile.password != null) {
+            this.oldPassword = this.password;
+            this.password = newProfile.password;
+        }
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public static User findUser(
+            final HashSet<User> users,
+            final String login) {
+        for (User user: users) {
+            if (login.equals(user.username) || login.equals(user.email)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -54,6 +61,35 @@ class User {
                 this.email.equals(second.email));
     }
 
+
+    // Getters & setters
+    public String getUsername() {
+        return username;
+    }
+    public String getPassword() {
+        return password;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getOldPassword() {
+        return oldPassword;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
+    }
+
+    // Response-classes
     public static class Response {};
 
     public static final class Authorization extends Response {
