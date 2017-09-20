@@ -95,7 +95,7 @@ class User {
     public static final class Authorization extends Response {
         private String username;
 
-        Authorization(@JsonProperty("username") String username) {
+        Authorization(String username) {
             this.username = username;
         }
         Authorization(User user) {

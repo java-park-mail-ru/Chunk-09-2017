@@ -94,23 +94,38 @@ public class Controllers {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping(value = "/change")
+    @GetMapping(value = "/settings")
     public ResponseEntity<User> change(HttpSession httpSession) {
 
+        // Создание заголовков для CORS запросов
+        final HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.set("Access-Control-Allow-Origin", "http://localhost:8081");
+        responseHeader.set("Access-Control-Allow-Credentials", "true");
+
+        System.out.println("GET settings");
         final String username = (String) httpSession.getAttribute("username");
+        System.out.println(username);
         if (username == null) {
-            return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<User>(responseHeader, HttpStatus.UNAUTHORIZED);
         }
 
         final User currentUser = User.findUser(users, username);
-        if (currentUser == null) {
-            return new ResponseEntity<User>(HttpStatus.GONE);
-        }
+        System.out.println(currentUser);
 
-        return new ResponseEntity<User>(currentUser, HttpStatus.OK);
+        if (currentUser == null) {
+            return new ResponseEntity<User>(responseHeader, HttpStatus.GONE);
+        }
+        System.out.println("OK");
+
+
+        return new ResponseEntity<User>(
+                currentUser,
+                responseHeader,
+                HttpStatus.OK
+        );
     }
 
-    @PostMapping(value = "/change", consumes = "application/json")
+    @PostMapping(value = "/settings", consumes = "application/json")
     public ResponseEntity<? extends User.Response> change(
             @RequestBody User parseBody,
             HttpSession httpSession) {
@@ -151,7 +166,13 @@ public class Controllers {
 
 
     @RequestMapping(path = "/sign_up")
-    public ResponseEntity preflight() {
+    public ResponseEntity preflight1() {
+        // Без этого preflight-OPTIONS запросы не обрабатываются
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @RequestMapping(path = "/settings")
+    public ResponseEntity preflight2() {
         // Без этого preflight-OPTIONS запросы не обрабатываются
         return new ResponseEntity(HttpStatus.OK);
     }
