@@ -1,10 +1,11 @@
 package main;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashSet;
 
+
+@SuppressWarnings("unused")
 class User {
 
     @JsonProperty("username")
@@ -22,13 +23,13 @@ class User {
 
     public void updateProfile(final User newProfile) {
 
-        if (newProfile.username != null)
+        if (!newProfile.username.isEmpty())
             this.username = newProfile.username;
 
-        if (newProfile.email != null)
-            this.username = newProfile.email;
+        if (!newProfile.email.isEmpty())
+            this.email = newProfile.email;
 
-        if (newProfile.password != null) {
+        if (!newProfile.password.isEmpty()) {
             this.oldPassword = this.password;
             this.password = newProfile.password;
         }
@@ -90,20 +91,27 @@ class User {
     }
 
     // Response-classes
-    public static class Response {};
+    public static class Response {}
 
-    public static final class Authorization extends Response {
+    public static final class Profile extends Response {
+
         private String username;
+        private String email;
 
-        Authorization(String username) {
+        Profile(String username, String email) {
             this.username = username;
+            this.email = email;
         }
-        Authorization(User user) {
+        Profile(User user) {
             this.username = user.getUsername();
+            this.email = user.getEmail();
         }
 
         public String getUsername() {
             return this.username;
+        }
+        public String getEmail() {
+            return email;
         }
     }
 

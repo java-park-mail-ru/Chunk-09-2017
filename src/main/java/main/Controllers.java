@@ -12,15 +12,18 @@ import java.util.HashSet;
 public class Controllers {
 
     private HashSet<User> users = new HashSet<>();
+    private HttpHeaders responseHeader = new HttpHeaders();
 
-
-    @GetMapping(value = "/whoisit")
-    public ResponseEntity<User.Authorization> whoisit(HttpSession httpSession) {
-
+    public Controllers() {
         // Создание заголовков для CORS запросов
-        final HttpHeaders responseHeader = new HttpHeaders();
-        responseHeader.set("Access-Control-Allow-Origin", "http://localhost:8081");
-        responseHeader.set("Access-Control-Allow-Credentials", "true");
+        this.responseHeader.set("Access-Control-Allow-Origin", "http://localhost:8081");
+        this.responseHeader.set("Access-Control-Allow-Credentials", "true");
+    }
+
+
+
+    @GetMapping(path = "/whoisit")
+    public ResponseEntity<User.Profile> whoisit(HttpSession httpSession) {
 
         final String username = (String) httpSession.getAttribute("username");
         if (username == null) {
@@ -30,28 +33,46 @@ public class Controllers {
             );
         }
         return new ResponseEntity<>(
-                new User.Authorization(username),
+                new User.Profile(username, null),
                 responseHeader,
                 HttpStatus.OK
         );
     }
 
-    @GetMapping(value = "/exit")
+    @GetMapping(path = "/exit")
     public ResponseEntity exit(HttpSession httpSession) {
 
         httpSession.setAttribute("username", null);
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/sign_up", consumes = "application/json")
+    @GetMapping(path = "/settings")
+    public ResponseEntity<User.Profile> change(HttpSession httpSession) {
+
+        final String username = (String) httpSession.getAttribute("username");
+        if (username == null) {
+            return new ResponseEntity<>(responseHeader, HttpStatus.UNAUTHORIZED);
+        }
+
+        final User currentUser = User.findUser(users, username);
+
+        if (currentUser == null) {
+            return new ResponseEntity<>(responseHeader, HttpStatus.GONE);
+        }
+
+        return new ResponseEntity<User.Profile>(
+                new User.Profile(currentUser),
+                responseHeader,
+                HttpStatus.OK
+        );
+    }
+
+
+
+    @PostMapping(path = "/sign_up", consumes = "application/json")
     public ResponseEntity<? extends User.Response> signUp(
             @RequestBody User parseBody,
             HttpSession httpSession) {
-
-        // Создание заголовков для CORS запросов
-        final HttpHeaders responseHeader = new HttpHeaders();
-        responseHeader.set("Access-Control-Allow-Origin", "http://localhost:8081");
-        responseHeader.set("Access-Control-Allow-Credentials", "true");
 
         // Валидация
         if (parseBody.getPassword().length() < 6)
@@ -79,61 +100,46 @@ public class Controllers {
         this.users.add(parseBody);
         httpSession.setAttribute("username", parseBody.getUsername());
 
-        return new ResponseEntity<User.Authorization>(
-                new User.Authorization(parseBody),
+        return new ResponseEntity<User.Profile>(
+                new User.Profile(parseBody),
                 responseHeader,
                 HttpStatus.CREATED);
     }
 
-    @PostMapping(value = "/sign_in", consumes = "application/json")
+    @PostMapping(path = "/sign_in", consumes = "application/json")
     public ResponseEntity<? extends User.Response> signIn(
             @RequestBody User parseBody,
             HttpSession httpSession) {
 
-        // TODO Andrew
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    @GetMapping(value = "/settings")
-    public ResponseEntity<User> change(HttpSession httpSession) {
-
-        // Создание заголовков для CORS запросов
-        final HttpHeaders responseHeader = new HttpHeaders();
-        responseHeader.set("Access-Control-Allow-Origin", "http://localhost:8081");
-        responseHeader.set("Access-Control-Allow-Credentials", "true");
-
-        System.out.println("GET settings");
-        final String username = (String) httpSession.getAttribute("username");
-        System.out.println(username);
-        if (username == null) {
-            return new ResponseEntity<User>(responseHeader, HttpStatus.UNAUTHORIZED);
+        final User user = User.findUser(users, parseBody.getUsername());
+        if (user == null) {
+            httpSession.setAttribute("username", null);
+            return new ResponseEntity<User.BadRequest>(
+                    new User.BadRequest("Пользователя с таким логином не существует"),
+                    responseHeader,
+                    HttpStatus.FORBIDDEN
+            );
         }
-
-        final User currentUser = User.findUser(users, username);
-        System.out.println(currentUser);
-
-        if (currentUser == null) {
-            return new ResponseEntity<User>(responseHeader, HttpStatus.GONE);
+        if (!parseBody.getPassword().equals(user.getPassword())) {
+            httpSession.setAttribute("username", null);
+            return new ResponseEntity<User.BadRequest>(
+                    new User.BadRequest("Неверный логин или пароль"),
+                    responseHeader,
+                    HttpStatus.FORBIDDEN
+            );
         }
-        System.out.println("OK");
-
-
-        return new ResponseEntity<User>(
-                currentUser,
+        httpSession.setAttribute("username", user.getUsername());
+        return new ResponseEntity<User.Profile>(
+                new User.Profile(user),
                 responseHeader,
                 HttpStatus.OK
         );
     }
 
-    @PostMapping(value = "/settings", consumes = "application/json")
+    @PostMapping(path = "/settings", consumes = "application/json")
     public ResponseEntity<? extends User.Response> change(
             @RequestBody User parseBody,
             HttpSession httpSession) {
-
-        // Создание заголовков для CORS запросов
-        final HttpHeaders responseHeader = new HttpHeaders();
-        responseHeader.set("Access-Control-Allow-Origin", "http://localhost:8081");
-        responseHeader.set("Access-Control-Allow-Credentials", "true");
 
         // Проверки
         final String oldUsername = (String) httpSession.getAttribute("username");
@@ -158,11 +164,30 @@ public class Controllers {
                     HttpStatus.FORBIDDEN
             );
         }
+        users.remove(currentUser);
+        if (User.findUser(users, parseBody.getUsername()) != null) {
+            users.add(currentUser);
+            return new ResponseEntity<User.BadRequest>(
+                    new User.BadRequest("Пользователь с таким именем уже существует!"),
+                    responseHeader,
+                    HttpStatus.FORBIDDEN
+            );
+        }
+        if (User.findUser(users, parseBody.getEmail()) != null) {
+            users.add(currentUser);
+            return new ResponseEntity<User.BadRequest>(
+                    new User.BadRequest("Пользователь с такой почтой уже существует!"),
+                    responseHeader,
+                    HttpStatus.FORBIDDEN
+            );
+        }
 
         currentUser.updateProfile(parseBody);
+        users.add(currentUser);
         httpSession.setAttribute("username", currentUser.getUsername());
         return new ResponseEntity<User.Response>(responseHeader, HttpStatus.OK);
     }
+
 
 
     @RequestMapping(path = "/sign_up")
@@ -170,9 +195,13 @@ public class Controllers {
         // Без этого preflight-OPTIONS запросы не обрабатываются
         return new ResponseEntity(HttpStatus.OK);
     }
-
-    @RequestMapping(path = "/settings")
+    @RequestMapping(path = "/sign_in")
     public ResponseEntity preflight2() {
+        // Без этого preflight-OPTIONS запросы не обрабатываются
+        return new ResponseEntity(HttpStatus.OK);
+    }
+    @RequestMapping(path = "/settings")
+    public ResponseEntity preflight3() {
         // Без этого preflight-OPTIONS запросы не обрабатываются
         return new ResponseEntity(HttpStatus.OK);
     }
