@@ -3,8 +3,11 @@
 >***Строй башни, уничтожай врагов, оберегай ядро<br>
 >(пока только авторизируйся)***
 ***
+
+##[Frontend](https://tower-defense.herokuapp.com)<=>[Backend](http://chunkgame.herokuapp.com/sign_up)
+
 ## Members
-* Андрей aka Лапища
+* Андрей Савосин
 * Игорь Дружинин
 * Дима Трубников
 
