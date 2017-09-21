@@ -3,10 +3,7 @@ package application.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.HashSet;
 
-
-@SuppressWarnings("unused")
 public class User {
 
     @JsonProperty("username")
@@ -37,17 +34,6 @@ public class User {
         }
     }
 
-    public static User findUser(
-            final HashSet<User> users,
-            final String login
-    ) {
-        for (User user: users) {
-            if (login.equals(user.username) || login.equals(user.email)) {
-                return user;
-            }
-        }
-        return null;
-    }
 
     @Override
     public String toString() {
@@ -56,7 +42,7 @@ public class User {
                 + "Password:\t" + this.password + '\n';
     }
 
-    // Getters & setters
+
     public long getId() {
         return id;
     }
@@ -75,17 +61,5 @@ public class User {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    private void setPassword(String password) {
-        this.password = password;
     }
 }
