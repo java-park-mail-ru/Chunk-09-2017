@@ -1,7 +1,6 @@
 package application.controllers;
 
 import application.services.UserService;
-import application.views.Response;
 import application.models.SignInUser;
 import application.models.UpdateUser;
 import application.models.User;
@@ -24,7 +23,6 @@ public class Controllers {
 
     public Controllers() {
         // Создание заголовков для CORS запросов
-        this.responseHeader.set("Access-Control-Allow-Origin", "http://localhost:8081");
         this.responseHeader.set("Access-Control-Allow-Credentials", "true");
         this.responseHeader.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         this.responseHeader.set("Access-Control-Allow-Headers", "*");
@@ -46,7 +44,7 @@ public class Controllers {
         if (currentUser == null) {
             return new ResponseEntity<>(
                     responseHeader,
-                    HttpStatus.GONE
+                    HttpStatus.FORBIDDEN
             );
         }
         return new ResponseEntity<SuccessResponse>(
@@ -64,11 +62,10 @@ public class Controllers {
     }
 
     @PostMapping(path = "/update", consumes = "application/json")
-    public ResponseEntity<? extends Response> settings(
+    public ResponseEntity<?> settings(
             @RequestBody UpdateUser parseBody,
             HttpSession httpSession) {
-
-        // Проверки
+        
         final Long id = (Long) httpSession.getAttribute("ID");
         if (id == null) {
             return new ResponseEntity<BadResponse>(
@@ -120,26 +117,19 @@ public class Controllers {
     }
 
     @PostMapping(path = "/sign_up", consumes = "application/json")
-    public ResponseEntity<? extends Response> signUp(
+    public ResponseEntity<?> signUp(
             @RequestBody User parseBody,
             HttpSession httpSession) {
 
-        // Валидация
-        if (parseBody.getPassword().length() < Response.MIN_PASSWORD_LENGTH) {
-            return new ResponseEntity<BadResponse>(
-                    new BadResponse("Слишком короткий пароль"),
-                    responseHeader,
-                    HttpStatus.BAD_REQUEST
-            );
-        }
-        if (parseBody.getUsername().length() < Response.MIN_USERNAME_LENGTH) {
-            return new ResponseEntity<BadResponse>(
-                    new BadResponse("Слишком короткий логин"),
-                    responseHeader,
-                    HttpStatus.BAD_REQUEST
-            );
-        }
 
+        final String errorMessage = UserService.userValidation(parseBody);
+        if (errorMessage != null) {
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse(errorMessage),
+                    responseHeader,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
         if (users.findUserByUsername(parseBody.getUsername()) != null) {
             return new ResponseEntity<BadResponse>(
                     new BadResponse("Пользователь с таким логином уже существует"),
@@ -165,7 +155,7 @@ public class Controllers {
     }
 
     @PostMapping(path = "/sign_in", consumes = "application/json")
-    public ResponseEntity<? extends Response> signIn(
+    public ResponseEntity<?> signIn(
             @RequestBody SignInUser parseBody,
             HttpSession httpSession) {
 

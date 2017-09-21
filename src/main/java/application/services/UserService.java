@@ -8,6 +8,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class UserService {
 
+    public static final int MIN_USERNAME_LENGTH = 4;
+    public static final int MIN_PASSWORD_LENGTH = 6;
+
     private HashMap<Long, User> users = new HashMap<>();
     private static final AtomicLong ID_GENERATOR = new AtomicLong();
 
@@ -48,6 +51,17 @@ public class UserService {
             if (login.equals(user.getUsername()) || login.equals(user.getEmail())) {
                 return user;
             }
+        }
+        return null;
+    }
+
+    public static String userValidation(User user) {
+
+        if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
+            return "Слишком короткий пароль";
+        }
+        if (user.getUsername().length() < MIN_USERNAME_LENGTH) {
+            return "Слишком короткий логин";
         }
         return null;
     }

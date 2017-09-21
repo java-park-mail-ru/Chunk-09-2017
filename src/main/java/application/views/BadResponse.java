@@ -2,7 +2,7 @@ package application.views;
 
 
 @SuppressWarnings("unused")
-public final class BadResponse extends Response {
+public final class BadResponse {
 
     private String errorMessage;
 
