@@ -1,4 +1,6 @@
-package application;
+package application.services;
+
+import application.models.User;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -23,8 +25,9 @@ public class UserService {
     public User findUserByUsername(String username) {
 
         for (User user : users.values()) {
-            if (username.equals(user.getUsername()))
+            if (username.equals(user.getUsername())) {
                 return user;
+            }
         }
         return null;
     }
@@ -32,8 +35,9 @@ public class UserService {
     public User findUserByEmail(String email) {
 
         for (User user : users.values()) {
-            if (email.equals(user.getEmail()))
+            if (email.equals(user.getEmail())) {
                 return user;
+            }
         }
         return null;
     }
@@ -41,14 +45,10 @@ public class UserService {
     public User findUserByLogin(String login) {
 
         for (User user : users.values()) {
-            if (login.equals(user.getUsername()) || login.equals(user.getEmail()))
+            if (login.equals(user.getUsername()) || login.equals(user.getEmail())) {
                 return user;
+            }
         }
         return null;
     }
-
-    public void updateProfile(Long id, User newProfile) {
-        users.get(id).updateProfile(newProfile);
-    }
-
 }

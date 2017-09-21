@@ -1,4 +1,4 @@
-package application;
+package application.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 
 @SuppressWarnings("unused")
-class User {
+public class User {
 
     @JsonProperty("username")
     private String username;
@@ -17,9 +17,6 @@ class User {
 
     @JsonProperty("password")
     private String password;
-
-    @JsonProperty("old_password")
-    private String oldPassword;
 
     @JsonIgnore
     private long id;
@@ -36,7 +33,6 @@ class User {
         }
 
         if (!newProfile.password.isEmpty()) {
-            this.oldPassword = this.password;
             this.password = newProfile.password;
         }
     }
@@ -73,11 +69,7 @@ class User {
         return email;
     }
 
-    String getOldPassword() {
-        return oldPassword;
-    }
-
-    String getPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -93,11 +85,7 @@ class User {
         this.email = email;
     }
 
-    void setOldPassword(String oldPassword) {
-        this.oldPassword = oldPassword;
-    }
-
-    void setPassword(String password) {
+    private void setPassword(String password) {
         this.password = password;
     }
 }

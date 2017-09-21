@@ -1,5 +1,10 @@
-package application;
+package application.controllers;
 
+import application.services.UserService;
+import application.views.Response;
+import application.models.SignInUser;
+import application.models.UpdateUser;
+import application.models.User;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,11 +12,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 
+import application.views.*;
+
+@SuppressWarnings("all")
 @RestController
 @CrossOrigin(origins = "*")
 public class Controllers {
 
-//    private HashSet<User> users = new HashSet<>();
     private UserService users = new UserService();
     private HttpHeaders responseHeader = new HttpHeaders();
 
@@ -25,7 +32,7 @@ public class Controllers {
 
 
     @GetMapping(path = "/whoisit")
-    public ResponseEntity<Views.SuccessResponse> whoisit(HttpSession httpSession) {
+    public ResponseEntity<SuccessResponse> whoisit(HttpSession httpSession) {
 
         final Long id = (Long) httpSession.getAttribute("ID");
         if (id == null) {
@@ -34,11 +41,16 @@ public class Controllers {
                     HttpStatus.UNAUTHORIZED
             );
         }
-        return new ResponseEntity<>(
-                new Views.SuccessResponse(
-                        users.findUserById(id).getUsername(),
-                        users.findUserById(id).getEmail()
-                ),
+
+        final User currentUser = users.findUserById(id);
+        if (currentUser == null) {
+            return new ResponseEntity<>(
+                    responseHeader,
+                    HttpStatus.GONE
+            );
+        }
+        return new ResponseEntity<SuccessResponse>(
+                new SuccessResponse(currentUser),
                 responseHeader,
                 HttpStatus.OK
         );
@@ -51,37 +63,16 @@ public class Controllers {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping(path = "/settings")
-    public ResponseEntity<Views.SuccessResponse> settings(HttpSession httpSession) {
-
-        final Long id = (Long) httpSession.getAttribute("ID");
-        if (id == null) {
-            return new ResponseEntity<>(responseHeader, HttpStatus.UNAUTHORIZED);
-        }
-
-        final User currentUser = users.findUserById(id);
-
-        if (currentUser == null) {
-            return new ResponseEntity<>(responseHeader, HttpStatus.GONE);
-        }
-
-        return new ResponseEntity<Views.SuccessResponse>(
-                new Views.SuccessResponse(currentUser),
-                responseHeader,
-                HttpStatus.OK
-        );
-    }
-
-    @PostMapping(path = "/settings", consumes = "application/json")
-    public ResponseEntity<? extends Views.Response> settings(
-            @RequestBody User parseBody,
+    @PostMapping(path = "/update", consumes = "application/json")
+    public ResponseEntity<? extends Response> settings(
+            @RequestBody UpdateUser parseBody,
             HttpSession httpSession) {
 
         // Проверки
         final Long id = (Long) httpSession.getAttribute("ID");
         if (id == null) {
-            return new ResponseEntity<Views.BadResponse>(
-                    new Views.BadResponse("Необходима авторизация"),
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse("Необходима авторизация"),
                     responseHeader,
                     HttpStatus.UNAUTHORIZED
             );
@@ -89,23 +80,23 @@ public class Controllers {
 
         final User currentUser = users.findUserById(id);
         if (currentUser == null) {
-            return new ResponseEntity<Views.BadResponse>(
-                    new Views.BadResponse("Профиль не найден"),
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse("Профиль не найден"),
                     responseHeader,
                     HttpStatus.GONE
             );
         }
         if (!currentUser.getPassword().equals(parseBody.getOldPassword())) {
-            return new ResponseEntity<Views.BadResponse>(
-                    new Views.BadResponse("Неверный пароль"),
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse("Неверный пароль"),
                     responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
         if (!currentUser.getUsername().equals(parseBody.getUsername())) {
             if (users.findUserByUsername(parseBody.getUsername()) != null) {
-                return new ResponseEntity<Views.BadResponse>(
-                        new Views.BadResponse("Пользователь с таким именем уже существует!"),
+                return new ResponseEntity<BadResponse>(
+                        new BadResponse("Пользователь с таким именем уже существует!"),
                         responseHeader,
                         HttpStatus.FORBIDDEN
                 );
@@ -113,48 +104,52 @@ public class Controllers {
         }
         if (!currentUser.getEmail().equals(parseBody.getEmail())) {
             if (users.findUserByEmail(parseBody.getEmail()) != null) {
-                return new ResponseEntity<Views.BadResponse>(
-                        new Views.BadResponse("Пользователь с такой почтой уже существует!"),
+                return new ResponseEntity<BadResponse>(
+                        new BadResponse("Пользователь с такой почтой уже существует!"),
                         responseHeader,
                         HttpStatus.FORBIDDEN
                 );
             }
         }
         currentUser.updateProfile(parseBody);
-        return new ResponseEntity<Views.Response>(responseHeader, HttpStatus.OK);
+        return new ResponseEntity<SuccessResponse>(
+                new SuccessResponse(currentUser),
+                responseHeader,
+                HttpStatus.OK
+        );
     }
 
     @PostMapping(path = "/sign_up", consumes = "application/json")
-    public ResponseEntity<? extends Views.Response> signUp(
+    public ResponseEntity<? extends Response> signUp(
             @RequestBody User parseBody,
             HttpSession httpSession) {
 
         // Валидация
-        if (parseBody.getPassword().length() < Views.MIN_PASSWORD_LENGTH) {
-            return new ResponseEntity<Views.BadResponse>(
-                    new Views.BadResponse("Слишком короткий пароль"),
+        if (parseBody.getPassword().length() < Response.MIN_PASSWORD_LENGTH) {
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse("Слишком короткий пароль"),
                     responseHeader,
                     HttpStatus.BAD_REQUEST
             );
         }
-        if (parseBody.getUsername().length() < Views.MIN_USERNAME_LENGTH) {
-            return new ResponseEntity<Views.BadResponse>(
-                    new Views.BadResponse("Слишком короткий логин"),
+        if (parseBody.getUsername().length() < Response.MIN_USERNAME_LENGTH) {
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse("Слишком короткий логин"),
                     responseHeader,
                     HttpStatus.BAD_REQUEST
             );
         }
 
         if (users.findUserByUsername(parseBody.getUsername()) != null) {
-            return new ResponseEntity<Views.BadResponse>(
-                    new Views.BadResponse("Пользователь с таким логином уже существует"),
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse("Пользователь с таким логином уже существует"),
                     responseHeader,
                     HttpStatus.BAD_REQUEST
             );
         }
         if (users.findUserByEmail(parseBody.getEmail()) != null) {
-            return new ResponseEntity<Views.BadResponse>(
-                    new Views.BadResponse("Пользователь с такой почтой уже существует"),
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse("Пользователь с такой почтой уже существует"),
                     responseHeader,
                     HttpStatus.BAD_REQUEST
             );
@@ -162,39 +157,39 @@ public class Controllers {
 
         httpSession.setAttribute("ID", users.addUser(parseBody));
 
-        return new ResponseEntity<Views.SuccessResponse>(
-                new Views.SuccessResponse(parseBody),
+        return new ResponseEntity<SuccessResponse>(
+                new SuccessResponse(parseBody),
                 responseHeader,
                 HttpStatus.CREATED
         );
     }
 
     @PostMapping(path = "/sign_in", consumes = "application/json")
-    public ResponseEntity<? extends Views.Response> signIn(
-            @RequestBody User parseBody,
+    public ResponseEntity<? extends Response> signIn(
+            @RequestBody SignInUser parseBody,
             HttpSession httpSession) {
 
-        final User user = users.findUserByLogin(parseBody.getUsername());
+        final User user = users.findUserByLogin(parseBody.getLogin());
 
         if (user == null) {
             httpSession.invalidate();
-            return new ResponseEntity<Views.BadResponse>(
-                    new Views.BadResponse("Пользователя с таким логином не существует"),
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse("Пользователя с таким логином не существует"),
                     responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
         if (!parseBody.getPassword().equals(user.getPassword())) {
             httpSession.invalidate();
-            return new ResponseEntity<Views.BadResponse>(
-                    new Views.BadResponse("Неверный логин или пароль"),
+            return new ResponseEntity<BadResponse>(
+                    new BadResponse("Неверный логин или пароль"),
                     responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
         httpSession.setAttribute("ID", user.getId());
-        return new ResponseEntity<Views.SuccessResponse>(
-                new Views.SuccessResponse(user),
+        return new ResponseEntity<SuccessResponse>(
+                new SuccessResponse(user),
                 responseHeader,
                 HttpStatus.OK
         );
