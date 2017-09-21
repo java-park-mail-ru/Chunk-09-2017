@@ -9,11 +9,10 @@
 * Дима Трубников
 
 ## API
-|Действие | Тип запроса, URL | Тело запроса | Тело ответа (success) |
-| :----| -------- | ---| -- | -- |
-|Зарегистрироваться | POST, /sign_up | {"username":"Bob","email":"bob@mail.ru", "password":"secret"} | {"username":"Bob","email":"bob@mail.ru"} |
-| Залогиниться | POST, /sign_in | {"login": "Bob", "password": "secret"} | {"username":"Bob","email":"bob@mail.ru"} | 
-| Разлогиниться | GET, /exit | | | | 
-| Запросить данные пользователя текущей сессии | GET, /whoisit | | {"login": "Bob", "password": "secret"} |
-| Изменить профиль | POST, /update | {"username":"Bob","email":"bob@mail.ru", "password":"mystery", "old_password": "secret"} | {"username":"Bob","email":"bob@mail.ru"} |
-
+| Действие | Тип запроса, URL | Тело запроса | Тело ответа |
+| --- | --- | --- | --- |
+| Зарегистрироваться | POST, /sign_up | "username", "email", "password" | "username", "email" |
+| Авторизоваться | POST, /sign_in | "login", "password" | "username", "email" |
+| Изменить профиль текущего пользователя | POST, /update | “username”, ”email”, “password”, “old_password”} | "username", "email" |
+| Запросить данные пользователя текущей сессии | GET, /whoisit | | {"login": "Bob", "password": "secret"} | |
+| Разлогиниться | GET, /exit |  |  |
