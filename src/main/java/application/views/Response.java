@@ -1,7 +1,5 @@
 package application.views;
 
-import application.models.User;
-
 @SuppressWarnings("unused")
 public class Response {
 
