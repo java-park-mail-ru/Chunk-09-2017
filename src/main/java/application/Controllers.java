@@ -6,34 +6,39 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.util.HashSet;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class Controllers {
 
-    private HashSet<User> users = new HashSet<>();
+//    private HashSet<User> users = new HashSet<>();
+    private UserService users = new UserService();
     private HttpHeaders responseHeader = new HttpHeaders();
 
     public Controllers() {
         // Создание заголовков для CORS запросов
         this.responseHeader.set("Access-Control-Allow-Origin", "http://localhost:8081");
         this.responseHeader.set("Access-Control-Allow-Credentials", "true");
+        this.responseHeader.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        this.responseHeader.set("Access-Control-Allow-Headers", "*");
     }
 
 
-
     @GetMapping(path = "/whoisit")
-    public ResponseEntity<Views.Profile> whoisit(HttpSession httpSession) {
+    public ResponseEntity<Views.SuccessResponse> whoisit(HttpSession httpSession) {
 
-        final String username = (String) httpSession.getAttribute("username");
-        if (username == null) {
+        final Long id = (Long) httpSession.getAttribute("ID");
+        if (id == null) {
             return new ResponseEntity<>(
                     responseHeader,
                     HttpStatus.UNAUTHORIZED
             );
         }
         return new ResponseEntity<>(
-                new Views.Profile(username, null),
+                new Views.SuccessResponse(
+                        users.findUserById(id).getUsername(),
+                        users.findUserById(id).getEmail()
+                ),
                 responseHeader,
                 HttpStatus.OK
         );
@@ -47,75 +52,75 @@ public class Controllers {
     }
 
     @GetMapping(path = "/settings")
-    public ResponseEntity<Views.Profile> change(HttpSession httpSession) {
+    public ResponseEntity<Views.SuccessResponse> settings(HttpSession httpSession) {
 
-        final String username = (String) httpSession.getAttribute("username");
-        if (username == null) {
+        final Long id = (Long) httpSession.getAttribute("ID");
+        if (id == null) {
             return new ResponseEntity<>(responseHeader, HttpStatus.UNAUTHORIZED);
         }
 
-        final User currentUser = User.findUser(users, username);
+        final User currentUser = users.findUserById(id);
 
         if (currentUser == null) {
             return new ResponseEntity<>(responseHeader, HttpStatus.GONE);
         }
 
-        return new ResponseEntity<Views.Profile>(
-                new Views.Profile(currentUser),
+        return new ResponseEntity<Views.SuccessResponse>(
+                new Views.SuccessResponse(currentUser),
                 responseHeader,
                 HttpStatus.OK
         );
     }
 
     @PostMapping(path = "/settings", consumes = "application/json")
-    public ResponseEntity<? extends Views.Response> change(
+    public ResponseEntity<? extends Views.Response> settings(
             @RequestBody User parseBody,
             HttpSession httpSession) {
 
         // Проверки
-        final String oldUsername = (String) httpSession.getAttribute("username");
-        if (oldUsername == null) {
-            return new ResponseEntity<Views.Response>(
+        final Long id = (Long) httpSession.getAttribute("ID");
+        if (id == null) {
+            return new ResponseEntity<Views.BadResponse>(
+                    new Views.BadResponse("Необходима авторизация"),
                     responseHeader,
                     HttpStatus.UNAUTHORIZED
             );
         }
-        final User currentUser = User.findUser(users, oldUsername);
+
+        final User currentUser = users.findUserById(id);
         if (currentUser == null) {
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Профиль не найден"),
+            return new ResponseEntity<Views.BadResponse>(
+                    new Views.BadResponse("Профиль не найден"),
                     responseHeader,
                     HttpStatus.GONE
             );
         }
         if (!currentUser.getPassword().equals(parseBody.getOldPassword())) {
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Неверный пароль"),
+            return new ResponseEntity<Views.BadResponse>(
+                    new Views.BadResponse("Неверный пароль"),
                     responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
-        users.remove(currentUser);
-        if (User.findUser(users, parseBody.getUsername()) != null) {
-            users.add(currentUser);
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Пользователь с таким именем уже существует!"),
-                    responseHeader,
-                    HttpStatus.FORBIDDEN
-            );
+        if (!currentUser.getUsername().equals(parseBody.getUsername())) {
+            if (users.findUserByUsername(parseBody.getUsername()) != null) {
+                return new ResponseEntity<Views.BadResponse>(
+                        new Views.BadResponse("Пользователь с таким именем уже существует!"),
+                        responseHeader,
+                        HttpStatus.FORBIDDEN
+                );
+            }
         }
-        if (User.findUser(users, parseBody.getEmail()) != null) {
-            users.add(currentUser);
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Пользователь с такой почтой уже существует!"),
-                    responseHeader,
-                    HttpStatus.FORBIDDEN
-            );
+        if (!currentUser.getEmail().equals(parseBody.getEmail())) {
+            if (users.findUserByEmail(parseBody.getEmail()) != null) {
+                return new ResponseEntity<Views.BadResponse>(
+                        new Views.BadResponse("Пользователь с такой почтой уже существует!"),
+                        responseHeader,
+                        HttpStatus.FORBIDDEN
+                );
+            }
         }
-
         currentUser.updateProfile(parseBody);
-        users.add(currentUser);
-        httpSession.setAttribute("username", currentUser.getUsername());
         return new ResponseEntity<Views.Response>(responseHeader, HttpStatus.OK);
     }
 
@@ -126,38 +131,42 @@ public class Controllers {
 
         // Валидация
         if (parseBody.getPassword().length() < Views.MIN_PASSWORD_LENGTH) {
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Слишком короткий пароль"),
+            return new ResponseEntity<Views.BadResponse>(
+                    new Views.BadResponse("Слишком короткий пароль"),
                     responseHeader,
-                    HttpStatus.BAD_REQUEST);
+                    HttpStatus.BAD_REQUEST
+            );
         }
         if (parseBody.getUsername().length() < Views.MIN_USERNAME_LENGTH) {
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Слишком короткий логин"),
+            return new ResponseEntity<Views.BadResponse>(
+                    new Views.BadResponse("Слишком короткий логин"),
                     responseHeader,
-                    HttpStatus.BAD_REQUEST);
+                    HttpStatus.BAD_REQUEST
+            );
         }
 
-        for (User user: this.users) {
-            if (parseBody.getUsername().equals(user.getUsername())) {
-                return new ResponseEntity<Views.BadRequest>(
-                        new Views.BadRequest("Пользователь с таким логином уже существует"),
-                        responseHeader, HttpStatus.BAD_REQUEST);
-            }
-            if (parseBody.getEmail().equals(user.getEmail())) {
-                return new ResponseEntity<Views.BadRequest>(
-                        new Views.BadRequest("Пользователь с такой почтой уже существует"),
-                        responseHeader, HttpStatus.BAD_REQUEST);
-            }
+        if (users.findUserByUsername(parseBody.getUsername()) != null) {
+            return new ResponseEntity<Views.BadResponse>(
+                    new Views.BadResponse("Пользователь с таким логином уже существует"),
+                    responseHeader,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        if (users.findUserByEmail(parseBody.getEmail()) != null) {
+            return new ResponseEntity<Views.BadResponse>(
+                    new Views.BadResponse("Пользователь с такой почтой уже существует"),
+                    responseHeader,
+                    HttpStatus.BAD_REQUEST
+            );
         }
 
-        this.users.add(parseBody);
-        httpSession.setAttribute("username", parseBody.getUsername());
+        httpSession.setAttribute("ID", users.addUser(parseBody));
 
-        return new ResponseEntity<Views.Profile>(
-                new Views.Profile(parseBody),
+        return new ResponseEntity<Views.SuccessResponse>(
+                new Views.SuccessResponse(parseBody),
                 responseHeader,
-                HttpStatus.CREATED);
+                HttpStatus.CREATED
+        );
     }
 
     @PostMapping(path = "/sign_in", consumes = "application/json")
@@ -165,26 +174,27 @@ public class Controllers {
             @RequestBody User parseBody,
             HttpSession httpSession) {
 
-        final User user = User.findUser(users, parseBody.getUsername());
+        final User user = users.findUserByLogin(parseBody.getUsername());
+
         if (user == null) {
-            httpSession.setAttribute("username", null);
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Пользователя с таким логином не существует"),
+            httpSession.invalidate();
+            return new ResponseEntity<Views.BadResponse>(
+                    new Views.BadResponse("Пользователя с таким логином не существует"),
                     responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
         if (!parseBody.getPassword().equals(user.getPassword())) {
-            httpSession.setAttribute("username", null);
-            return new ResponseEntity<Views.BadRequest>(
-                    new Views.BadRequest("Неверный логин или пароль"),
+            httpSession.invalidate();
+            return new ResponseEntity<Views.BadResponse>(
+                    new Views.BadResponse("Неверный логин или пароль"),
                     responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
-        httpSession.setAttribute("username", user.getUsername());
-        return new ResponseEntity<Views.Profile>(
-                new Views.Profile(user),
+        httpSession.setAttribute("ID", user.getId());
+        return new ResponseEntity<Views.SuccessResponse>(
+                new Views.SuccessResponse(user),
                 responseHeader,
                 HttpStatus.OK
         );

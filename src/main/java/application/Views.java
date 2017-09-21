@@ -7,17 +7,17 @@ public class Views {
 
     public static class Response { }
 
-    public static final class Profile extends Response {
+    public static final class SuccessResponse extends Response {
 
         private String username;
         private String email;
 
-        Profile(String username, String email) {
+        SuccessResponse(String username, String email) {
             this.username = username;
             this.email = email;
         }
 
-        Profile(User user) {
+        SuccessResponse(User user) {
             this.username = user.getUsername();
             this.email = user.getEmail();
         }
@@ -31,10 +31,10 @@ public class Views {
         }
     }
 
-    public static final class BadRequest extends Response {
+    public static final class BadResponse extends Response {
         private String errorMessage;
 
-        BadRequest(String errorMessage) {
+        BadResponse(String errorMessage) {
             this.errorMessage = errorMessage;
         }
 

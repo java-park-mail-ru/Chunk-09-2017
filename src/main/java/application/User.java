@@ -1,5 +1,6 @@
 package application;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashSet;
@@ -20,6 +21,9 @@ class User {
     @JsonProperty("old_password")
     private String oldPassword;
 
+    @JsonIgnore
+    private long id;
+
 
     public void updateProfile(final User newProfile) {
 
@@ -39,7 +43,8 @@ class User {
 
     public static User findUser(
             final HashSet<User> users,
-            final String login) {
+            final String login
+    ) {
         for (User user: users) {
             if (login.equals(user.username) || login.equals(user.email)) {
                 return user;
@@ -56,6 +61,10 @@ class User {
     }
 
     // Getters & setters
+    public long getId() {
+        return id;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -70,6 +79,10 @@ class User {
 
     String getPassword() {
         return password;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public void setUsername(String username) {
