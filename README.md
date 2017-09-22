@@ -19,3 +19,4 @@
 | Изменить профиль текущего пользователя | POST, /update | “username”, ”email”, “password”, “old_password” | "username", "email" |
 | Запросить данные пользователя текущей сессии | GET, /whoisit | | "username", "email" | |
 | Разлогиниться | GET, /exit |  |  |
+
