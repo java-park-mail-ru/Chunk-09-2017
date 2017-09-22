@@ -21,13 +21,6 @@ public class Controllers {
     private UserService users = new UserService();
     private HttpHeaders responseHeader = new HttpHeaders();
 
-    public Controllers() {
-        // Создание заголовков для CORS запросов
-        this.responseHeader.set("Access-Control-Allow-Credentials", "true");
-        this.responseHeader.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-        this.responseHeader.set("Access-Control-Allow-Headers", "*");
-    }
-
 
     @GetMapping(path = "/whoisit")
     public ResponseEntity<SuccessResponse> whoisit(HttpSession httpSession) {
@@ -35,7 +28,6 @@ public class Controllers {
         final Long id = (Long) httpSession.getAttribute("ID");
         if (id == null) {
             return new ResponseEntity<>(
-                    responseHeader,
                     HttpStatus.UNAUTHORIZED
             );
         }
@@ -43,13 +35,11 @@ public class Controllers {
         final User currentUser = users.findUserById(id);
         if (currentUser == null) {
             return new ResponseEntity<>(
-                    responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
         return new ResponseEntity<SuccessResponse>(
                 new SuccessResponse(currentUser),
-                responseHeader,
                 HttpStatus.OK
         );
     }
@@ -65,12 +55,11 @@ public class Controllers {
     public ResponseEntity<?> settings(
             @RequestBody UpdateUser parseBody,
             HttpSession httpSession) {
-        
+
         final Long id = (Long) httpSession.getAttribute("ID");
         if (id == null) {
             return new ResponseEntity<BadResponse>(
                     new BadResponse("Необходима авторизация"),
-                    responseHeader,
                     HttpStatus.UNAUTHORIZED
             );
         }
@@ -79,14 +68,12 @@ public class Controllers {
         if (currentUser == null) {
             return new ResponseEntity<BadResponse>(
                     new BadResponse("Профиль не найден"),
-                    responseHeader,
                     HttpStatus.GONE
             );
         }
         if (!currentUser.getPassword().equals(parseBody.getOldPassword())) {
             return new ResponseEntity<BadResponse>(
                     new BadResponse("Неверный пароль"),
-                    responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
@@ -111,7 +98,6 @@ public class Controllers {
         currentUser.updateProfile(parseBody);
         return new ResponseEntity<SuccessResponse>(
                 new SuccessResponse(currentUser),
-                responseHeader,
                 HttpStatus.OK
         );
     }
@@ -126,21 +112,18 @@ public class Controllers {
         if (errorMessage != null) {
             return new ResponseEntity<BadResponse>(
                     new BadResponse(errorMessage),
-                    responseHeader,
                     HttpStatus.BAD_REQUEST
             );
         }
         if (users.findUserByUsername(parseBody.getUsername()) != null) {
             return new ResponseEntity<BadResponse>(
                     new BadResponse("Пользователь с таким логином уже существует"),
-                    responseHeader,
                     HttpStatus.BAD_REQUEST
             );
         }
         if (users.findUserByEmail(parseBody.getEmail()) != null) {
             return new ResponseEntity<BadResponse>(
                     new BadResponse("Пользователь с такой почтой уже существует"),
-                    responseHeader,
                     HttpStatus.BAD_REQUEST
             );
         }
@@ -149,7 +132,6 @@ public class Controllers {
 
         return new ResponseEntity<SuccessResponse>(
                 new SuccessResponse(parseBody),
-                responseHeader,
                 HttpStatus.CREATED
         );
     }
@@ -165,7 +147,6 @@ public class Controllers {
             httpSession.invalidate();
             return new ResponseEntity<BadResponse>(
                     new BadResponse("Пользователя с таким логином не существует"),
-                    responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
@@ -173,14 +154,12 @@ public class Controllers {
             httpSession.invalidate();
             return new ResponseEntity<BadResponse>(
                     new BadResponse("Неверный логин или пароль"),
-                    responseHeader,
                     HttpStatus.FORBIDDEN
             );
         }
         httpSession.setAttribute("ID", user.getId());
         return new ResponseEntity<SuccessResponse>(
                 new SuccessResponse(user),
-                responseHeader,
                 HttpStatus.OK
         );
     }

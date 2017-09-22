@@ -14,7 +14,7 @@ public final class SuccessResponse {
     }
 
     public String getUsername() {
-        return this.username;
+        return username;
     }
 
     public String getEmail() {

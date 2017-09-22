@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class UserService {
 
-    public static final int MIN_USERNAME_LENGTH = 4;
-    public static final int MIN_PASSWORD_LENGTH = 6;
+    private static final int MIN_USERNAME_LENGTH = 4;
+    private static final int MIN_PASSWORD_LENGTH = 6;
 
     private HashMap<Long, User> users = new HashMap<>();
     private static final AtomicLong ID_GENERATOR = new AtomicLong();
