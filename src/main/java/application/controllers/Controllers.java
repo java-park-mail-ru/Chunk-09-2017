@@ -15,7 +15,7 @@ import application.views.*;
 
 @SuppressWarnings("all")
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://tower-defense.herokuapp.com")
 public class Controllers {
 
     private UserService users = new UserService();
@@ -23,7 +23,7 @@ public class Controllers {
 
 
     @GetMapping(path = "/whoisit")
-    public ResponseEntity<SuccessResponse> whoisit(HttpSession httpSession) {
+    public ResponseEntity<GoodResponse> whoisit(HttpSession httpSession) {
 
         final Long id = (Long) httpSession.getAttribute("ID");
         if (id == null) {
@@ -38,8 +38,8 @@ public class Controllers {
                     HttpStatus.FORBIDDEN
             );
         }
-        return new ResponseEntity<SuccessResponse>(
-                new SuccessResponse(currentUser),
+        return new ResponseEntity<GoodResponse>(
+                new GoodResponse(currentUser),
                 HttpStatus.OK
         );
     }
@@ -96,8 +96,8 @@ public class Controllers {
             }
         }
         currentUser.updateProfile(parseBody);
-        return new ResponseEntity<SuccessResponse>(
-                new SuccessResponse(currentUser),
+        return new ResponseEntity<GoodResponse>(
+                new GoodResponse(currentUser),
                 HttpStatus.OK
         );
     }
@@ -130,8 +130,8 @@ public class Controllers {
 
         httpSession.setAttribute("ID", users.addUser(parseBody));
 
-        return new ResponseEntity<SuccessResponse>(
-                new SuccessResponse(parseBody),
+        return new ResponseEntity<GoodResponse>(
+                new GoodResponse(parseBody),
                 HttpStatus.CREATED
         );
     }
@@ -158,8 +158,8 @@ public class Controllers {
             );
         }
         httpSession.setAttribute("ID", user.getId());
-        return new ResponseEntity<SuccessResponse>(
-                new SuccessResponse(user),
+        return new ResponseEntity<GoodResponse>(
+                new GoodResponse(user),
                 HttpStatus.OK
         );
     }

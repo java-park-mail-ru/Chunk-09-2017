@@ -3,12 +3,12 @@ package application.views;
 import application.models.User;
 
 @SuppressWarnings("unused")
-public final class SuccessResponse {
+public final class GoodResponse {
 
     private String username;
     private String email;
 
-    public SuccessResponse(User user) {
+    public GoodResponse(User user) {
         this.username = user.getUsername();
         this.email = user.getEmail();
     }

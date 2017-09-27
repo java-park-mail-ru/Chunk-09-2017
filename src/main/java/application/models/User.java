@@ -12,10 +12,9 @@ public class User {
     @JsonProperty("email")
     private String email;
 
-    @JsonProperty("password")
+    @JsonProperty(value = "password")
     private String password;
 
-    @JsonIgnore
     private long id;
 
 
@@ -43,6 +42,7 @@ public class User {
     }
 
 
+    @JsonIgnore
     public long getId() {
         return id;
     }
@@ -55,6 +55,7 @@ public class User {
         return email;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
