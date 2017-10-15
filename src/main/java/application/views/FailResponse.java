@@ -2,11 +2,11 @@ package application.views;
 
 
 @SuppressWarnings("unused")
-public final class BadResponse {
+public final class FailResponse {
 
     private String errorMessage;
 
-    public BadResponse(String errorMessage) {
+    public FailResponse(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 

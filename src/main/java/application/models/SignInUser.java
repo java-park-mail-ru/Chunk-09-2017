@@ -2,7 +2,7 @@ package application.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SignInUser extends User {
+public class SignInUser extends UserModel {
 
     @JsonProperty("login")
     private String login;

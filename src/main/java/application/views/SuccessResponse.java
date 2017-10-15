@@ -1,14 +1,14 @@
 package application.views;
 
-import application.models.User;
+import application.models.UserModel;
 
 @SuppressWarnings("unused")
-public final class GoodResponse {
+public final class SuccessResponse {
 
     private String username;
     private String email;
 
-    public GoodResponse(User user) {
+    public SuccessResponse(UserModel user) {
         this.username = user.getUsername();
         this.email = user.getEmail();
     }
