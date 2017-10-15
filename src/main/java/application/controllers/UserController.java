@@ -15,7 +15,6 @@ import javax.persistence.PersistenceContext;
 @CrossOrigin(origins = "https://tower-defense.herokuapp.com")
 public class UserController {
 
-	@PersistenceContext
 	private final UserDao userDao;
 
 	UserController(UserDaoImpl userDaoImpl) {
