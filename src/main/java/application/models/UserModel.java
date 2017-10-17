@@ -1,6 +1,6 @@
 package application.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import application.entities.UserEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.stereotype.Service;
 
@@ -17,20 +17,43 @@ public class UserModel {
 	@JsonProperty(value = "password")
 	private String password;
 
+	private Long id;
 
-	public void updateProfile(final UserModel newProfile) {
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof UserModel)) return false;
 
-		if (!newProfile.username.isEmpty()) {
-			this.username = newProfile.username;
-		}
+		final UserModel userModel = (UserModel) o;
+		return (
+				username.equals(userModel.username) &&
+				password.equals(userModel.password) &&
+				email.equals(userModel.email)
+		);
+	}
 
-		if (!newProfile.email.isEmpty()) {
-			this.email = newProfile.email;
-		}
+	@Override
+	public int hashCode() {
+		int result = username != null ? username.hashCode() : 0;
+		result = 31 * result + (email != null ? email.hashCode() : 0);
+		result = 31 * result + (password != null ? password.hashCode() : 0);
+		result = 31 * result + (id != null ? id.hashCode() : 0);
+		return result;
+	}
 
-		if (!newProfile.password.isEmpty()) {
-			this.password = newProfile.password;
-		}
+	public UserModel() {}
+
+	public UserModel(String username, String email, String password) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+	}
+
+	public UserModel(UserEntity userEntity) {
+		this.username = userEntity.getLogin();
+		this.email = userEntity.getEmail();
+		this.password = userEntity.getPassword();
+		this.id = userEntity.getId();
 	}
 
 	public String getUsername() {
@@ -49,12 +72,19 @@ public class UserModel {
 		this.email = email;
 	}
 
-	@JsonIgnore
 	public String getPassword() {
 		return password;
 	}
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 }

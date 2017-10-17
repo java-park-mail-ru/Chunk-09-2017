@@ -1,49 +1,30 @@
 package application.controllers;
 
-import application.dao.user.UserDao;
-import application.dao.user.UserDaoImpl;
 import application.models.UserModel;
+import application.services.UserServiceAbstract;
+import application.services.UserServiceJpa;
+import application.views.UserFail;
+import application.views.UserSuccess;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpSession;
 
 
 @RestController
 @RequestMapping(path = "/user")
-@CrossOrigin(origins = "https://tower-defense.herokuapp.com")
+@CrossOrigin(origins = "*")
 public class UserController {
 
-	@PersistenceContext
-	private final UserDao userDao;
+	private final UserServiceAbstract service;
 
-	UserController(UserDaoImpl userDaoImpl) {
-		this.userDao = userDaoImpl;
+	UserController(UserServiceJpa service) {
+		this.service = service;
 	}
 
-	@GetMapping(path = "/helloworld")
-	public ResponseEntity hello(
-			@PathVariable(name = "login") String login,
-			@PathVariable(name = "password") String password,
-			@PathVariable(name = "email") String email) {
-		UserModel userModel = new UserModel();
-		userModel.setEmail(email);
-		userModel.setPassword(password);
-		userModel.setUsername(login);
-		userDao.createUser(userModel);
-
-		return new ResponseEntity<>(
-				userModel,
-				HttpStatus.CREATED
-		);
-	}
-
-//	private UserService users = new UserService();
-//
-//
 //	@GetMapping(path = "/whoisit")
-//	public ResponseEntity<SuccessResponse> whoisit(HttpSession httpSession) {
+//	public ResponseEntity<UserSuccess> whoisit(HttpSession httpSession) {
 //
 //		final Long id = (Long) httpSession.getAttribute("ID");
 //		if (id == null) {
@@ -52,14 +33,14 @@ public class UserController {
 //			);
 //		}
 //
-//		final UserModel currentUser = users.findUserById(id);
+//		final UserModel currentUser = users.getUserById(id);
 //		if (currentUser == null) {
 //			return new ResponseEntity<>(
 //					HttpStatus.FORBIDDEN
 //			);
 //		}
-//		return new ResponseEntity<SuccessResponse>(
-//				new SuccessResponse(currentUser),
+//		return new ResponseEntity<UserSuccess>(
+//				new UserSuccess(currentUser),
 //				HttpStatus.OK
 //		);
 //	}
@@ -78,106 +59,95 @@ public class UserController {
 //
 //		final Long id = (Long) httpSession.getAttribute("ID");
 //		if (id == null) {
-//			return new ResponseEntity<FailResponse>(
-//					new FailResponse("Необходима авторизация"),
+//			return new ResponseEntity<UserFail>(
+//					new UserFail("Необходима авторизация"),
 //					HttpStatus.UNAUTHORIZED
 //			);
 //		}
 //
-//		final UserModel currentUser = users.findUserById(id);
+//		final UserModel currentUser = users.getUserById(id);
 //		if (currentUser == null) {
-//			return new ResponseEntity<FailResponse>(
-//					new FailResponse("Профиль не найден"),
+//			return new ResponseEntity<UserFail>(
+//					new UserFail("Профиль не найден"),
 //					HttpStatus.GONE
 //			);
 //		}
 //		if (!currentUser.getPassword().equals(parseBody.getOldPassword())) {
-//			return new ResponseEntity<FailResponse>(
-//					new FailResponse("Неверный пароль"),
+//			return new ResponseEntity<UserFail>(
+//					new UserFail("Неверный пароль"),
 //					HttpStatus.FORBIDDEN
 //			);
 //		}
 //		if (!currentUser.getUsername().equals(parseBody.getUsername())) {
 //			if (users.findUserByUsername(parseBody.getUsername()) != null) {
-//				return new ResponseEntity<FailResponse>(
-//						new FailResponse("Пользователь с таким именем уже существует!"),
+//				return new ResponseEntity<UserFail>(
+//						new UserFail("Пользователь с таким именем уже существует!"),
 //						HttpStatus.FORBIDDEN
 //				);
 //			}
 //		}
 //		if (!currentUser.getEmail().equals(parseBody.getEmail())) {
-//			if (users.findUserByEmail(parseBody.getEmail()) != null) {
-//				return new ResponseEntity<FailResponse>(
-//						new FailResponse("Пользователь с такой почтой уже существует!"),
+//			if (users.getUserByEmail(parseBody.getEmail()) != null) {
+//				return new ResponseEntity<UserFail>(
+//						new UserFail("Пользователь с такой почтой уже существует!"),
 //						HttpStatus.FORBIDDEN
 //				);
 //			}
 //		}
 //		currentUser.updateProfile(parseBody);
-//		return new ResponseEntity<SuccessResponse>(
-//				new SuccessResponse(currentUser),
+//		return new ResponseEntity<UserSuccess>(
+//				new UserSuccess(currentUser),
 //				HttpStatus.OK
 //		);
 //	}
 //
-//	@PostMapping(path = "/sign_up", consumes = "application/json")
-//	public ResponseEntity<?> signUp(
-//			@RequestBody UserModel parseBody,
-//			HttpSession httpSession) {
-//
-//
-//		final String errorMessage = UserService.userValidation(parseBody);
-//		if (errorMessage != null) {
-//			return new ResponseEntity<FailResponse>(
-//					new FailResponse(errorMessage),
-//					HttpStatus.BAD_REQUEST
-//			);
-//		}
-//		if (users.findUserByUsername(parseBody.getUsername()) != null) {
-//			return new ResponseEntity<FailResponse>(
-//					new FailResponse("Пользователь с таким логином уже существует"),
-//					HttpStatus.BAD_REQUEST
-//			);
-//		}
-//		if (users.findUserByEmail(parseBody.getEmail()) != null) {
-//			return new ResponseEntity<FailResponse>(
-//					new FailResponse("Пользователь с такой почтой уже существует"),
-//					HttpStatus.BAD_REQUEST
-//			);
-//		}
-//
-//		httpSession.setAttribute("ID", users.addUser(parseBody));
-//
-//		return new ResponseEntity<SuccessResponse>(
-//				new SuccessResponse(parseBody),
-//				HttpStatus.CREATED
-//		);
-//	}
-//
+
+	@PostMapping(path = "/sign_up", consumes = "application/json")
+	public ResponseEntity signUp(
+			@RequestBody UserModel user,
+			HttpSession httpSession) {
+
+		try {
+			httpSession.setAttribute("ID", service.addUser(user));
+
+			return new ResponseEntity<>(
+					new UserSuccess(user),
+					HttpStatus.CREATED
+			);
+		}
+		catch (UserServiceAbstract.UserServiceException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(
+					new UserFail(e.getErrorMessage()),
+					e.getErrorCode()
+			);
+		}
+	}
+
 //	@PostMapping(path = "/sign_in", consumes = "application/json")
 //	public ResponseEntity<?> signIn(
 //			@RequestBody SignInUser parseBody,
 //			HttpSession httpSession) {
 //
-//		final UserModel user = users.findUserByLogin(parseBody.getLogin());
+//		final UserModel user = users.getUserByLogin(parseBody.getLogin());
 //
 //		if (user == null) {
 //			httpSession.invalidate();
-//			return new ResponseEntity<FailResponse>(
-//					new FailResponse("Пользователя с таким логином не существует"),
+//			return new ResponseEntity<UserFail>(
+//					new UserFail("Пользователя с таким логином не существует"),
 //					HttpStatus.FORBIDDEN
 //			);
 //		}
 //		if (!parseBody.getPassword().equals(user.getPassword())) {
 //			httpSession.invalidate();
-//			return new ResponseEntity<FailResponse>(
-//					new FailResponse("Неверный логин или пароль"),
+//			return new ResponseEntity<UserFail>(
+//					new UserFail("Неверный логин или пароль"),
 //					HttpStatus.FORBIDDEN
 //			);
 //		}
 //		httpSession.setAttribute("ID", user.getId());
-//		return new ResponseEntity<SuccessResponse>(
-//				new SuccessResponse(user),
+//		return new ResponseEntity<UserSuccess>(
+//				new UserSuccess(user),
 //				HttpStatus.OK
 //		);
 //	}

@@ -7,13 +7,14 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
+@SuppressWarnings("unused")
 public class UserEntity {
 
 	@Id
 	@Column(name = "id", unique = true, nullable = false)
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "jpa_seq_generator")
-	@SequenceGenerator(name = "jpa_seq_generator", sequenceName = "users_id_seq")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
 
 	@Column(name = "login", unique = true, nullable = false, length = 40)
 	private String login;
@@ -30,6 +31,18 @@ public class UserEntity {
 		this.login = userModel.getUsername();
 		this.password = userModel.getPassword();
 		this.email = userModel.getEmail();
+	}
+
+	public void update(UserModel userModel) {
+		if (userModel.getEmail() != null) {
+			this.email = userModel.getEmail();
+		}
+		if (userModel.getUsername() != null) {
+			this.login = userModel.getUsername();
+		}
+		if (userModel.getPassword() != null) {
+			this.password = userModel.getPassword();
+		}
 	}
 
 	public Long getId() {
