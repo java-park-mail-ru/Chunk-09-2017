@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 
 @Service
+@SuppressWarnings("unused")
 public class UserModel {
 
 	@JsonProperty("username")

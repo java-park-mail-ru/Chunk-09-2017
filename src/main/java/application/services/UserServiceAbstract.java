@@ -209,15 +209,9 @@ public abstract class UserServiceAbstract {
 	}
 
 	public static class UserServiceExceptionIncorrectData extends UserServiceException {
-
-		public UserServiceExceptionIncorrectData(String errorMessage, Throwable cause) {
-			super(errorMessage, HttpStatus.BAD_REQUEST, cause);
-		}
-
 		public UserServiceExceptionIncorrectData(String errorMessage) {
 			super(errorMessage, HttpStatus.BAD_REQUEST);
 		}
-
 	}
 
 	public static class UserServiceExceptionDuplicateUser extends UserServiceException {

@@ -7,6 +7,7 @@ import java.util.List;
 
 
 @Component
+@SuppressWarnings("unused")
 public interface UserDao {
 
 	UserModel addUser(UserModel userModel);
@@ -24,30 +25,4 @@ public interface UserDao {
 	List<UserModel> getUsers(Integer limit);
 
 	List<UserModel> getUsers();
-
-	class UserDaoException extends RuntimeException {
-
-		private String errorMessage;
-
-		UserDaoException(String errorMessage, Throwable cause) {
-			super(cause);
-			this.errorMessage = errorMessage;
-		}
-
-		public String getErrorMessage() {
-			return errorMessage;
-		}
-	}
-
-	class UserDaoExceptionDuplicateUsername extends UserDaoException {
-		UserDaoExceptionDuplicateUsername(String username, Throwable cause) {
-			super("User with username '" + username + "' is already exists", cause);
-		}
-	}
-
-	class UserDaoExceptionDuplicateEmail extends UserDaoException {
-		UserDaoExceptionDuplicateEmail(String email, Throwable cause) {
-			super("User with email '" + email + "' is already exists", cause);
-		}
-	}
 }
