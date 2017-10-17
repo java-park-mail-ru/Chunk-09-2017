@@ -2,6 +2,8 @@ package application.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
+@SuppressWarnings("unused")
 public class SignInModel extends UserModel {
 
 	@JsonProperty(value = "login", required = true)

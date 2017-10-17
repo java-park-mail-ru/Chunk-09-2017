@@ -26,34 +26,36 @@ public class UserController {
 		this.service = service;
 	}
 
-//	@GetMapping(path = "/whoisit")
-//	public ResponseEntity<UserSuccess> whoisit(HttpSession httpSession) {
-//
-//		final Long id = (Long) httpSession.getAttribute("ID");
-//		if (id == null) {
-//			return new ResponseEntity<>(
-//					HttpStatus.UNAUTHORIZED
-//			);
-//		}
-//
-//		final UserModel currentUser = users.getUserById(id);
-//		if (currentUser == null) {
-//			return new ResponseEntity<>(
-//					HttpStatus.FORBIDDEN
-//			);
-//		}
-//		return new ResponseEntity<UserSuccess>(
-//				new UserSuccess(currentUser),
-//				HttpStatus.OK
-//		);
-//	}
-//
-//	@GetMapping(path = "/exit")
-//	public ResponseEntity exit(HttpSession httpSession) {
-//
-//		httpSession.invalidate();
-//		return new ResponseEntity(HttpStatus.OK);
-//	}
+	@GetMapping(path = "/whoisit")
+	public ResponseEntity whoisit(HttpSession httpSession) {
+		final Long id = (Long) httpSession.getAttribute("ID");
+		if (id == null) {
+			return new ResponseEntity<>(
+					new UserFail("Need to sign up"),
+					HttpStatus.UNAUTHORIZED
+			);
+		}
+		try {
+			final UserModel currentUser = service.getUserById(id);
+			return new ResponseEntity<>(
+					new UserSuccess(currentUser),
+					HttpStatus.OK
+			);
+		}
+		catch (UserServiceException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(
+					new UserFail(e.getErrorMessage()),
+					e.getErrorCode()
+			);
+		}
+	}
+
+	@GetMapping(path = "/exit")
+	public ResponseEntity exit(HttpSession httpSession) {
+		httpSession.invalidate();
+		return new ResponseEntity(HttpStatus.OK);
+	}
 
 	@PostMapping(path = "/update", consumes = "application/json")
 	public ResponseEntity settings(
@@ -68,8 +70,10 @@ public class UserController {
 			);
 		}
 		try {
+			final UserModel userUpdated = service.updateUserProfile(userUpdate, id);
+			httpSession.setAttribute("ID", userUpdated.getId());
 			return new ResponseEntity<>(
-					new UserSuccess(service.updateUserProfile(userUpdate, id)),
+					new UserSuccess(userUpdated),
 					HttpStatus.OK
 			);
 		}
@@ -89,7 +93,6 @@ public class UserController {
 
 		try {
 			httpSession.setAttribute("ID", service.addUser(user));
-
 			return new ResponseEntity<>(
 					new UserSuccess(user),
 					HttpStatus.CREATED

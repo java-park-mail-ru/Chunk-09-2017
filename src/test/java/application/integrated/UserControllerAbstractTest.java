@@ -1,6 +1,7 @@
 package application.integrated;
 
 import application.models.SignInModel;
+import application.models.UpdateUser;
 import application.models.UserModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,13 +18,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.junit.Assert.*;
+
+import javax.servlet.http.Cookie;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
 @RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 @Transactional
 public abstract class UserControllerAbstractTest {
@@ -34,6 +40,7 @@ public abstract class UserControllerAbstractTest {
 	@Rule
 	public ExpectedException expected = ExpectedException.none();
 
+	// SignUp
 	@Test
 	public void testSignUpUserSuccess() throws Exception {
 		mockMvc.perform(post(getBaseUrl() + "/sign_up")
@@ -46,7 +53,8 @@ public abstract class UserControllerAbstractTest {
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("username").value("testName"))
 				.andExpect(jsonPath("email").value("testEmail"))
-				.andExpect(jsonPath("password").doesNotExist());
+				.andExpect(jsonPath("password").doesNotExist())
+				.andReturn().getResponse();
 	}
 
 	@Test
@@ -98,6 +106,7 @@ public abstract class UserControllerAbstractTest {
 				.andExpect(status().isBadRequest());
 	}
 
+	// SignIn
 	@Test
 	public void testSignInEmailUserSuccess() throws Exception {
 		testSignUpUserSuccess();
@@ -151,7 +160,66 @@ public abstract class UserControllerAbstractTest {
 				.andExpect(status().isNotFound());
 	}
 
+	// Update
+	@Test
+	public void testUpdateSuccess() throws Exception {
+		// TODO - как получить куки/id сессии?
+	}
 
+	@Test
+	public void testUpdateWrongSessionId() throws Exception {
+		mockMvc.perform(post(getBaseUrl() + "/update")
+				.sessionAttr("ID", -1L)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(new UpdateUser(
+						null, null, null, "pass"
+				))))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void testUpdateIncorrectFieldsTooLong() throws Exception {
+		mockMvc.perform(post(getBaseUrl() + "/update")
+				.sessionAttr("ID", -1L)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(new UpdateUser(
+						"LooooooooooooooooooooooooooooooooooooooooooooooongName",
+						"pass", null, "pass")
+				)))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void testUpdateNullParametrs() throws Exception {
+		mockMvc.perform(post(getBaseUrl() + "/update")
+				.sessionAttr("ID", -1L)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(new UpdateUser(
+						null, null, null, null
+				))))
+				.andExpect(status().isBadRequest());
+	}
+
+	// TODO 409 Conflict, 403 Forbidden, 200 OK
+
+	// Session
+	@Test
+	public void testSessionWrongSessionId() throws Exception {
+		mockMvc.perform(get(getBaseUrl() + "/whoisit")
+				.sessionAttr("ID", -1L))
+				.andExpect(status().isNotFound());
+	}
+
+
+	// Exit
+	@Test
+	public void testExitWrongSessionId() throws Exception {
+		mockMvc.perform(get(getBaseUrl() + "/exit")
+				.sessionAttr("ID", -1L))
+				.andExpect(status().isOk());
+	}
+
+	// TODO testExitRightSessionId
 
 
 	protected abstract String getBaseUrl();

@@ -2,11 +2,13 @@ package application.dao.user;
 
 import application.entities.UserEntity;
 import application.models.UserModel;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +32,12 @@ public class UserDaoJpa implements UserDao {
 	}
 
 	@Override
+	@Nullable
 	public UserModel updateUser(UserModel updateUser, Long id) {
 		final UserEntity userEntity = em.find(UserEntity.class, id);
+		if (userEntity == null) {
+			return null;
+		}
 		userEntity.update(updateUser);
 		return new UserModel(em.merge(userEntity));
 	}
@@ -59,8 +65,10 @@ public class UserDaoJpa implements UserDao {
 	}
 
 	@Override
-	public UserModel getUserById(Long id) {
-		return new UserModel(em.find(UserEntity.class, id));
+	@Nullable
+	public UserModel getUserById(@NotNull Long id) {
+		final UserEntity userEntity = em.find(UserEntity.class, id);
+		return userEntity == null ? null : new UserModel(userEntity);
 	}
 
 	@Override
@@ -78,7 +86,7 @@ public class UserDaoJpa implements UserDao {
 	}
 
 	@Override
-	public List<UserModel> getUsers(Integer limit) {
+	public List<UserModel> getUsers(@Nullable Integer limit) {
 		if (limit == null) {
 			limit = 100;
 		}
