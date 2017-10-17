@@ -87,7 +87,7 @@ ALTER SEQUENCE score_id_seq OWNED BY score.id;
 
 CREATE TABLE users (
     id bigint NOT NULL,
-    login citext NOT NULL,
+    username citext NOT NULL,
     password character varying(30) NOT NULL,
     email citext NOT NULL
 );
@@ -149,7 +149,7 @@ CREATE UNIQUE INDEX users_email_uindex ON users USING btree (email);
 -- Name: users_username_uindex; Type: INDEX; Schema: public; Owner: trubnikov
 --
 
-CREATE UNIQUE INDEX users_username_uindex ON users USING btree (login);
+CREATE UNIQUE INDEX users_username_uindex ON users USING btree (username);
 
 
 --

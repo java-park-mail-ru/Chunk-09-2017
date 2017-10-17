@@ -17,7 +17,7 @@ public class UserEntity {
 
 
 	@Column(name = "login", unique = true, nullable = false, length = 40)
-	private String login;
+	private String username;
 
 	@Column(name = "password", nullable = false)
 	private String password;
@@ -28,7 +28,7 @@ public class UserEntity {
 	public UserEntity() {}
 
 	public UserEntity(UserModel userModel) {
-		this.login = userModel.getUsername();
+		this.username = userModel.getUsername();
 		this.password = userModel.getPassword();
 		this.email = userModel.getEmail();
 	}
@@ -38,7 +38,7 @@ public class UserEntity {
 			this.email = userModel.getEmail();
 		}
 		if (userModel.getUsername() != null) {
-			this.login = userModel.getUsername();
+			this.username = userModel.getUsername();
 		}
 		if (userModel.getPassword() != null) {
 			this.password = userModel.getPassword();
@@ -53,12 +53,12 @@ public class UserEntity {
 		this.id = id;
 	}
 
-	public String getLogin() {
-		return login;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setLogin(String login) {
-		this.login = login;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public String getPassword() {

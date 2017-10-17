@@ -15,7 +15,7 @@ public interface UserDao {
 
 	UserModel getUserById(Long id);
 
-	UserModel getUserByLogin(String login);
+	UserModel getUserByUsername(String username);
 
 	UserModel getUserByEmail(String email);
 
@@ -25,9 +25,29 @@ public interface UserDao {
 
 	List<UserModel> getUsers();
 
-	class TooShortPassword extends RuntimeException {
-		public TooShortPassword(Integer minSymbol, Throwable cause) {
-			super("Password is must be longer than " + minSymbol + " characters", cause);
+	class UserDaoException extends RuntimeException {
+
+		private String errorMessage;
+
+		UserDaoException(String errorMessage, Throwable cause) {
+			super(cause);
+			this.errorMessage = errorMessage;
+		}
+
+		public String getErrorMessage() {
+			return errorMessage;
+		}
+	}
+
+	class UserDaoExceptionDuplicateUsername extends UserDaoException {
+		UserDaoExceptionDuplicateUsername(String username, Throwable cause) {
+			super("User with username '" + username + "' is already exists", cause);
+		}
+	}
+
+	class UserDaoExceptionDuplicateEmail extends UserDaoException {
+		UserDaoExceptionDuplicateEmail(String email, Throwable cause) {
+			super("User with email '" + email + "' is already exists", cause);
 		}
 	}
 }

@@ -1,7 +1,10 @@
 package application.controllers;
 
+import application.models.SignInModel;
+import application.models.UpdateUser;
 import application.models.UserModel;
 import application.services.UserServiceAbstract;
+import application.services.UserServiceAbstract.UserServiceException;
 import application.services.UserServiceJpa;
 import application.views.UserFail;
 import application.views.UserSuccess;
@@ -51,56 +54,33 @@ public class UserController {
 //		httpSession.invalidate();
 //		return new ResponseEntity(HttpStatus.OK);
 //	}
-//
-//	@PostMapping(path = "/update", consumes = "application/json")
-//	public ResponseEntity<?> settings(
-//			@RequestBody UpdateUser parseBody,
-//			HttpSession httpSession) {
-//
-//		final Long id = (Long) httpSession.getAttribute("ID");
-//		if (id == null) {
-//			return new ResponseEntity<UserFail>(
-//					new UserFail("Необходима авторизация"),
-//					HttpStatus.UNAUTHORIZED
-//			);
-//		}
-//
-//		final UserModel currentUser = users.getUserById(id);
-//		if (currentUser == null) {
-//			return new ResponseEntity<UserFail>(
-//					new UserFail("Профиль не найден"),
-//					HttpStatus.GONE
-//			);
-//		}
-//		if (!currentUser.getPassword().equals(parseBody.getOldPassword())) {
-//			return new ResponseEntity<UserFail>(
-//					new UserFail("Неверный пароль"),
-//					HttpStatus.FORBIDDEN
-//			);
-//		}
-//		if (!currentUser.getUsername().equals(parseBody.getUsername())) {
-//			if (users.findUserByUsername(parseBody.getUsername()) != null) {
-//				return new ResponseEntity<UserFail>(
-//						new UserFail("Пользователь с таким именем уже существует!"),
-//						HttpStatus.FORBIDDEN
-//				);
-//			}
-//		}
-//		if (!currentUser.getEmail().equals(parseBody.getEmail())) {
-//			if (users.getUserByEmail(parseBody.getEmail()) != null) {
-//				return new ResponseEntity<UserFail>(
-//						new UserFail("Пользователь с такой почтой уже существует!"),
-//						HttpStatus.FORBIDDEN
-//				);
-//			}
-//		}
-//		currentUser.updateProfile(parseBody);
-//		return new ResponseEntity<UserSuccess>(
-//				new UserSuccess(currentUser),
-//				HttpStatus.OK
-//		);
-//	}
-//
+
+	@PostMapping(path = "/update", consumes = "application/json")
+	public ResponseEntity settings(
+			@RequestBody UpdateUser userUpdate,
+			HttpSession httpSession) {
+
+		final Long id = (Long) httpSession.getAttribute("ID");
+		if (id == null) {
+			return new ResponseEntity<>(
+					new UserFail("Need to sign up"),
+					HttpStatus.UNAUTHORIZED
+			);
+		}
+		try {
+			return new ResponseEntity<>(
+					new UserSuccess(service.updateUserProfile(userUpdate, id)),
+					HttpStatus.OK
+			);
+		}
+		catch (UserServiceException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(
+					new UserFail(e.getErrorMessage()),
+					e.getErrorCode()
+			);
+		}
+	}
 
 	@PostMapping(path = "/sign_up", consumes = "application/json")
 	public ResponseEntity signUp(
@@ -115,7 +95,7 @@ public class UserController {
 					HttpStatus.CREATED
 			);
 		}
-		catch (UserServiceAbstract.UserServiceException e) {
+		catch (UserServiceException e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(
 					new UserFail(e.getErrorMessage()),
@@ -124,32 +104,28 @@ public class UserController {
 		}
 	}
 
-//	@PostMapping(path = "/sign_in", consumes = "application/json")
-//	public ResponseEntity<?> signIn(
-//			@RequestBody SignInUser parseBody,
-//			HttpSession httpSession) {
-//
-//		final UserModel user = users.getUserByLogin(parseBody.getLogin());
-//
-//		if (user == null) {
-//			httpSession.invalidate();
-//			return new ResponseEntity<UserFail>(
-//					new UserFail("Пользователя с таким логином не существует"),
-//					HttpStatus.FORBIDDEN
-//			);
-//		}
-//		if (!parseBody.getPassword().equals(user.getPassword())) {
-//			httpSession.invalidate();
-//			return new ResponseEntity<UserFail>(
-//					new UserFail("Неверный логин или пароль"),
-//					HttpStatus.FORBIDDEN
-//			);
-//		}
-//		httpSession.setAttribute("ID", user.getId());
-//		return new ResponseEntity<UserSuccess>(
-//				new UserSuccess(user),
-//				HttpStatus.OK
-//		);
-//	}
+	@PostMapping(path = "/sign_in", consumes = "application/json")
+	public ResponseEntity signIn(
+			@RequestBody SignInModel parseBody,
+			HttpSession httpSession) {
+
+		try {
+			final UserModel user = service.signInByLogin(
+					parseBody.getLogin(),
+					parseBody.getPassword()
+			);
+			httpSession.setAttribute("ID", user.getId());
+			return new ResponseEntity<>(
+					new UserSuccess(user),
+					HttpStatus.OK
+			);
+		} catch (UserServiceException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(
+					new UserFail(e.getErrorMessage()),
+					e.getErrorCode()
+			);
+		}
+	}
 
 }

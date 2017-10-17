@@ -1,5 +1,6 @@
 package application.integrated;
 
+import application.models.SignInModel;
 import application.models.UserModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
@@ -32,14 +34,8 @@ public abstract class UserControllerAbstractTest {
 	@Rule
 	public ExpectedException expected = ExpectedException.none();
 
-	final ObjectMapper mapper = new ObjectMapper();
-
-	protected abstract String getBaseUrl();
-
-
-
 	@Test
-	public void testCreateSuccessUser() throws Exception {
+	public void testSignUpUserSuccess() throws Exception {
 		mockMvc.perform(post(getBaseUrl() + "/sign_up")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(toJson(new UserModel(
@@ -54,7 +50,7 @@ public abstract class UserControllerAbstractTest {
 	}
 
 	@Test
-	public void testCreateFailureUserNotEnouthFields() throws Exception {
+	public void testSignUpUserNotEnouthFields() throws Exception {
 		mockMvc.perform(post(getBaseUrl() + "/sign_up")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(toJson(new UserModel())))
@@ -62,7 +58,7 @@ public abstract class UserControllerAbstractTest {
 	}
 
 	@Test
-	public void testCreateFailureUserIncorrectFields() throws Exception {
+	public void testSignUpUserIncorrectFields() throws Exception {
 		mockMvc.perform(post(getBaseUrl() + "/sign_up")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(toJson(new UserModel("", "", ""))))
@@ -70,11 +66,97 @@ public abstract class UserControllerAbstractTest {
 	}
 
 	@Test
-	public void testCreateFailureUserWrongMediaType() throws Exception {
+	public void testSignUpUserWrongMediaType() throws Exception {
 		mockMvc.perform(post(getBaseUrl() + "/sign_up")
 				.contentType(MediaType.APPLICATION_PDF))
 				.andExpect(status().is4xxClientError());
 	}
+
+	@Test
+	public void testSignUpUserDuplicate() throws Exception {
+		final UserModel userModel = new UserModel("testName", "testEmail", "pass");
+		mockMvc.perform(post(getBaseUrl() + "/sign_up")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(userModel)))
+				.andExpect(status().isCreated());
+		mockMvc.perform(post(getBaseUrl() + "/sign_up")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(userModel)))
+				.andExpect(status().isConflict());
+
+	}
+
+	@Test
+	public void testSignUpUserTooLongFields() throws Exception {
+		mockMvc.perform(post(getBaseUrl() + "/sign_up")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(new UserModel(
+						"veryLoooooooooooooooooooooooooooooooooooooooooooooooongTestName",
+						"testEmail",
+						"pass")
+				)))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void testSignInEmailUserSuccess() throws Exception {
+		testSignUpUserSuccess();
+		mockMvc.perform(post(getBaseUrl() + "/sign_in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(new SignInModel(
+						"testEmail",
+						"pass")
+				)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("email").value("testEmail"))
+				.andExpect(jsonPath("username").value("testName"))
+				.andExpect(jsonPath("password").doesNotExist());
+	}
+
+	@Test
+	public void testSignInUsernameUserSuccess() throws Exception {
+		testSignUpUserSuccess();
+		mockMvc.perform(post(getBaseUrl() + "/sign_in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(new SignInModel(
+						"testName",
+						"pass")
+				)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("email").value("testEmail"))
+				.andExpect(jsonPath("username").value("testName"))
+				.andExpect(jsonPath("password").doesNotExist());
+	}
+
+	@Test
+	public void testSignInWrongPassword() throws Exception {
+		testSignUpUserSuccess();
+		mockMvc.perform(post(getBaseUrl() + "/sign_in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(new SignInModel(
+						"testName",
+						"wrongPassword")
+				)))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void testSignInDoesNotExist() throws Exception {
+		mockMvc.perform(post(getBaseUrl() + "/sign_in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(toJson(new SignInModel(
+						"isNotExist",
+						"pass")
+				)))
+				.andExpect(status().isNotFound());
+	}
+
+
+
+
+	protected abstract String getBaseUrl();
+
+	private final ObjectMapper mapper = new ObjectMapper();
 
 	protected String toJson(Object o) throws JsonProcessingException {
 		return mapper.writeValueAsString(o);

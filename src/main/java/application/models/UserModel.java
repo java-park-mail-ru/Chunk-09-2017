@@ -9,15 +9,15 @@ import org.springframework.stereotype.Service;
 public class UserModel {
 
 	@JsonProperty("username")
-	private String username;
+	protected String username;
 
 	@JsonProperty("email")
-	private String email;
+	protected String email;
 
 	@JsonProperty(value = "password")
-	private String password;
+	protected String password;
 
-	private Long id;
+	protected Long id;
 
 	@Override
 	public boolean equals(Object o) {
@@ -50,7 +50,7 @@ public class UserModel {
 	}
 
 	public UserModel(UserEntity userEntity) {
-		this.username = userEntity.getLogin();
+		this.username = userEntity.getUsername();
 		this.email = userEntity.getEmail();
 		this.password = userEntity.getPassword();
 		this.id = userEntity.getId();

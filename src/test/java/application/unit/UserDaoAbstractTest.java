@@ -51,7 +51,7 @@ public abstract class UserDaoAbstractTest {
 	@Test
 	public void testGetUserByLogin() {
 
-		getUser = getUserDao().getUserByLogin(sampleUser.getUsername());
+		getUser = getUserDao().getUserByUsername(sampleUser.getUsername());
 		assertNotNull(getUser);
 		assertNotNull(getUser.getId());
 		assertEquals(getUser, sampleUser);
