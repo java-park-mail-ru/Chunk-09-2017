@@ -1,4 +1,4 @@
-package application.integrated;
+package application.functional;
 
 import application.models.SignInModel;
 import application.models.UpdateUser;
@@ -17,10 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.Assert.*;
-
-import javax.servlet.http.Cookie;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

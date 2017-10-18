@@ -1,4 +1,4 @@
-package application.integrated;
+package application.functional;
 
 
 public class UserControllerTest extends UserControllerAbstractTest {

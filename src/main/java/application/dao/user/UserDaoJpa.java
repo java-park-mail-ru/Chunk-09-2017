@@ -77,15 +77,9 @@ public class UserDaoJpa implements UserDao {
 
     @Override
     public List<UserModel> getUsers(int limit, boolean desc) {
-        final StringBuilder query = new StringBuilder(
-                "SELECT u FROM UserEntity u ORDER BY id ");
-        if (desc) {
-            query.append("DESC");
-        } else {
-            query.append("ASC");
-        }
         final List<UserEntity> userEntityList = em.createQuery(
-                query.toString(), UserEntity.class
+                "SELECT u FROM UserEntity u ORDER BY id " + (desc ? "DESC" : "ASC"),
+                UserEntity.class
         ).setMaxResults(limit).getResultList();
 
         final List<UserModel> userModelList = new ArrayList<>(userEntityList.size());

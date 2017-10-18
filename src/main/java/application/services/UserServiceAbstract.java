@@ -28,29 +28,14 @@ public abstract class UserServiceAbstract {
         this.userDao = userDao;
     }
 
-
     public Long addUser(UserModel userModel) {
         try {
             userValidation(userModel);
             return userDao.addUser(userModel).getId();
 
         } catch (DataIntegrityViolationException e) {
-            String message = "";
-            if (e.getMessage() != null) {
-                message += e.getMessage();
-            }
-            if (message.contains("username")) {
-                throw new UserServiceExceptionDuplicateUser(
-                        "User with username '" + userModel.getUsername()
-                                + "' already exists", e);
-            }
-            if (message.contains("email")) {
-                throw new UserServiceExceptionDuplicateUser(
-                        "User with email '" + userModel.getEmail()
-                                + "' already exists", e);
-
-            }
-            throw new UserServiceExceptionDuplicateUser(e);
+            throw new UserServiceExceptionDuplicateUser(
+                    userModel.getUsername(), userModel.getEmail(), e);
         }
     }
 
@@ -82,21 +67,8 @@ public abstract class UserServiceAbstract {
             }
             return userDao.updateUser(newUser, id);
         } catch (DataIntegrityViolationException e) {
-            String message = "";
-            if (e.getMessage() != null) {
-                message += e.getMessage();
-            }
-            if (message.contains("username")) {
-                throw new UserServiceExceptionDuplicateUser(
-                        "User with username '" + newUser.getUsername()
-                                + "' already exists", e);
-            }
-            if (message.contains("email")) {
-                throw new UserServiceExceptionDuplicateUser(
-                        "User with email '" + newUser.getEmail()
-                                + "' already exists", e);
-            }
-            throw new UserServiceExceptionDuplicateUser(e);
+            throw new UserServiceExceptionDuplicateUser(
+                    newUser.getUsername(), newUser.getEmail(), e);
         }
     }
 
@@ -209,6 +181,14 @@ public abstract class UserServiceAbstract {
         public HttpStatus getErrorCode() {
             return errorCode;
         }
+
+        protected void setErrorMessage(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+
+        protected void setErrorCode(HttpStatus errorCode) {
+            this.errorCode = errorCode;
+        }
     }
 
     public static class UserServiceExceptionIncorrectData extends UserServiceException {
@@ -219,6 +199,20 @@ public abstract class UserServiceAbstract {
     }
 
     public static class UserServiceExceptionDuplicateUser extends UserServiceException {
+
+        public UserServiceExceptionDuplicateUser(String username, String email, Throwable cause) {
+            this(cause);
+            String message = "";
+            if (cause.getMessage() != null) {
+                message += cause.getMessage();
+            }
+            if (message.contains("username")) {
+                this.setErrorMessage("User with username '" + username + "' already exists");
+            }
+            if (message.contains("email")) {
+                this.setErrorMessage("User with email '" + email + "' already exists");
+            }
+        }
 
         public UserServiceExceptionDuplicateUser(String errorMessage, Throwable cause) {
             super(errorMessage, HttpStatus.CONFLICT, cause);
