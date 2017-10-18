@@ -59,8 +59,8 @@ public abstract class UserServiceAbstract {
     }
 
     public UserModel updateUserProfile(UpdateUser newUser, @NotNull Long id) {
-        userValidationUpdate(newUser);
         try {
+            userValidationUpdate(newUser);
             final UserModel oldUser = this.getUserById(id);
             if (!oldUser.getPassword().equals(newUser.getOldPassword())) {
                 throw new UserServiceExceptionPasswordFail("Wrong password");

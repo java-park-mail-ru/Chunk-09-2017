@@ -235,11 +235,7 @@ public abstract class UserControllerAbstractTest {
                         "testName",
                         "testEmail",
                         "pass"
-                ))))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("username").value("testName"))
-                .andExpect(jsonPath("email").value("testEmail"))
-                .andExpect(jsonPath("password").doesNotExist());
+                )))).andExpect(status().isCreated());
 
         final MockHttpSession mockHttpSession = new MockHttpSession();
         mockMvc.perform(post(getBaseUrl() + "/sign_up")
@@ -249,13 +245,7 @@ public abstract class UserControllerAbstractTest {
                         "testName2",
                         "testEmail2",
                         "pass"
-                ))))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("username").value("testName2"))
-                .andExpect(jsonPath("email").value("testEmail2"))
-                .andExpect(jsonPath("password").doesNotExist());
-
-        assertNotNull("SessionID is null", mockHttpSession.getAttribute("ID"));
+                )))).andExpect(status().isCreated());
 
         mockMvc.perform(post(getBaseUrl() + "/update")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
@@ -266,7 +256,7 @@ public abstract class UserControllerAbstractTest {
                         "pass",
                         "pass"
                 ))))
-                .andExpect(status().isOk());
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -313,6 +303,34 @@ public abstract class UserControllerAbstractTest {
                 .sessionAttr("ID", -1L))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void testSessionRightSessionId() throws Exception {
+
+        final MockHttpSession mockHttpSession = new MockHttpSession();
+        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+                .session(mockHttpSession)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UserModel(
+                        "testName",
+                        "testEmail",
+                        "pass"
+                )))).andExpect(status().isCreated());
+
+        mockMvc.perform(get(getBaseUrl() + "/whoisit")
+                .sessionAttr("ID", mockHttpSession.getAttribute("ID")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username").value("testName"))
+                .andExpect(jsonPath("email").value("testEmail"))
+                .andExpect(jsonPath("password").doesNotExist());
+    }
+
+    @Test
+    public void testSessionEmptySessionId() throws Exception {
+                mockMvc.perform(get(getBaseUrl() + "/whoisit"))
+                .andExpect(status().isUnauthorized());
+    }
+
 
 
     // Exit

@@ -39,7 +39,9 @@ public class UserDaoJpa implements UserDao {
             return null;
         }
         userEntity.update(updateUser);
-        return new UserModel(em.merge(userEntity));
+        final UserModel updatedUsed = new UserModel(em.merge(userEntity));
+        em.flush();
+        return updatedUsed;
     }
 
     @Override
