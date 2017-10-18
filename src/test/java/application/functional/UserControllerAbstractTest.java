@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import static org.junit.Assert.*;
 
@@ -50,11 +51,11 @@ public abstract class UserControllerAbstractTest {
                         "testName",
                         "testEmail",
                         "pass")
-                )))
+                ))).andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value("testName"))
                 .andExpect(jsonPath("email").value("testEmail"))
-                .andExpect(jsonPath("password").doesNotExist());
+                .andExpect(jsonPath("password").doesNotExist()).andDo(print());
         assertNotNull(mockHttpSession.getAttribute("ID"));
     }
 

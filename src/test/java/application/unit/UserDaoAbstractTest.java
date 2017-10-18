@@ -2,6 +2,7 @@ package application.unit;
 
 import application.dao.user.UserDao;
 import application.models.UserModel;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -11,7 +12,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
-import org.junit.Before;
 
 import java.util.Arrays;
 import java.util.List;
