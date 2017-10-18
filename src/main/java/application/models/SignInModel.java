@@ -9,11 +9,11 @@ public class SignInModel extends UserModel {
     @JsonProperty(value = "login", required = true)
     private String login;
 
-    public SignInModel() {}
+    public SignInModel() { }
 
     public SignInModel(String login, String password) {
         super();
-        this.password = password;
+        this.setPassword(password);
         this.login = login;
     }
 

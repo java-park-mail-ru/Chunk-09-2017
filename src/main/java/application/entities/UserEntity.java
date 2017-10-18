@@ -15,17 +15,16 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @Column(name = "login", unique = true, nullable = false, length = 40)
+    @Column(name = "login", unique = true, nullable = false, length = MAX_USERNAME_LENGTH)
     private String username;
 
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "email", unique = true, nullable = false, length = 50)
+    @Column(name = "email", unique = true, nullable = false, length = MAX_EMAIL_LENGTH)
     private String email;
 
-    public UserEntity() {}
+    public UserEntity() { }
 
     public UserEntity(UserModel userModel) {
         this.username = userModel.getUsername();
@@ -76,4 +75,7 @@ public class UserEntity {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    private static final int MAX_EMAIL_LENGTH = 50;
+    private static final int MAX_USERNAME_LENGTH = 40;
 }

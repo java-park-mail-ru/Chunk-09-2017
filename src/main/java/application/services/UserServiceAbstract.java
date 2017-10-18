@@ -22,7 +22,7 @@ public abstract class UserServiceAbstract {
     private static final int MAX_USERNAME_LENGTH = 40;
     private static final int MAX_EMAIL_LENGTH = 50;
 
-    protected UserDao userDao;
+    private UserDao userDao;
 
     public UserServiceAbstract(UserDao userDao) {
         this.userDao = userDao;
@@ -33,9 +33,12 @@ public abstract class UserServiceAbstract {
         try {
             userValidation(userModel);
             return userDao.addUser(userModel).getId();
-        }
-        catch (DataIntegrityViolationException e) {
-            final String message = (e.getMessage() == null) ? "" : e.getMessage();
+
+        } catch (DataIntegrityViolationException e) {
+            String message = "";
+            if (e.getMessage() != null) {
+                message += e.getMessage();
+            }
             if (message.contains("username")) {
                 throw new UserServiceExceptionDuplicateUser(
                         "User with username '" + userModel.getUsername()
@@ -55,12 +58,10 @@ public abstract class UserServiceAbstract {
         UserModel userModel;
         try {
             userModel = userDao.getUserByUsername(login);
-        }
-        catch (EmptyResultDataAccessException e1) {
+        } catch (EmptyResultDataAccessException e1) {
             try {
                 userModel = userDao.getUserByEmail(login);
-            }
-            catch (EmptyResultDataAccessException e2) {
+            } catch (EmptyResultDataAccessException e2) {
                 throw new UserServiceExceptionUserIsNotExist(
                         "Username with email/username '"
                                 + login + "' does not exist", e2);
@@ -80,9 +81,11 @@ public abstract class UserServiceAbstract {
                 throw new UserServiceExceptionPasswordFail("Wrong password");
             }
             return userDao.updateUser(newUser, id);
-        }
-        catch (DataIntegrityViolationException e) {
-            final String message = (e.getMessage() == null) ? "" : e.getMessage();
+        } catch (DataIntegrityViolationException e) {
+            String message = "";
+            if (e.getMessage() != null) {
+                message += e.getMessage();
+            }
             if (message.contains("username")) {
                 throw new UserServiceExceptionDuplicateUser(
                         "User with username '" + newUser.getUsername()
@@ -109,32 +112,32 @@ public abstract class UserServiceAbstract {
         if (user.getPassword() != null) {
             if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
                 throw new UserServiceExceptionIncorrectData(
-                        "The password must be longer than " +
-                                MIN_PASSWORD_LENGTH + " characters");
+                        "The password must be longer than "
+                                + MIN_PASSWORD_LENGTH + " characters");
             }
         }
         if (user.getUsername() != null) {
             if (user.getUsername().length() < MIN_USERNAME_LENGTH) {
                 throw new UserServiceExceptionIncorrectData(
-                        "The username must be longer than " +
-                                MIN_USERNAME_LENGTH + " characters");
+                        "The username must be longer than "
+                                + MIN_USERNAME_LENGTH + " characters");
             }
             if (user.getUsername().length() > MAX_USERNAME_LENGTH) {
                 throw new UserServiceExceptionIncorrectData(
-                        "The username must be shorter than " +
-                                MAX_USERNAME_LENGTH + " characters");
+                        "The username must be shorter than "
+                                + MAX_USERNAME_LENGTH + " characters");
             }
         }
         if (user.getEmail() != null) {
             if (user.getEmail().length() < MIN_EMAIL_LENGTH) {
                 throw new UserServiceExceptionIncorrectData(
-                        "The email must be longer than " +
-                                MIN_EMAIL_LENGTH + " characters");
+                        "The email must be longer than "
+                                + MIN_EMAIL_LENGTH + " characters");
             }
             if (user.getEmail().length() > MAX_EMAIL_LENGTH) {
                 throw new UserServiceExceptionIncorrectData(
-                        "The email must be shorter than " +
-                                MAX_EMAIL_LENGTH + " characters");
+                        "The email must be shorter than "
+                                + MAX_EMAIL_LENGTH + " characters");
             }
         }
         if (user.getOldPassword() == null) {
@@ -158,35 +161,35 @@ public abstract class UserServiceAbstract {
         }
         if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
             throw new UserServiceExceptionIncorrectData(
-                    "The password must be longer than " +
-                            MIN_PASSWORD_LENGTH + " characters");
+                    "The password must be longer than "
+                            + MIN_PASSWORD_LENGTH + " characters");
         }
         if (user.getUsername().length() < MIN_USERNAME_LENGTH) {
             throw new UserServiceExceptionIncorrectData(
-                    "The username must be longer than " +
-                            MIN_USERNAME_LENGTH + " characters");
+                    "The username must be longer than "
+                            + MIN_USERNAME_LENGTH + " characters");
         }
         if (user.getUsername().length() > MAX_USERNAME_LENGTH) {
             throw new UserServiceExceptionIncorrectData(
-                    "The username must be shorter than " +
-                            MAX_USERNAME_LENGTH + " characters");
+                    "The username must be shorter than "
+                            + MAX_USERNAME_LENGTH + " characters");
         }
         if (user.getEmail().length() < MIN_EMAIL_LENGTH) {
             throw new UserServiceExceptionIncorrectData(
-                    "The email must be longer than " +
-                            MIN_EMAIL_LENGTH + " characters");
+                    "The email must be longer than "
+                            + MIN_EMAIL_LENGTH + " characters");
         }
         if (user.getEmail().length() > MAX_EMAIL_LENGTH) {
             throw new UserServiceExceptionIncorrectData(
-                    "The email must be shorter than " +
-                            MAX_EMAIL_LENGTH + " characters");
+                    "The email must be shorter than "
+                            + MAX_EMAIL_LENGTH + " characters");
         }
     }
 
     // UserServiceException
     public abstract static class UserServiceException extends RuntimeException {
-        protected String errorMessage;
-        protected HttpStatus errorCode;
+        private String errorMessage;
+        private HttpStatus errorCode;
 
         UserServiceException(String errorMessage, HttpStatus errorCode, Throwable cause) {
             super(cause);
@@ -209,6 +212,7 @@ public abstract class UserServiceAbstract {
     }
 
     public static class UserServiceExceptionIncorrectData extends UserServiceException {
+
         public UserServiceExceptionIncorrectData(String errorMessage) {
             super(errorMessage, HttpStatus.BAD_REQUEST);
         }
@@ -219,26 +223,30 @@ public abstract class UserServiceAbstract {
         public UserServiceExceptionDuplicateUser(String errorMessage, Throwable cause) {
             super(errorMessage, HttpStatus.CONFLICT, cause);
         }
+
         public UserServiceExceptionDuplicateUser(Throwable cause) {
             super("Duplicate user entity in database", HttpStatus.CONFLICT, cause);
         }
     }
 
     public static class UserServiceExceptionUserIsNotExist extends UserServiceException {
-        UserServiceExceptionUserIsNotExist(String errorMessage, Throwable cause) {
+
+        public UserServiceExceptionUserIsNotExist(String errorMessage, Throwable cause) {
             super(errorMessage, HttpStatus.NOT_FOUND, cause);
         }
-        UserServiceExceptionUserIsNotExist(String errorMessage) {
+
+        public UserServiceExceptionUserIsNotExist(String errorMessage) {
             super(errorMessage, HttpStatus.NOT_FOUND);
         }
     }
 
     public static class UserServiceExceptionPasswordFail extends UserServiceException {
 
-        UserServiceExceptionPasswordFail() {
+        public UserServiceExceptionPasswordFail() {
             super("Incorrect password or login", HttpStatus.FORBIDDEN);
         }
-        UserServiceExceptionPasswordFail(String errorMessage) {
+
+        public UserServiceExceptionPasswordFail(String errorMessage) {
             super(errorMessage, HttpStatus.FORBIDDEN);
         }
     }

@@ -68,15 +68,24 @@ public class UserDaoJpa implements UserDao {
     @Nullable
     public UserModel getUserById(@NotNull Long id) {
         final UserEntity userEntity = em.find(UserEntity.class, id);
-        return userEntity == null ? null : new UserModel(userEntity);
+        if (userEntity == null) {
+            return null;
+        } else {
+            return new UserModel(userEntity);
+        }
     }
 
     @Override
     public List<UserModel> getUsers(int limit, boolean desc) {
-
+        final StringBuilder query = new StringBuilder(
+                "SELECT u FROM UserEntity u ORDER BY id ");
+        if (desc) {
+            query.append("DESC");
+        } else {
+            query.append("ASC");
+        }
         final List<UserEntity> userEntityList = em.createQuery(
-                "SELECT u FROM UserEntity u ORDER BY id " + (desc ? "DESC" : "ASC"),
-                UserEntity.class
+                query.toString(), UserEntity.class
         ).setMaxResults(limit).getResultList();
 
         final List<UserModel> userModelList = new ArrayList<>(userEntityList.size());
@@ -88,13 +97,15 @@ public class UserDaoJpa implements UserDao {
     @Override
     public List<UserModel> getUsers(@Nullable Integer limit) {
         if (limit == null) {
-            limit = 100;
+            limit = DEFAULT_LIMIT;
         }
         return getUsers(limit, false);
     }
 
     @Override
     public List<UserModel> getUsers() {
-        return getUsers(100, false);
+        return getUsers(DEFAULT_LIMIT, false);
     }
+
+    private static final Integer DEFAULT_LIMIT = 100;
 }

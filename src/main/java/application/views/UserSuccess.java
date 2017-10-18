@@ -6,22 +6,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @SuppressWarnings("unused")
 public final class UserSuccess {
 
-	@JsonProperty
-	private String username;
+    @JsonProperty
+    private String username;
 
-	@JsonProperty
-	private String email;
+    @JsonProperty
+    private String email;
 
-	public UserSuccess(UserModel user) {
-		this.username = user.getUsername();
-		this.email = user.getEmail();
-	}
+    public UserSuccess(UserModel user) {
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getEmail() {
+        return email;
+    }
 }

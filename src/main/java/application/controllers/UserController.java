@@ -96,17 +96,17 @@ public class UserController {
     }
 
     @ExceptionHandler(UserServiceException.class)
-    public ResponseEntity<UserFail> handleUserServiceError(UserServiceException e) {
-        e.printStackTrace();
+    public ResponseEntity<UserFail> handleUserServiceError(UserServiceException exception) {
+        exception.printStackTrace();
         return new ResponseEntity<>(
-                new UserFail(e.getErrorMessage()),
-                e.getErrorCode()
+                new UserFail(exception.getErrorMessage()),
+                exception.getErrorCode()
         );
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<UserFail> handleUnexpectedException(RuntimeException e) {
-        e.printStackTrace();
+    public ResponseEntity<UserFail> handleUnexpectedException(RuntimeException exception) {
+        exception.printStackTrace();
         return new ResponseEntity<>(
                 new UserFail("Unexpected error"),
                 HttpStatus.I_AM_A_TEAPOT

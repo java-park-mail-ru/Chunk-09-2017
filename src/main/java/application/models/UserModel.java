@@ -9,83 +9,102 @@ import org.springframework.stereotype.Service;
 @SuppressWarnings("unused")
 public class UserModel {
 
-	@JsonProperty("username")
-	protected String username;
+    @JsonProperty("username")
+    private String username;
 
-	@JsonProperty("email")
-	protected String email;
+    @JsonProperty("email")
+    private String email;
 
-	@JsonProperty(value = "password")
-	protected String password;
+    @JsonProperty(value = "password")
+    private String password;
 
-	protected Long id;
+    private Long id;
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof UserModel)) return false;
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof UserModel)) {
+            return false;
+        }
 
-		final UserModel userModel = (UserModel) o;
-		return (
-				username.equals(userModel.username) &&
-						password.equals(userModel.password) &&
-						email.equals(userModel.email)
-		);
-	}
+        final UserModel userModel = (UserModel) object;
+        return (
+                username.equals(userModel.username)
+                        && password.equals(userModel.password)
+                        && email.equals(userModel.email)
+        );
+    }
 
-	@Override
-	public int hashCode() {
-		int result = username != null ? username.hashCode() : 0;
-		result = 31 * result + (email != null ? email.hashCode() : 0);
-		result = 31 * result + (password != null ? password.hashCode() : 0);
-		result = 31 * result + (id != null ? id.hashCode() : 0);
-		return result;
-	}
+    static final int HASH_NUMBER = 31;
 
-	public UserModel() {}
+    @Override
+    public int hashCode() {
 
-	public UserModel(String username, String email, String password) {
-		this.username = username;
-		this.email = email;
-		this.password = password;
-	}
+        int result = 0;
+        if (username != null) {
+            result += username.hashCode();
+        }
+        result *= HASH_NUMBER;
+        if (email != null) {
+            result += email.hashCode();
+        }
+        result *= HASH_NUMBER;
+        if (password != null) {
+            result += password.hashCode();
+        }
+        result *= HASH_NUMBER;
+        if (id != null) {
+            result += id.hashCode();
+        }
+        return result;
+    }
 
-	public UserModel(UserEntity userEntity) {
-		this.username = userEntity.getUsername();
-		this.email = userEntity.getEmail();
-		this.password = userEntity.getPassword();
-		this.id = userEntity.getId();
-	}
+    public UserModel() { }
 
-	public String getUsername() {
-		return username;
-	}
+    public UserModel(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public UserModel(UserEntity userEntity) {
+        this.username = userEntity.getUsername();
+        this.email = userEntity.getEmail();
+        this.password = userEntity.getPassword();
+        this.id = userEntity.getId();
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
