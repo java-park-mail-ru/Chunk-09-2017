@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.junit.Assert.*;
 
 
 @RunWith(SpringRunner.class)
@@ -39,7 +42,9 @@ public abstract class UserControllerAbstractTest {
     // SignUp
     @Test
     public void testSignUpUserSuccess() throws Exception {
+        final MockHttpSession mockHttpSession = new MockHttpSession();
         mockMvc.perform(post(getBaseUrl() + "/sign_up")
+                .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(new UserModel(
                         "testName",
@@ -49,8 +54,8 @@ public abstract class UserControllerAbstractTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value("testName"))
                 .andExpect(jsonPath("email").value("testEmail"))
-                .andExpect(jsonPath("password").doesNotExist())
-                .andReturn().getResponse();
+                .andExpect(jsonPath("password").doesNotExist());
+        assertNotNull(mockHttpSession.getAttribute("ID"));
     }
 
     @Test
@@ -159,7 +164,33 @@ public abstract class UserControllerAbstractTest {
     // Update
     @Test
     public void testUpdateSuccess() throws Exception {
-        // TODO - как получить куки/id сессии?
+        final MockHttpSession mockHttpSession = new MockHttpSession();
+        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+                .session(mockHttpSession)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UserModel(
+                        "testName",
+                        "testEmail",
+                        "pass"
+                ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("username").value("testName"))
+                .andExpect(jsonPath("email").value("testEmail"))
+                .andExpect(jsonPath("password").doesNotExist());
+
+        mockMvc.perform(post(getBaseUrl() + "/update")
+                .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UpdateUser(
+                        "newTestName",
+                        "newTestEmail",
+                        "newPass",
+                        "pass"
+                ))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username").value("newTestName"))
+                .andExpect(jsonPath("email").value("newTestEmail"))
+                .andExpect(jsonPath("password").doesNotExist());
     }
 
     @Test
@@ -196,7 +227,84 @@ public abstract class UserControllerAbstractTest {
                 .andExpect(status().isBadRequest());
     }
 
-    // TODO 409 Conflict, 403 Forbidden, 200 OK
+    @Test
+    public void testUpdateConflict() throws Exception {
+        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UserModel(
+                        "testName",
+                        "testEmail",
+                        "pass"
+                ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("username").value("testName"))
+                .andExpect(jsonPath("email").value("testEmail"))
+                .andExpect(jsonPath("password").doesNotExist());
+
+        final MockHttpSession mockHttpSession = new MockHttpSession();
+        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+                .session(mockHttpSession)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UserModel(
+                        "testName2",
+                        "testEmail2",
+                        "pass"
+                ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("username").value("testName2"))
+                .andExpect(jsonPath("email").value("testEmail2"))
+                .andExpect(jsonPath("password").doesNotExist());
+
+        assertNotNull("SessionID is null", mockHttpSession.getAttribute("ID"));
+
+        mockMvc.perform(post(getBaseUrl() + "/update")
+                .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UpdateUser(
+                        "testName",
+                        "testEmail",
+                        "pass",
+                        "pass"
+                ))))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testUpdateUnauthorized() throws Exception {
+        mockMvc.perform(post(getBaseUrl() + "/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UpdateUser(
+                        "testName",
+                        "testEmail",
+                        "pass",
+                        "pass"
+                ))))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testUpdateWrongPasswordForbidden() throws Exception {
+        final MockHttpSession mockHttpSession = new MockHttpSession();
+        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+                .session(mockHttpSession)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UserModel(
+                        "testName",
+                        "testEmail",
+                        "pass"
+                )))).andExpect(status().isCreated());
+
+        mockMvc.perform(post(getBaseUrl() + "/update")
+                .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UpdateUser(
+                        "testNameNew",
+                        "testEmailNew",
+                        "passNew",
+                        "wrongPassword"
+                ))))
+                .andExpect(status().isForbidden());
+    }
 
     // Session
     @Test
@@ -215,7 +323,24 @@ public abstract class UserControllerAbstractTest {
                 .andExpect(status().isOk());
     }
 
-    // TODO testExitRightSessionId
+    @Test
+    public void testExitRightSessionId() throws Exception {
+
+        final MockHttpSession mockHttpSession = new MockHttpSession();
+        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+                .session(mockHttpSession)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(new UserModel(
+                        "testName",
+                        "testEmail",
+                        "pass"
+                )))).andExpect(status().isCreated());
+
+        mockMvc.perform(get(getBaseUrl() + "/exit")
+                .sessionAttr("ID", mockHttpSession.getAttribute("ID")))
+                .andExpect(status().isOk());
+    }
+
 
 
     protected abstract String getBaseUrl();
