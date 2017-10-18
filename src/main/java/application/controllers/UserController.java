@@ -35,20 +35,10 @@ public class UserController {
 					HttpStatus.UNAUTHORIZED
 			);
 		}
-		try {
-			final UserModel currentUser = service.getUserById(id);
-			return new ResponseEntity<>(
-					new UserSuccess(currentUser),
-					HttpStatus.OK
-			);
-		}
-		catch (UserServiceException e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(
-					new UserFail(e.getErrorMessage()),
-					e.getErrorCode()
-			);
-		}
+		return new ResponseEntity<>(
+				new UserSuccess(service.getUserById(id)),
+				HttpStatus.OK
+		);
 	}
 
 	@GetMapping(path = "/exit")
@@ -69,21 +59,12 @@ public class UserController {
 					HttpStatus.UNAUTHORIZED
 			);
 		}
-		try {
-			final UserModel userUpdated = service.updateUserProfile(userUpdate, id);
-			httpSession.setAttribute("ID", userUpdated.getId());
-			return new ResponseEntity<>(
-					new UserSuccess(userUpdated),
-					HttpStatus.OK
-			);
-		}
-		catch (UserServiceException e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(
-					new UserFail(e.getErrorMessage()),
-					e.getErrorCode()
-			);
-		}
+		final UserModel userUpdated = service.updateUserProfile(userUpdate, id);
+		httpSession.setAttribute("ID", userUpdated.getId());
+		return new ResponseEntity<>(
+				new UserSuccess(userUpdated),
+				HttpStatus.OK
+		);
 	}
 
 	@PostMapping(path = "/sign_up", consumes = "application/json")
@@ -91,20 +72,11 @@ public class UserController {
 			@RequestBody UserModel user,
 			HttpSession httpSession) {
 
-		try {
-			httpSession.setAttribute("ID", service.addUser(user));
-			return new ResponseEntity<>(
-					new UserSuccess(user),
-					HttpStatus.CREATED
-			);
-		}
-		catch (UserServiceException e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(
-					new UserFail(e.getErrorMessage()),
-					e.getErrorCode()
-			);
-		}
+		httpSession.setAttribute("ID", service.addUser(user));
+		return new ResponseEntity<>(
+				new UserSuccess(user),
+				HttpStatus.CREATED
+		);
 	}
 
 	@PostMapping(path = "/sign_in", consumes = "application/json")
@@ -112,23 +84,32 @@ public class UserController {
 			@RequestBody SignInModel parseBody,
 			HttpSession httpSession) {
 
-		try {
-			final UserModel user = service.signInByLogin(
-					parseBody.getLogin(),
-					parseBody.getPassword()
-			);
-			httpSession.setAttribute("ID", user.getId());
-			return new ResponseEntity<>(
-					new UserSuccess(user),
-					HttpStatus.OK
-			);
-		} catch (UserServiceException e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(
-					new UserFail(e.getErrorMessage()),
-					e.getErrorCode()
-			);
-		}
+		final UserModel user = service.signInByLogin(
+				parseBody.getLogin(),
+				parseBody.getPassword()
+		);
+		httpSession.setAttribute("ID", user.getId());
+		return new ResponseEntity<>(
+				new UserSuccess(user),
+				HttpStatus.OK
+		);
 	}
 
+	@ExceptionHandler(UserServiceException.class)
+	public ResponseEntity<UserFail> handleUserServiceError(UserServiceException e) {
+		e.printStackTrace();
+		return new ResponseEntity<>(
+				new UserFail(e.getErrorMessage()),
+				e.getErrorCode()
+		);
+	}
+
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<UserFail> handleUnexpectedException(RuntimeException e) {
+		e.printStackTrace();
+		return new ResponseEntity<>(
+				new UserFail("Unexpected error"),
+				HttpStatus.I_AM_A_TEAPOT
+		);
+	}
 }
