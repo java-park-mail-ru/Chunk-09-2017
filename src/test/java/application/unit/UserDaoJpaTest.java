@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class UserDaoJpaTest extends UserDaoAbstractTest {
 
-	@Autowired
-	private UserDaoJpa userDao;
+    @Autowired
+    private UserDaoJpa userDao;
 
-	@Override
-	protected UserDao getUserDao() {
-		return this.userDao;
-	}
+    @Override
+    protected UserDao getUserDao() {
+        return this.userDao;
+    }
 }

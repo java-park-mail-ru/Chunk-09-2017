@@ -28,8 +28,8 @@ public class UserModel {
 		final UserModel userModel = (UserModel) o;
 		return (
 				username.equals(userModel.username) &&
-				password.equals(userModel.password) &&
-				email.equals(userModel.email)
+						password.equals(userModel.password) &&
+						email.equals(userModel.email)
 		);
 	}
 

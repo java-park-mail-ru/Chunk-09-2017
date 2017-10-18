@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceJpa extends UserServiceAbstract {
 
-	UserServiceJpa(UserDaoJpa userDao) {
-		super(userDao);
-	}
+    UserServiceJpa(UserDaoJpa userDao) {
+        super(userDao);
+    }
 }

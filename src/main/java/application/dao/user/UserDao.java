@@ -10,19 +10,19 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface UserDao {
 
-	UserModel addUser(UserModel userModel);
+    UserModel addUser(UserModel userModel);
 
-	UserModel updateUser(UserModel updateUser, Long id);
+    UserModel updateUser(UserModel updateUser, Long id);
 
-	UserModel getUserById(Long id);
+    UserModel getUserById(Long id);
 
-	UserModel getUserByUsername(String username);
+    UserModel getUserByUsername(String username);
 
-	UserModel getUserByEmail(String email);
+    UserModel getUserByEmail(String email);
 
-	List<UserModel> getUsers(int limit, boolean asc);
+    List<UserModel> getUsers(int limit, boolean asc);
 
-	List<UserModel> getUsers(Integer limit);
+    List<UserModel> getUsers(Integer limit);
 
-	List<UserModel> getUsers();
+    List<UserModel> getUsers();
 }
