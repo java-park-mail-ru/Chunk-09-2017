@@ -46,10 +46,10 @@ public class UserDaoJpa implements UserDao {
     public UserModel getUserByUsername(String username) {
 
         final TypedQuery<UserEntity> query = em.createQuery(
-                "SELECT u FROM UserEntity u WHERE login = :login",
+                "SELECT u FROM UserEntity u WHERE username = :username",
                 UserEntity.class
         );
-        query.setParameter("login", username);
+        query.setParameter("username", username);
         return new UserModel(query.getSingleResult());
     }
 

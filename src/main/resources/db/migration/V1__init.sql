@@ -26,26 +26,12 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
-
---
--- Name: citext; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
-
-
---
--- Name: EXTENSION citext; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION citext IS 'data type for case-insensitive character strings';
-
-
 SET search_path = public, pg_catalog;
 
 SET default_tablespace = '';
 
 SET default_with_oids = false;
+
 
 --
 -- Name: score; Type: TABLE; Schema: public; Owner: trubnikov
@@ -65,11 +51,11 @@ ALTER TABLE score OWNER TO trubnikov;
 --
 
 CREATE SEQUENCE score_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+START WITH 1
+INCREMENT BY 1
+NO MINVALUE
+NO MAXVALUE
+CACHE 1;
 
 
 ALTER TABLE score_id_seq OWNER TO trubnikov;
@@ -87,9 +73,9 @@ ALTER SEQUENCE score_id_seq OWNED BY score.id;
 
 CREATE TABLE users (
     id bigint NOT NULL,
-    username citext NOT NULL,
-    password character varying(30) NOT NULL,
-    email citext NOT NULL
+    username character varying(40) NOT NULL,
+    password text NOT NULL,
+    email character varying(50) NOT NULL
 );
 
 
@@ -100,11 +86,11 @@ ALTER TABLE users OWNER TO trubnikov;
 --
 
 CREATE SEQUENCE users_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+START WITH 1
+INCREMENT BY 1
+NO MINVALUE
+NO MAXVALUE
+CACHE 1;
 
 
 ALTER TABLE users_id_seq OWNER TO trubnikov;
@@ -130,12 +116,18 @@ ALTER TABLE ONLY score ALTER COLUMN id SET DEFAULT nextval('score_id_seq'::regcl
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
---
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: trubnikov
+
+
+
 --
 
 ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schema_version_s_idx; Type: INDEX; Schema: public; Owner: trubnikov
+--
 
 
 --

@@ -5,7 +5,6 @@ before_script:
   - psql -c "CREATE USER trubnikov WITH SUPERUSER PASSWORD 'pass';" -U postgres
   - psql -c "CREATE DATABASE backend OWNER trubnikov;" -U postgres
   - psql -c "GRANT ALL ON DATABASE backend TO trubnikov" -U postgres
-  - psql tech_park < ./src/main/resources/db/migration/V4__init.sql
 
 language: java
 sudo: required
