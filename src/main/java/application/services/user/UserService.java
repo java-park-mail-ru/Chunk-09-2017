@@ -5,6 +5,7 @@ import application.models.UserModel;
 
 import javax.validation.constraints.NotNull;
 
+
 public interface UserService {
 
     Long addUser(UserModel userModel);

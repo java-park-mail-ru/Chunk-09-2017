@@ -22,7 +22,7 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
-public class UserDaoJpaTest {
+public class UserDaoJpaTest implements UserDaoTest {
 
     @Autowired
     private UserDaoJpa userDao;
@@ -39,18 +39,21 @@ public class UserDaoJpaTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Override
     @Before
     public void addSample() {
         sampleUser = getUserDao().addUser(sampleUser);
         assertNotNull(sampleUser.getId());
     }
 
+    @Override
     @Test
     public void testCreateUser() {
         getUser = getUserDao().addUser(wrongUser);
         assertEquals(getUser, wrongUser);
     }
 
+    @Override
     @Test
     public void testGetUserByLogin() {
 
@@ -60,6 +63,7 @@ public class UserDaoJpaTest {
         assertEquals(getUser, sampleUser);
     }
 
+    @Override
     @Test
     public void testGetUserByEmail() {
         getUser = getUserDao().getUserByEmail(sampleUser.getEmail());
@@ -68,6 +72,7 @@ public class UserDaoJpaTest {
         assertEquals(getUser, sampleUser);
     }
 
+    @Override
     @Test
     public void testGetUserById() {
         getUser = getUserDao().getUserById(sampleUser.getId());
@@ -76,6 +81,7 @@ public class UserDaoJpaTest {
         assertEquals(getUser, sampleUser);
     }
 
+    @Override
     @Test
     public void testGetUserWrongById() {
         wrongUser = getUserDao().addUser(wrongUser);
@@ -94,6 +100,7 @@ public class UserDaoJpaTest {
         assertEquals(getUser, wrongUser);
     }
 
+    @Override
     @Test
     public void testUpdateUser() {
         getUser  = getUserDao().updateUser(wrongUser, sampleUser.getId());
@@ -103,6 +110,7 @@ public class UserDaoJpaTest {
         assertEquals(getUser, wrongUser);
     }
 
+    @Override
     @Test
     public void testGetUsersList() {
         getUserDao().addUser(new UserModel("test0", "test0", "pass"));
