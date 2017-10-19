@@ -15,14 +15,7 @@ import javax.validation.constraints.NotNull;
 
 @Service
 @Transactional
-public class UserServiceJpa {
-
-    private static final int MIN_USERNAME_LENGTH = 4;
-    private static final int MIN_PASSWORD_LENGTH = 4;
-    private static final int MIN_EMAIL_LENGTH = 4;
-
-    private static final int MAX_USERNAME_LENGTH = 40;
-    private static final int MAX_EMAIL_LENGTH = 50;
+public class UserServiceJpa implements UserService {
 
     private UserDao userDao;
 
@@ -30,9 +23,10 @@ public class UserServiceJpa {
         this.userDao = userDao;
     }
 
+    @Override
     public Long addUser(UserModel userModel) {
         try {
-            userValidation(userModel);
+            UserServiceExceptions.userValidation(userModel);
             return userDao.addUser(userModel).getId();
 
         } catch (DataIntegrityViolationException e) {
@@ -41,6 +35,7 @@ public class UserServiceJpa {
         }
     }
 
+    @Override
     public UserModel signInByLogin(String login, String password) {
         UserModel userModel;
         try {
@@ -60,9 +55,10 @@ public class UserServiceJpa {
         return userModel;
     }
 
+    @Override
     public UserModel updateUserProfile(UpdateUser newUser, @NotNull Long id) {
         try {
-            userValidationUpdate(newUser);
+            UserServiceExceptions.userValidationUpdate(newUser);
             final UserModel oldUser = this.getUserById(id);
             if (!oldUser.getPassword().equals(newUser.getOldPassword())) {
                 throw new UserServiceExceptionPasswordFail("Wrong password");
@@ -74,89 +70,12 @@ public class UserServiceJpa {
         }
     }
 
+    @Override
     public UserModel getUserById(@NotNull Long id) {
         final UserModel user = userDao.getUserById(id);
         if (user == null) {
             throw new UserServiceExceptionUserIsNotExist("Your session expired");
         }
         return user;
-    }
-
-    private void userValidationUpdate(UpdateUser user) throws UserServiceExceptionIncorrectData {
-        if (user.getPassword() != null) {
-            if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
-                throw new UserServiceExceptionIncorrectData(
-                        "The password must be longer than "
-                                + MIN_PASSWORD_LENGTH + " characters");
-            }
-        }
-        if (user.getUsername() != null) {
-            if (user.getUsername().length() < MIN_USERNAME_LENGTH) {
-                throw new UserServiceExceptionIncorrectData(
-                        "The username must be longer than "
-                                + MIN_USERNAME_LENGTH + " characters");
-            }
-            if (user.getUsername().length() > MAX_USERNAME_LENGTH) {
-                throw new UserServiceExceptionIncorrectData(
-                        "The username must be shorter than "
-                                + MAX_USERNAME_LENGTH + " characters");
-            }
-        }
-        if (user.getEmail() != null) {
-            if (user.getEmail().length() < MIN_EMAIL_LENGTH) {
-                throw new UserServiceExceptionIncorrectData(
-                        "The email must be longer than "
-                                + MIN_EMAIL_LENGTH + " characters");
-            }
-            if (user.getEmail().length() > MAX_EMAIL_LENGTH) {
-                throw new UserServiceExceptionIncorrectData(
-                        "The email must be shorter than "
-                                + MAX_EMAIL_LENGTH + " characters");
-            }
-        }
-        if (user.getOldPassword() == null) {
-            throw new UserServiceExceptionIncorrectData(
-                    "Enter the current password");
-        }
-    }
-
-    private void userValidation(UserModel user) throws UserServiceExceptionIncorrectData {
-        if (user.getPassword() == null) {
-            throw new UserServiceExceptionIncorrectData(
-                    "The password field is missging");
-        }
-        if (user.getUsername() == null) {
-            throw new UserServiceExceptionIncorrectData(
-                    "The username field is missging");
-        }
-        if (user.getEmail() == null) {
-            throw new UserServiceExceptionIncorrectData(
-                    "The email field is missging");
-        }
-        if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
-            throw new UserServiceExceptionIncorrectData(
-                    "The password must be longer than "
-                            + MIN_PASSWORD_LENGTH + " characters");
-        }
-        if (user.getUsername().length() < MIN_USERNAME_LENGTH) {
-            throw new UserServiceExceptionIncorrectData(
-                    "The username must be longer than "
-                            + MIN_USERNAME_LENGTH + " characters");
-        }
-        if (user.getUsername().length() > MAX_USERNAME_LENGTH) {
-            throw new UserServiceExceptionIncorrectData(
-                    "The username must be shorter than "
-                            + MAX_USERNAME_LENGTH + " characters");
-        }
-        if (user.getEmail().length() < MIN_EMAIL_LENGTH) {
-            throw new UserServiceExceptionIncorrectData(
-                    "The email must be longer than "
-                            + MIN_EMAIL_LENGTH + " characters");
-        }
-        if (user.getEmail().length() > MAX_EMAIL_LENGTH) {
-            throw new UserServiceExceptionIncorrectData(
-                    "The email must be shorter than "
-                            + MAX_EMAIL_LENGTH + " characters");
-        }
     }
 }

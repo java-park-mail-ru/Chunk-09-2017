@@ -3,6 +3,7 @@ package application.controllers;
 import application.models.SignInModel;
 import application.models.UpdateUser;
 import application.models.UserModel;
+import application.services.user.UserService;
 import application.services.user.UserServiceExceptions.*;
 import application.services.user.UserServiceJpa;
 import application.views.UserFail;
@@ -19,7 +20,7 @@ import javax.servlet.http.HttpSession;
 @CrossOrigin(origins = "*")
 public class UserController {
 
-    private final UserServiceJpa service;
+    private final UserService service;
 
     UserController(UserServiceJpa service) {
         this.service = service;

@@ -1,11 +1,21 @@
 package application.services.user;
 
+import application.models.UpdateUser;
+import application.models.UserModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class UserServiceExceptions {
+
+    private static final int MIN_USERNAME_LENGTH = 4;
+    private static final int MIN_PASSWORD_LENGTH = 4;
+    private static final int MIN_EMAIL_LENGTH = 4;
+
+    private static final int MAX_USERNAME_LENGTH = 40;
+    private static final int MAX_EMAIL_LENGTH = 50;
+
 
     public abstract static class UserServiceException extends RuntimeException {
         private String errorMessage;
@@ -90,6 +100,85 @@ public class UserServiceExceptions {
 
         public UserServiceExceptionPasswordFail(String errorMessage) {
             super(errorMessage, HttpStatus.FORBIDDEN);
+        }
+    }
+
+    // Validation
+    public static void userValidationUpdate(UpdateUser user) throws UserServiceExceptionIncorrectData {
+        if (user.getPassword() != null) {
+            if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
+                throw new UserServiceExceptionIncorrectData(
+                        "The password must be longer than "
+                                + MIN_PASSWORD_LENGTH + " characters");
+            }
+        }
+        if (user.getUsername() != null) {
+            if (user.getUsername().length() < MIN_USERNAME_LENGTH) {
+                throw new UserServiceExceptionIncorrectData(
+                        "The username must be longer than "
+                                + MIN_USERNAME_LENGTH + " characters");
+            }
+            if (user.getUsername().length() > MAX_USERNAME_LENGTH) {
+                throw new UserServiceExceptionIncorrectData(
+                        "The username must be shorter than "
+                                + MAX_USERNAME_LENGTH + " characters");
+            }
+        }
+        if (user.getEmail() != null) {
+            if (user.getEmail().length() < MIN_EMAIL_LENGTH) {
+                throw new UserServiceExceptionIncorrectData(
+                        "The email must be longer than "
+                                + MIN_EMAIL_LENGTH + " characters");
+            }
+            if (user.getEmail().length() > MAX_EMAIL_LENGTH) {
+                throw new UserServiceExceptionIncorrectData(
+                        "The email must be shorter than "
+                                + MAX_EMAIL_LENGTH + " characters");
+            }
+        }
+        if (user.getOldPassword() == null) {
+            throw new UserServiceExceptionIncorrectData(
+                    "Enter the current password");
+        }
+    }
+
+    public static void userValidation(UserModel user) throws UserServiceExceptionIncorrectData {
+        if (user.getPassword() == null) {
+            throw new UserServiceExceptionIncorrectData(
+                    "The password field is missging");
+        }
+        if (user.getUsername() == null) {
+            throw new UserServiceExceptionIncorrectData(
+                    "The username field is missging");
+        }
+        if (user.getEmail() == null) {
+            throw new UserServiceExceptionIncorrectData(
+                    "The email field is missging");
+        }
+        if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
+            throw new UserServiceExceptionIncorrectData(
+                    "The password must be longer than "
+                            + MIN_PASSWORD_LENGTH + " characters");
+        }
+        if (user.getUsername().length() < MIN_USERNAME_LENGTH) {
+            throw new UserServiceExceptionIncorrectData(
+                    "The username must be longer than "
+                            + MIN_USERNAME_LENGTH + " characters");
+        }
+        if (user.getUsername().length() > MAX_USERNAME_LENGTH) {
+            throw new UserServiceExceptionIncorrectData(
+                    "The username must be shorter than "
+                            + MAX_USERNAME_LENGTH + " characters");
+        }
+        if (user.getEmail().length() < MIN_EMAIL_LENGTH) {
+            throw new UserServiceExceptionIncorrectData(
+                    "The email must be longer than "
+                            + MIN_EMAIL_LENGTH + " characters");
+        }
+        if (user.getEmail().length() > MAX_EMAIL_LENGTH) {
+            throw new UserServiceExceptionIncorrectData(
+                    "The email must be shorter than "
+                            + MAX_EMAIL_LENGTH + " characters");
         }
     }
 }
