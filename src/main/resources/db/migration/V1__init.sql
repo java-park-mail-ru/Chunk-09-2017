@@ -21,7 +21,6 @@ CACHE 1;
 ALTER SEQUENCE score_id_seq OWNED BY score.id;
 
 
-
 CREATE TABLE users (
     id bigint NOT NULL,
     username character varying(40) NOT NULL,
@@ -53,14 +52,6 @@ CREATE UNIQUE INDEX users_username_uindex ON users USING btree (username);
 
 ALTER TABLE ONLY score
     ADD CONSTRAINT score_users_id_fk FOREIGN KEY (id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
-
-
 --
 -- PostgreSQL database dump complete
 --

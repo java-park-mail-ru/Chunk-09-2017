@@ -3,9 +3,8 @@ package application.controllers;
 import application.models.SignInModel;
 import application.models.UpdateUser;
 import application.models.UserModel;
-import application.services.UserServiceAbstract;
-import application.services.UserServiceAbstract.UserServiceException;
-import application.services.UserServiceJpa;
+import application.services.user.UserServiceExceptions.*;
+import application.services.user.UserServiceJpa;
 import application.views.UserFail;
 import application.views.UserSuccess;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,7 @@ import javax.servlet.http.HttpSession;
 @CrossOrigin(origins = "*")
 public class UserController {
 
-    private final UserServiceAbstract service;
+    private final UserServiceJpa service;
 
     UserController(UserServiceJpa service) {
         this.service = service;

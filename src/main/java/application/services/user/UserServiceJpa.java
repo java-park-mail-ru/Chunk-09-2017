@@ -1,19 +1,21 @@
-package application.services;
+package application.services.user;
 
 import application.dao.user.UserDao;
+import application.dao.user.UserDaoJpa;
 import application.models.UpdateUser;
 import application.models.UserModel;
+import application.services.user.UserServiceExceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 
+
 @Service
 @Transactional
-public abstract class UserServiceAbstract {
+public class UserServiceJpa {
 
     private static final int MIN_USERNAME_LENGTH = 4;
     private static final int MIN_PASSWORD_LENGTH = 4;
@@ -24,7 +26,7 @@ public abstract class UserServiceAbstract {
 
     private UserDao userDao;
 
-    public UserServiceAbstract(UserDao userDao) {
+    public UserServiceJpa(UserDaoJpa userDao) {
         this.userDao = userDao;
     }
 
@@ -157,92 +159,4 @@ public abstract class UserServiceAbstract {
                             + MAX_EMAIL_LENGTH + " characters");
         }
     }
-
-    // UserServiceException
-    public abstract static class UserServiceException extends RuntimeException {
-        private String errorMessage;
-        private HttpStatus errorCode;
-
-        UserServiceException(String errorMessage, HttpStatus errorCode, Throwable cause) {
-            super(cause);
-            this.errorMessage = errorMessage;
-            this.errorCode = errorCode;
-        }
-
-        UserServiceException(String errorMessage, HttpStatus errorCode) {
-            this.errorMessage = errorMessage;
-            this.errorCode = errorCode;
-        }
-
-        public String getErrorMessage() {
-            return errorMessage;
-        }
-
-        public HttpStatus getErrorCode() {
-            return errorCode;
-        }
-
-        protected void setErrorMessage(String errorMessage) {
-            this.errorMessage = errorMessage;
-        }
-
-        protected void setErrorCode(HttpStatus errorCode) {
-            this.errorCode = errorCode;
-        }
-    }
-
-    public static class UserServiceExceptionIncorrectData extends UserServiceException {
-
-        public UserServiceExceptionIncorrectData(String errorMessage) {
-            super(errorMessage, HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    public static class UserServiceExceptionDuplicateUser extends UserServiceException {
-
-        public UserServiceExceptionDuplicateUser(String username, String email, Throwable cause) {
-            this(cause);
-            String message = "";
-            if (cause.getMessage() != null) {
-                message += cause.getMessage();
-            }
-            if (message.contains("username")) {
-                this.setErrorMessage("User with username '" + username + "' already exists");
-            }
-            if (message.contains("email")) {
-                this.setErrorMessage("User with email '" + email + "' already exists");
-            }
-        }
-
-        public UserServiceExceptionDuplicateUser(String errorMessage, Throwable cause) {
-            super(errorMessage, HttpStatus.CONFLICT, cause);
-        }
-
-        public UserServiceExceptionDuplicateUser(Throwable cause) {
-            super("Duplicate user entity in database", HttpStatus.CONFLICT, cause);
-        }
-    }
-
-    public static class UserServiceExceptionUserIsNotExist extends UserServiceException {
-
-        public UserServiceExceptionUserIsNotExist(String errorMessage, Throwable cause) {
-            super(errorMessage, HttpStatus.NOT_FOUND, cause);
-        }
-
-        public UserServiceExceptionUserIsNotExist(String errorMessage) {
-            super(errorMessage, HttpStatus.NOT_FOUND);
-        }
-    }
-
-    public static class UserServiceExceptionPasswordFail extends UserServiceException {
-
-        public UserServiceExceptionPasswordFail() {
-            super("Incorrect password or login", HttpStatus.FORBIDDEN);
-        }
-
-        public UserServiceExceptionPasswordFail(String errorMessage) {
-            super(errorMessage, HttpStatus.FORBIDDEN);
-        }
-    }
-
 }
