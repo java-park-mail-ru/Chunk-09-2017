@@ -4,7 +4,7 @@
 >(пока только авторизируйся)***
 ***
 
-## [Frontend](https://tower-defense.herokuapp.com)<=>[Backend](http://chunkgame.herokuapp.com)
+## [Frontend](https://tower-defense.herokuapp.com)<=>[Backend](https://backend-java-spring.herokuapp.com/)
 
 ## Members
 * Андрей Савосин
