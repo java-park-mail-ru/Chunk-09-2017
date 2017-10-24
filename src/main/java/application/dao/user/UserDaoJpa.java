@@ -14,7 +14,6 @@ import java.util.List;
 
 
 @Repository
-@Transactional
 public class UserDaoJpa implements UserDao {
 
     private EntityManager em;

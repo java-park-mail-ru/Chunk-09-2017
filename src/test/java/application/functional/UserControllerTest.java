@@ -127,11 +127,10 @@ public class UserControllerTest {
                         testUser.getPassword()
                 ))))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("username").value(testUser.getUsername()))
                 .andExpect(jsonPath("email").value(testUser.getEmail()))
-                .andExpect(jsonPath("username").value(testUser.getPassword()))
+                .andExpect(jsonPath("password").doesNotExist())
                 .andDo(print());
-
-//        assertTrue(false);
     }
 
     @Test
