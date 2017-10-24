@@ -1,7 +1,7 @@
 package application.dao.user;
 
 import application.entities.UserEntity;
-import application.models.UserModel;
+import application.models.user.UserModel;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 

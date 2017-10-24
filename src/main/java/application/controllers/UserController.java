@@ -1,8 +1,8 @@
 package application.controllers;
 
-import application.models.SignInModel;
-import application.models.UpdateUser;
-import application.models.UserModel;
+import application.models.user.SignInModel;
+import application.models.user.UpdateUser;
+import application.models.user.UserModel;
 import application.services.user.UserService;
 import application.services.user.UserServiceExceptions.*;
 import application.services.user.UserServiceJpa;

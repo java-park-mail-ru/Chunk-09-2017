@@ -2,8 +2,8 @@ package application.services.user;
 
 import application.dao.user.UserDao;
 import application.dao.user.UserDaoJpa;
-import application.models.UpdateUser;
-import application.models.UserModel;
+import application.models.user.UpdateUser;
+import application.models.user.UserModel;
 import application.services.user.UserServiceExceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;

@@ -2,7 +2,7 @@ package application.unit;
 
 import application.dao.user.UserDao;
 import application.dao.user.UserDaoJpa;
-import application.models.UserModel;
+import application.models.user.UserModel;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
