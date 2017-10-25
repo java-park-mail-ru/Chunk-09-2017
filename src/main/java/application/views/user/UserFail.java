@@ -1,4 +1,4 @@
-package application.views;
+package application.views.user;
 
 
 @SuppressWarnings("unused")

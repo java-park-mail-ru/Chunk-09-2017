@@ -1,4 +1,4 @@
-package application.controllers;
+package application.controllers.user;
 
 import application.models.user.SignInModel;
 import application.models.user.UpdateUser;
@@ -6,8 +6,8 @@ import application.models.user.UserModel;
 import application.services.user.UserService;
 import application.services.user.UserServiceExceptions.*;
 import application.services.user.UserServiceJpa;
-import application.views.UserFail;
-import application.views.UserSuccess;
+import application.views.user.UserFail;
+import application.views.user.UserSuccess;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
