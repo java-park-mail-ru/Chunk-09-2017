@@ -1,6 +1,6 @@
 package application.dao.user;
 
-import application.models.UserModel;
+import application.models.user.UserModel;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

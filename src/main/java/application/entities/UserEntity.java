@@ -1,6 +1,6 @@
 package application.entities;
 
-import application.models.UserModel;
+import application.models.user.UserModel;
 
 import javax.persistence.*;
 
