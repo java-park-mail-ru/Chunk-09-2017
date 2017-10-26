@@ -1,7 +1,8 @@
 package application.controllers.game;
 
 
-import application.models.game.GamePrepare;
+import application.models.game.preGame;
+import application.models.game.PlayStep;
 import application.services.game.GameService;
 import application.services.user.UserService;
 import application.views.user.UserFail;
@@ -10,12 +11,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping(path = "/game")
 @CrossOrigin(origins = "*")
 public class SingleGameController {
-    
+
     private final GameService gameService;
     private final UserService userService;
 
@@ -27,7 +29,7 @@ public class SingleGameController {
 
     @PostMapping(path = "/multi/create")
     public ResponseEntity createMultiGame(
-            @RequestBody GamePrepare gamePrepare,
+            @RequestBody preGame preGame,
             HttpSession httpSession) {
         final Long userID = (Long) httpSession.getAttribute("ID");
         if (userID == null) {
@@ -36,7 +38,7 @@ public class SingleGameController {
                     HttpStatus.UNAUTHORIZED
             );
         }
-        final Long gameID = gameService.createGame(gamePrepare);
+        final Long gameID = gameService.createGame(preGame);
         if (gameID == null) {
             return new ResponseEntity<>(
                     new UserFail("Bad request"),
@@ -53,7 +55,7 @@ public class SingleGameController {
 
     @PostMapping(path = "/single/create")
     public ResponseEntity createSingleGame(
-            @RequestBody GamePrepare gamePrepare,
+            @RequestBody preGame preGame,
             HttpSession httpSession) {
         final Long userID = (Long) httpSession.getAttribute("ID");
         if (userID == null) {
@@ -62,9 +64,9 @@ public class SingleGameController {
                     HttpStatus.UNAUTHORIZED
             );
         }
-        final Long gameID = gameService.createGame(gamePrepare);
+        final Long gameID = gameService.createGame(preGame);
         gameService.addPlayer(gameID, userService.getUserById(userID));
-        for (int i = 1; i < gamePrepare.getMaxPlayers(); ++i) {
+        for (int i = 1; i < preGame.getMaxPlayers(); ++i) {
             gameService.addBot(gameID);
         }
         if (gameID == null) {
@@ -92,5 +94,23 @@ public class SingleGameController {
                     HttpStatus.CREATED
             );
         }
+    }
+
+    @PutMapping(path = "/play")
+    public ResponseEntity play(
+            @RequestBody PlayStep playStep,
+            HttpSession httpSession) {
+
+        final Long userID = (Long) httpSession.getAttribute("ID");
+        if (userID == null) {
+            return new ResponseEntity<>(
+                    new UserFail("Need to sign up"),
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+        return new ResponseEntity<>(
+                gameService.play(userID, playStep),
+                HttpStatus.OK
+        );
     }
 }
