@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping(path = "/game")
+@CrossOrigin(origins = "*")
 public class SingleGameController {
     
     private final GameService gameService;
