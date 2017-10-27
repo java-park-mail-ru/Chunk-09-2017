@@ -17,8 +17,8 @@ public class UserServiceTools {
 
     // Validation
     public static void userValidationUpdate(UpdateUser user) throws UserExceptionIncorrectData {
-        if (user.getPassword() != null &&
-                user.getPassword().length() < MIN_PASSWORD_LENGTH) {
+        if (user.getPassword() != null
+                && user.getPassword().length() < MIN_PASSWORD_LENGTH) {
             throw new UserExceptionIncorrectData(
                     "The password must be longer than "
                             + MIN_PASSWORD_LENGTH + " characters");
