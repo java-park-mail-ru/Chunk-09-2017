@@ -1,8 +1,9 @@
 package application.models.game;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PlayStep {
+public class Snapshot {
 
     @JsonProperty
     private Integer x1;
@@ -17,7 +18,8 @@ public class PlayStep {
     private Long gameID;
     @JsonProperty
     private Integer playerID;
-
+    @JsonProperty
+    private Integer currentPlayerID;
 
     public Integer getX1() {
         return x1;
@@ -65,5 +67,13 @@ public class PlayStep {
 
     public void setPlayerID(Integer playerID) {
         this.playerID = playerID;
+    }
+
+    public Integer getCurrentPlayerID() {
+        return currentPlayerID;
+    }
+
+    public void setCurrentPlayerID(Integer currentPlayerID) {
+        this.currentPlayerID = currentPlayerID;
     }
 }

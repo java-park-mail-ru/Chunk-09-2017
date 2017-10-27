@@ -2,7 +2,7 @@ package application.controllers.game;
 
 
 import application.models.game.preGame;
-import application.models.game.PlayStep;
+import application.models.game.Snapshot;
 import application.services.game.GameService;
 import application.services.user.UserService;
 import application.views.user.UserFail;
@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping(path = "/game")
@@ -27,31 +26,30 @@ public class SingleGameController {
         this.userService = userService;
     }
 
-    @PostMapping(path = "/multi/create")
-    public ResponseEntity createMultiGame(
-            @RequestBody preGame preGame,
-            HttpSession httpSession) {
-        final Long userID = (Long) httpSession.getAttribute("ID");
-        if (userID == null) {
-            return new ResponseEntity<>(
-                    new UserFail("Need to sign up"),
-                    HttpStatus.UNAUTHORIZED
-            );
-        }
-        final Long gameID = gameService.createGame(preGame);
-        if (gameID == null) {
-            return new ResponseEntity<>(
-                    new UserFail("Bad request"),
-                    HttpStatus.BAD_REQUEST
-            );
-        }
-        gameService.addPlayer(gameID, userService.getUserById(userID));
-        return new ResponseEntity<>(
-                "{\"gameID\": \"" + gameID + "\"}",
-                HttpStatus.CREATED
-        );
-    }
-
+//    @PostMapping(path = "/multi/create")
+//    public ResponseEntity createMultiGame(
+//            @RequestBody preGame preGame,
+//            HttpSession httpSession) {
+//        final Long userID = (Long) httpSession.getAttribute("ID");
+//        if (userID == null) {
+//            return new ResponseEntity<>(
+//                    new UserFail("Need to sign up"),
+//                    HttpStatus.UNAUTHORIZED
+//            );
+//        }
+//        final Long gameID = gameService.createGame(preGame);
+//        if (gameID == null) {
+//            return new ResponseEntity<>(
+//                    new UserFail("Bad request"),
+//                    HttpStatus.BAD_REQUEST
+//            );
+//        }
+//        gameService.addPlayer(gameID, userService.getUserById(userID));
+//        return new ResponseEntity<>(
+//                "{\"gameID\": \"" + gameID + "\"}",
+//                HttpStatus.CREATED
+//        );
+//    }
 
     @PostMapping(path = "/single/create")
     public ResponseEntity createSingleGame(
@@ -82,7 +80,9 @@ public class SingleGameController {
     }
 
     @GetMapping(path = "/complete")
-    public ResponseEntity checkPrepareGameStatus(@RequestParam(name = "gameID") Long gameID) {
+    public ResponseEntity checkPrepareGameStatus(
+            @RequestParam(name = "gameID") Long gameID) {
+
         if (!gameService.getPrepareGameStatus(gameID)) {
             return new ResponseEntity<>(
                     gameService.getPrepareGamePlayers(gameID),
@@ -98,7 +98,7 @@ public class SingleGameController {
 
     @PutMapping(path = "/play")
     public ResponseEntity play(
-            @RequestBody PlayStep playStep,
+            @RequestBody Snapshot snapshot,
             HttpSession httpSession) {
 
         final Long userID = (Long) httpSession.getAttribute("ID");
@@ -109,7 +109,25 @@ public class SingleGameController {
             );
         }
         return new ResponseEntity<>(
-                gameService.play(userID, playStep),
+                gameService.play(userID, snapshot),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping(path = "/status")
+    public ResponseEntity getUpdateField(
+            @RequestBody Snapshot snapshot,
+            HttpSession httpSession)  {
+
+        final Long userID = (Long) httpSession.getAttribute("ID");
+        if (userID == null) {
+            return new ResponseEntity<>(
+                    new UserFail("Need to sign up"),
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+        return new ResponseEntity<>(
+                gameService.waitingAnotherPlayer(userID, snapshot),
                 HttpStatus.OK
         );
     }

@@ -55,18 +55,16 @@ public class preGame {
         players.add(player);
         final Integer index = players.indexOf(player);
         if (index < maxPlayers) {
-            players.get(index).setPlayerID(index + 1);
+            players.get(index).setPlayerID(index);
             if (index + 1 == maxPlayers) {
                 isReady = true;
             }
-            return index + 1;
+            return index;
         } else {
             players.remove(player);
             return null;
         }
     }
-
-
 
     public Long getGameID() {
         return gameID;

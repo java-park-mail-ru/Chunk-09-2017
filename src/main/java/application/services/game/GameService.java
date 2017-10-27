@@ -44,15 +44,15 @@ public class GameService {
         return prepareGames.get(gameID).isReady();
     }
 
-    public Field play(Long userID, PlayStep playStep) {
+    public Game play(Long userID, Snapshot snapshot) {
 
-        final Game game = readyGames.get(playStep.getGameID());
+        final Game game = readyGames.get(snapshot.getGameID());
         if ( game == null ) {
             // TODO throw exception
             return null;
         }
 
-        if ( game.getCurrentPlayerID().equals(playStep.getPlayerID()) ) {
+        if ( !game.getCurrentPlayerID().equals(snapshot.getPlayerID()) ) {
             // TODO throw exception
             return null;
         }
@@ -62,7 +62,35 @@ public class GameService {
             return null;
         }
 
-        return game.play(playStep.getX1(), playStep.getY1(), playStep.getX2(), playStep.getY2());
+        game.play(snapshot.getX1(), snapshot.getY1(), snapshot.getX2(), snapshot.getY2());
+        return game;
+    }
+
+    public Game waitingAnotherPlayer(Long userID, Snapshot snapshot) {
+
+        // TODO validator for 3 'if'
+        final Game game = readyGames.get(snapshot.getGameID());
+        if ( game == null ) {
+            // TODO throw exception
+            return null;
+        }
+
+        if ( !game.getPlayers().get(snapshot.getPlayerID()).getUserID().equals(userID) ) {
+            // TODO throw читер
+            return null;
+        }
+
+        if ( !game.getCurrentPlayerID().equals(snapshot.getCurrentPlayerID()) ) {
+            return game;
+        } else {
+            if (game.getCurrentUserID() == null) {
+                game.playByCurrentBot();
+                return game;
+            } else {
+                //      TODO for realPlayers
+                return null;
+            }
+        }
     }
 
     public ArrayList<Player> getPrepareGamePlayers(Long gameID) {

@@ -3,6 +3,7 @@ package application.models.game;
 import application.services.game.GameServiceTools;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 
 public class Field {
 
@@ -19,7 +20,7 @@ public class Field {
         field = new Integer[maxX][maxY];
         for (int i = 0; i < maxX; ++i) {
             for (int j = 0; j < maxY; ++j) {
-                field[i][j] = 0;
+                field[i][j] = GameServiceTools.EMPTY_CELL;
             }
         }
     }
@@ -29,11 +30,11 @@ public class Field {
         field[0][0] = field[maxX - 1][maxY - 1] = GameServiceTools.PLAYER_2;
     }
 
-    public void step(Integer x1, Integer y1, Integer x2, Integer y2) {
+    public boolean step(Integer x1, Integer y1, Integer x2, Integer y2) {
 
         if ( x2 < 0 || x2 >= maxX || y2 < 0 || y2 >= maxY) {
             // TODO throw exception OUT_OF_RANGE
-            return;
+            return false;
         }
 
         switch (getRange(x1, y1, x2, y2)) {
@@ -46,14 +47,26 @@ public class Field {
                 break;
             default:
                 //TODO throw exception
-                return;
+                return false;
         }
-
         consumeAround(x2, y2);
+
+        return isGameOver();
     }
 
     public Integer[][] getField() {
         return field;
+    }
+
+    public boolean isGameOver() {
+        for (int i = 0; i < maxX; ++i) {
+            for (int j = 0; j < maxY; ++j) {
+                if ( field[i][j] == GameServiceTools.EMPTY_CELL ) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @NotNull
@@ -76,5 +89,15 @@ public class Field {
                 }
             }
         }
+    }
+
+
+    // Getter & Setters
+    public Integer getMaxX() {
+        return maxX;
+    }
+
+    public Integer getMaxY() {
+        return maxY;
     }
 }
