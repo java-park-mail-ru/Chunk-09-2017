@@ -73,6 +73,15 @@ public class TestGameController {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("gameID").exists())
                 .andDo(print());
+
+        mockMvc.perform(post(baseUrl + "/single/create")
+                .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.toJson(new TestUtils.TestPlayer())))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("gameID").exists())
+                .andDo(print());
     }
 
     @Test
