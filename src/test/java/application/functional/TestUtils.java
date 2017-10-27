@@ -30,8 +30,8 @@ public class TestUtils {
         }
 
         TestPlayer() {
-            this.width = 5;
-            this.height = 5;
+            this.width = 6;
+            this.height = 6;
             this.maxPlayers = 2;
         }
 

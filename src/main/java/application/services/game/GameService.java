@@ -19,7 +19,7 @@ public class GameService {
         if (preGame.getMaxPlayers() < 2) {
             return null;
         }
-        final Long gameID = gameIdSequence.get();
+        final Long gameID = gameIdSequence.getAndIncrement();
         prepareGames.put(gameID, preGame);
         return gameID;
     }
