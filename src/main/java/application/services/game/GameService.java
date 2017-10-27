@@ -1,7 +1,6 @@
 package application.services.game;
 
-import application.models.game.GamePrepare;
-import application.models.game.Player;
+import application.models.game.*;
 import application.models.user.UserModel;
 import org.springframework.stereotype.Component;
 
@@ -12,16 +11,16 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class GameService {
 
-    private final HashMap<Long, GamePrepare> prepareGames = new HashMap<>();
+    private final HashMap<Long, preGame> prepareGames = new HashMap<>();
     private final HashMap<Long, Game> readyGames = new HashMap<>();
     private AtomicLong gameIdSequence = new AtomicLong();
 
-    public Long createGame(GamePrepare gamePrepare) {
-        if (gamePrepare.getMaxPlayers() < 2) {
+    public Long createGame(preGame preGame) {
+        if (preGame.getMaxPlayers() < 2) {
             return null;
         }
         final Long gameID = gameIdSequence.get();
-        prepareGames.put(gameID, gamePrepare);
+        prepareGames.put(gameID, preGame);
         return gameID;
     }
 
@@ -45,7 +44,54 @@ public class GameService {
         return prepareGames.get(gameID).isReady();
     }
 
+    public Game play(Long userID, Snapshot snapshot) {
 
+        final Game game = readyGames.get(snapshot.getGameID());
+        if ( game == null ) {
+            // TODO throw exception
+            return null;
+        }
+
+        if ( !game.getCurrentPlayerID().equals(snapshot.getPlayerID()) ) {
+            // TODO throw exception
+            return null;
+        }
+
+        if ( !game.getCurrentUserID().equals(userID) ) {
+            // TODO throw читер
+            return null;
+        }
+
+        game.play(snapshot.getX1(), snapshot.getY1(), snapshot.getX2(), snapshot.getY2());
+        return game;
+    }
+
+    public Game waitingAnotherPlayer(Long userID, Snapshot snapshot) {
+
+        // TODO validator for 3 'if'
+        final Game game = readyGames.get(snapshot.getGameID());
+        if ( game == null ) {
+            // TODO throw exception
+            return null;
+        }
+
+        if ( !game.getPlayers().get(snapshot.getPlayerID()).getUserID().equals(userID) ) {
+            // TODO throw читер
+            return null;
+        }
+
+        if ( !game.getCurrentPlayerID().equals(snapshot.getCurrentPlayerID()) ) {
+            return game;
+        } else {
+            if (game.getCurrentUserID() == null) {
+                game.playByCurrentBot();
+                return game;
+            } else {
+                //      TODO for realPlayers
+                return null;
+            }
+        }
+    }
 
     public ArrayList<Player> getPrepareGamePlayers(Long gameID) {
         return prepareGames.get(gameID).getPlayers();
@@ -55,7 +101,7 @@ public class GameService {
         return readyGames.get(gameID);
     }
 
-    private void startGame(Long gameID, GamePrepare gamePrepared) {
-        readyGames.put(gameID, new Game(gamePrepared));
+    private void startGame(Long gameID, preGame preGamePrepared) {
+        readyGames.put(gameID, new Game(preGamePrepared));
     }
 }

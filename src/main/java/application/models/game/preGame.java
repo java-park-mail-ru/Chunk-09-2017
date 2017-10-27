@@ -11,7 +11,7 @@ import javax.swing.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 
-public class GamePrepare {
+public class preGame {
 
     @JsonProperty
     Integer width;
@@ -25,16 +25,16 @@ public class GamePrepare {
     Long gameID;
 
 
-    public GamePrepare(@NotNull Integer height,
-                       @NotNull Integer width,
-                       @NotNull Integer maxPlayers) {
+    public preGame(@NotNull Integer height,
+                   @NotNull Integer width,
+                   @NotNull Integer maxPlayers) {
         this.width = width;
         this.height = height;
         this.maxPlayers = maxPlayers;
         isReady = false;
     }
 
-    public GamePrepare() { }
+    public preGame() { }
 
     public Integer addPlayer(UserModel userModel) {
         final Player player = new Player(userModel);
@@ -55,18 +55,16 @@ public class GamePrepare {
         players.add(player);
         final Integer index = players.indexOf(player);
         if (index < maxPlayers) {
-            players.get(index).setPlayerID(index + 1);
+            players.get(index).setPlayerID(index);
             if (index + 1 == maxPlayers) {
                 isReady = true;
             }
-            return index + 1;
+            return index;
         } else {
             players.remove(player);
             return null;
         }
     }
-
-
 
     public Long getGameID() {
         return gameID;

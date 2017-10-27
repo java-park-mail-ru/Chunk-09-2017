@@ -30,8 +30,8 @@ public class TestUtils {
         }
 
         TestPlayer() {
-            this.width = RANDOM.nextInt(MAX_GAME_FIELD_WIDTH) + 2;
-            this.height = RANDOM.nextInt(MAX_GAME_FIELD_HEIGHT) + 2;
+            this.width = 5;
+            this.height = 5;
             this.maxPlayers = 2;
         }
 
@@ -74,5 +74,40 @@ public class TestUtils {
 
     public static String toJson(Object o) throws JsonProcessingException {
         return MAPPER.writeValueAsString(o);
+    }
+
+    static class TestPlaystep {
+
+        @JsonProperty
+        Integer x1;
+        @JsonProperty
+        Integer x2;
+        @JsonProperty
+        Integer y1;
+        @JsonProperty
+        Integer y2;
+        @JsonProperty
+        Long gameID;
+        @JsonProperty
+        Integer playerID;
+        @JsonProperty
+        Integer currentPlayerID;
+
+        TestPlaystep(Integer x1, Integer y1, Integer x2, Integer y2,
+                     Long gameID, Integer playerID) {
+
+            this.x1 = x1;
+            this.x2 = x2;
+            this.y1 = y1;
+            this.y2 = y2;
+            this.gameID = gameID;
+            this.playerID = playerID;
+        }
+        TestPlaystep(Long gameID, Integer playerID, Integer currentPlayerID) {
+
+            this.gameID = gameID;
+            this.playerID = playerID;
+            this.currentPlayerID = currentPlayerID;
+        }
     }
 }
