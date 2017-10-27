@@ -43,6 +43,18 @@ public class UserDaoJpa implements UserDao {
     }
 
     @Override
+    public UserModel getUserByUsernameOrEmail(String login) {
+        final TypedQuery<UserEntity> query = em.createQuery(
+                "SELECT u FROM UserEntity u WHERE " +
+                        "username = :username OR email = :email",
+                UserEntity.class
+        );
+        query.setParameter("username", login);
+        query.setParameter("email", login);
+        return new UserModel(query.getSingleResult());
+    }
+
+    @Override
     public UserModel getUserByUsername(String username) {
 
         final TypedQuery<UserEntity> query = em.createQuery(

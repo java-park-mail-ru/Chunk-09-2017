@@ -1,10 +1,10 @@
 package application.controllers;
 
+import application.exceptions.user.UserException;
 import application.models.SignInModel;
 import application.models.UpdateUser;
 import application.models.UserModel;
 import application.services.user.UserService;
-import application.services.user.UserServiceExceptions.*;
 import application.services.user.UserServiceJpa;
 import application.views.UserFail;
 import application.views.UserSuccess;
@@ -95,8 +95,8 @@ public class UserController {
         );
     }
 
-    @ExceptionHandler(UserServiceException.class)
-    public ResponseEntity<UserFail> handleUserServiceError(UserServiceException exception) {
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<UserFail> handleUserServiceError(UserException exception) {
         exception.printStackTrace();
         return new ResponseEntity<>(
                 new UserFail(exception.getErrorMessage()),

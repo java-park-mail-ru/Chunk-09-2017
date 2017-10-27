@@ -2,9 +2,11 @@ package application.services.user;
 
 import application.dao.user.UserDao;
 import application.dao.user.UserDaoJpa;
+import application.exceptions.user.UserExceptionDuplicateUser;
+import application.exceptions.user.UserExceptionPasswordFail;
+import application.exceptions.user.UserExceptionUserIsNotExist;
 import application.models.UpdateUser;
 import application.models.UserModel;
-import application.services.user.UserServiceExceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -30,27 +32,23 @@ public class UserServiceJpa implements UserService {
             return userDao.addUser(userModel).getId();
 
         } catch (DataIntegrityViolationException e) {
-            throw new UserServiceExceptionDuplicateUser(
+            throw new UserExceptionDuplicateUser(
                     userModel.getUsername(), userModel.getEmail(), e);
         }
     }
 
     @Override
     public UserModel signInByLogin(String login, String password) {
-        UserModel userModel;
+        final UserModel userModel;
         try {
-            userModel = userDao.getUserByUsername(login);
-        } catch (EmptyResultDataAccessException e1) {
-            try {
-                userModel = userDao.getUserByEmail(login);
-            } catch (EmptyResultDataAccessException e2) {
-                throw new UserServiceExceptionUserIsNotExist(
-                        "Username with email/username '"
-                                + login + "' does not exist", e2);
-            }
+            userModel = userDao.getUserByUsernameOrEmail(login);
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserExceptionUserIsNotExist(
+                    "Username with email/username '"
+                            + login + "' does not exist", e);
         }
         if (!password.equals(userModel.getPassword())) {
-            throw new UserServiceExceptionPasswordFail();
+            throw new UserExceptionPasswordFail();
         }
         return userModel;
     }
@@ -61,11 +59,11 @@ public class UserServiceJpa implements UserService {
             UserServiceTools.userValidationUpdate(newUser);
             final UserModel oldUser = this.getUserById(id);
             if (!oldUser.getPassword().equals(newUser.getOldPassword())) {
-                throw new UserServiceExceptionPasswordFail("Wrong password");
+                throw new UserExceptionPasswordFail("Wrong password");
             }
             return userDao.updateUser(newUser, id);
         } catch (DataIntegrityViolationException e) {
-            throw new UserServiceExceptionDuplicateUser(
+            throw new UserExceptionDuplicateUser(
                     newUser.getUsername(), newUser.getEmail(), e);
         }
     }
@@ -74,7 +72,7 @@ public class UserServiceJpa implements UserService {
     public UserModel getUserById(@NotNull Long id) {
         final UserModel user = userDao.getUserById(id);
         if (user == null) {
-            throw new UserServiceExceptionUserIsNotExist("Your session expired");
+            throw new UserExceptionUserIsNotExist("Your session expired");
         }
         return user;
     }

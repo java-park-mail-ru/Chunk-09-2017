@@ -20,6 +20,8 @@ public interface UserDao {
 
     UserModel getUserByEmail(String email);
 
+    UserModel getUserByUsernameOrEmail(String login);
+
     List<UserModel> getUsers(int limit, boolean asc);
 
     List<UserModel> getUsers(Integer limit);
