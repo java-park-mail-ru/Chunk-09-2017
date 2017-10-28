@@ -5,8 +5,8 @@ import application.dao.user.UserDaoJpa;
 import application.exceptions.user.UserExceptionDuplicateUser;
 import application.exceptions.user.UserExceptionPasswordFail;
 import application.exceptions.user.UserExceptionUserIsNotExist;
-import application.models.UpdateUser;
-import application.models.UserModel;
+import application.models.UserUpdate;
+import application.models.UserSignUp;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -26,38 +26,38 @@ public class UserServiceJpa implements UserService {
     }
 
     @Override
-    public Long addUser(UserModel userModel) {
+    public Long addUser(UserSignUp userSignUp) {
         try {
-            UserServiceTools.userValidation(userModel);
-            return userDao.addUser(userModel).getId();
+            UserServiceTools.userValidation(userSignUp);
+            return userDao.addUser(userSignUp).getId();
 
         } catch (DataIntegrityViolationException e) {
             throw new UserExceptionDuplicateUser(
-                    userModel.getUsername(), userModel.getEmail(), e);
+                    userSignUp.getUsername(), userSignUp.getEmail(), e);
         }
     }
 
     @Override
-    public UserModel signInByLogin(String login, String password) {
-        final UserModel userModel;
+    public UserSignUp signInByLogin(String login, String password) {
+        final UserSignUp userSignUp;
         try {
-            userModel = userDao.getUserByUsernameOrEmail(login);
+            userSignUp = userDao.getUserByUsernameOrEmail(login);
         } catch (EmptyResultDataAccessException e) {
             throw new UserExceptionUserIsNotExist(
                     "Username with email/username '"
                             + login + "' does not exist", e);
         }
-        if (!password.equals(userModel.getPassword())) {
+        if (!password.equals(userSignUp.getPassword())) {
             throw new UserExceptionPasswordFail();
         }
-        return userModel;
+        return userSignUp;
     }
 
     @Override
-    public UserModel updateUserProfile(UpdateUser newUser, @NotNull Long id) {
+    public UserSignUp updateUserProfile(UserUpdate newUser, @NotNull Long id) {
         try {
             UserServiceTools.userValidationUpdate(newUser);
-            final UserModel oldUser = this.getUserById(id);
+            final UserSignUp oldUser = this.getUserById(id);
             if (!oldUser.getPassword().equals(newUser.getOldPassword())) {
                 throw new UserExceptionPasswordFail("Wrong password");
             }
@@ -69,8 +69,8 @@ public class UserServiceJpa implements UserService {
     }
 
     @Override
-    public UserModel getUserById(@NotNull Long id) {
-        final UserModel user = userDao.getUserById(id);
+    public UserSignUp getUserById(@NotNull Long id) {
+        final UserSignUp user = userDao.getUserById(id);
         if (user == null) {
             throw new UserExceptionUserIsNotExist("Your session expired");
         }

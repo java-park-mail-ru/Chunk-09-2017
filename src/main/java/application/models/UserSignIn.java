@@ -1,4 +1,4 @@
-package application.models.user;
+package application.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,13 +11,17 @@ public final class UserSignIn extends UserBase {
 
     public UserSignIn(String login, String password) {
         this.login = login;
-        this.password = password;
+        this.setPassword(password);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof UserSignIn)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof UserSignIn)) {
+            return false;
+        }
 
         final UserSignIn that = (UserSignIn) obj;
 
@@ -27,5 +31,13 @@ public final class UserSignIn extends UserBase {
     @Override
     public int hashCode() {
         return login.hashCode();
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 }

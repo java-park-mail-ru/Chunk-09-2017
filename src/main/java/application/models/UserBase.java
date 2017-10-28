@@ -1,13 +1,13 @@
-package application.models.user;
+package application.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class UserBase {
 
     @JsonProperty("password")
-    protected String password;
+    private String password;
 
-    protected Long id;
+    private Long id;
 
     @Override
     public abstract boolean equals(Object obj);
@@ -30,4 +30,6 @@ public abstract class UserBase {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public static final int HASH_NUMBER = 31;
 }

@@ -1,8 +1,8 @@
 package application.services.user;
 
 import application.exceptions.user.UserExceptionIncorrectData;
-import application.models.UpdateUser;
-import application.models.UserModel;
+import application.models.UserUpdate;
+import application.models.UserSignUp;
 
 
 public class UserServiceTools {
@@ -16,7 +16,7 @@ public class UserServiceTools {
     private static final int MAX_EMAIL_LENGTH = 50;
 
     // Validation
-    public static void userValidationUpdate(UpdateUser user) throws UserExceptionIncorrectData {
+    public static void userValidationUpdate(UserUpdate user) throws UserExceptionIncorrectData {
         if (user.getPassword() != null
                 && user.getPassword().length() < MIN_PASSWORD_LENGTH) {
             throw new UserExceptionIncorrectData(
@@ -53,7 +53,7 @@ public class UserServiceTools {
         }
     }
 
-    public static void userValidation(UserModel user) throws UserExceptionIncorrectData {
+    public static void userValidation(UserSignUp user) throws UserExceptionIncorrectData {
         if (user.getPassword() == null) {
             throw new UserExceptionIncorrectData(
                     "The password field is missging");

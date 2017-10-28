@@ -1,9 +1,9 @@
 package application.controllers;
 
 import application.exceptions.user.UserException;
-import application.models.SignInModel;
-import application.models.UpdateUser;
-import application.models.UserModel;
+import application.models.UserSignIn;
+import application.models.UserUpdate;
+import application.models.UserSignUp;
 import application.services.user.UserService;
 import application.services.user.UserServiceJpa;
 import application.views.UserFail;
@@ -49,7 +49,7 @@ public class UserController {
 
     @PostMapping(path = "/update", consumes = "application/json")
     public ResponseEntity settings(
-            @RequestBody UpdateUser userUpdate,
+            @RequestBody UserUpdate userUpdate,
             HttpSession httpSession) {
 
         final Long id = (Long) httpSession.getAttribute("ID");
@@ -59,7 +59,7 @@ public class UserController {
                     HttpStatus.UNAUTHORIZED
             );
         }
-        final UserModel userUpdated = service.updateUserProfile(userUpdate, id);
+        final UserSignUp userUpdated = service.updateUserProfile(userUpdate, id);
         httpSession.setAttribute("ID", userUpdated.getId());
         return new ResponseEntity<>(
                 new UserSuccess(userUpdated),
@@ -69,7 +69,7 @@ public class UserController {
 
     @PostMapping(path = "/sign_up", consumes = "application/json")
     public ResponseEntity signUp(
-            @RequestBody UserModel user,
+            @RequestBody UserSignUp user,
             HttpSession httpSession) {
 
         httpSession.setAttribute("ID", service.addUser(user));
@@ -81,10 +81,10 @@ public class UserController {
 
     @PostMapping(path = "/sign_in", consumes = "application/json")
     public ResponseEntity signIn(
-            @RequestBody SignInModel parseBody,
+            @RequestBody UserSignIn parseBody,
             HttpSession httpSession) {
 
-        final UserModel user = service.signInByLogin(
+        final UserSignUp user = service.signInByLogin(
                 parseBody.getLogin(),
                 parseBody.getPassword()
         );

@@ -1,6 +1,7 @@
 package application.entities;
 
-import application.models.UserModel;
+import application.models.UserSignUp;
+import application.models.UserUpdate;
 
 import javax.persistence.*;
 
@@ -26,21 +27,21 @@ public class UserEntity {
 
     public UserEntity() { }
 
-    public UserEntity(UserModel userModel) {
-        this.username = userModel.getUsername();
-        this.password = userModel.getPassword();
-        this.email = userModel.getEmail();
+    public UserEntity(UserSignUp userSignUp) {
+        this.username = userSignUp.getUsername();
+        this.password = userSignUp.getPassword();
+        this.email = userSignUp.getEmail();
     }
 
-    public void update(UserModel userModel) {
-        if (userModel.getEmail() != null) {
-            this.email = userModel.getEmail();
+    public void update(UserUpdate userUpdate) {
+        if (userUpdate.getEmail() != null) {
+            this.email = userUpdate.getEmail();
         }
-        if (userModel.getUsername() != null) {
-            this.username = userModel.getUsername();
+        if (userUpdate.getUsername() != null) {
+            this.username = userUpdate.getUsername();
         }
-        if (userModel.getPassword() != null) {
-            this.password = userModel.getPassword();
+        if (userUpdate.getPassword() != null) {
+            this.password = userUpdate.getPassword();
         }
     }
 
