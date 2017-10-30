@@ -1,4 +1,12 @@
+services:
+  - postgresql
+
+before_script:
+  - psql -c "CREATE USER trubnikov WITH SUPERUSER PASSWORD 'pass';" -U postgres
+  - psql -c "CREATE DATABASE backend OWNER trubnikov;" -U postgres
+  - psql -c "GRANT ALL ON DATABASE backend TO trubnikov" -U postgres
+
 language: java
 sudo: required
 jdk:
-- oraclejdk8
+  - oraclejdk8

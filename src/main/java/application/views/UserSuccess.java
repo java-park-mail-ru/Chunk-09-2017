@@ -1,14 +1,18 @@
 package application.views;
 
-import application.models.User;
+import application.models.UserSignUp;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @SuppressWarnings("unused")
-public final class GoodResponse {
+public final class UserSuccess {
 
+    @JsonProperty
     private String username;
+
+    @JsonProperty
     private String email;
 
-    public GoodResponse(User user) {
+    public UserSuccess(UserSignUp user) {
         this.username = user.getUsername();
         this.email = user.getEmail();
     }
