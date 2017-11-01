@@ -1,6 +1,7 @@
 package application.functional;
 
-import application.models.user.UserModel;
+import application.models.user.UserSignUp;
+import application.models.user.UserSignUp;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -37,7 +38,7 @@ public class TestGameController {
 //    TODO multiplayer test
 //    @Test
 //    public void testCreateMultiGameSuccess() throws Exception {
-//        final UserModel testUser = TestUtils.getRandomUser();
+//        final UserSignUp testUser = TestUtils.getRandomUser();
 //        final MockHttpSession mockHttpSession = new MockHttpSession();
 //        mockMvc.perform(post("/user/sign_up")
 //                .session(mockHttpSession)
@@ -57,7 +58,7 @@ public class TestGameController {
 
     @Test
     public void testCreateSingleGameSuccess() throws Exception {
-        final UserModel testUser = TestUtils.getRandomUser();
+        final UserSignUp testUser = TestUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
         mockMvc.perform(post("/user/sign_up")
                 .session(mockHttpSession)
@@ -86,7 +87,7 @@ public class TestGameController {
 
     @Test
     public void testCompleteSingleGameSuccess() throws Exception {
-        final UserModel testUser = TestUtils.getRandomUser();
+        final UserSignUp testUser = TestUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
         mockMvc.perform(post("/user/sign_up")
                 .session(mockHttpSession)
@@ -114,7 +115,7 @@ public class TestGameController {
     @Test
     public void testMakeRealPlayerStep() throws Exception {
 
-        final UserModel testUser = TestUtils.getRandomUser();
+        final UserSignUp testUser = TestUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
         mockMvc.perform(post("/user/sign_up")
                 .session(mockHttpSession)
@@ -146,7 +147,7 @@ public class TestGameController {
 
     @Test
     public void testMakeBotPlayerStep() throws Exception {
-        final UserModel testUser = TestUtils.getRandomUser();
+        final UserSignUp testUser = TestUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
         mockMvc.perform(post("/user/sign_up")
                 .session(mockHttpSession)
@@ -186,7 +187,7 @@ public class TestGameController {
 
     @Test
     public void testAssumeOtherPlayers() throws Exception {
-        final UserModel testUser = TestUtils.getRandomUser();
+        final UserSignUp testUser = TestUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
         mockMvc.perform(post("/user/sign_up")
                 .session(mockHttpSession)

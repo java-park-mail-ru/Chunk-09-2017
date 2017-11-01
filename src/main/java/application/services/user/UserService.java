@@ -1,18 +1,18 @@
 package application.services.user;
 
-import application.models.user.UpdateUser;
-import application.models.user.UserModel;
+import application.models.user.UserSignUp;
+import application.models.user.UserUpdate;
 
 import javax.validation.constraints.NotNull;
 
 
 public interface UserService {
 
-    Long addUser(UserModel userModel);
+    Long addUser(UserSignUp userSignUp);
 
-    UserModel signInByLogin(String login, String password);
+    UserSignUp signInByLogin(String login, String password);
 
-    UserModel updateUserProfile(UpdateUser newUser, @NotNull Long id);
+    UserSignUp updateUserProfile(UserUpdate newUser, @NotNull Long id);
 
-    UserModel getUserById(@NotNull Long id);
+    UserSignUp getUserById(@NotNull Long id);
 }

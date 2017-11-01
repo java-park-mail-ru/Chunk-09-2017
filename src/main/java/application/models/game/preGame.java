@@ -1,13 +1,9 @@
 package application.models.game;
 
-import application.models.game.Player;
-import application.models.user.UserModel;
+import application.models.user.UserSignUp;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.jmx.remote.internal.ArrayQueue;
 import org.springframework.lang.Nullable;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.swing.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 
@@ -36,7 +32,7 @@ public class preGame {
 
     public preGame() { }
 
-    public Integer addPlayer(UserModel userModel) {
+    public Integer addPlayer(UserSignUp userModel) {
         final Player player = new Player(userModel);
         return addPlayer(player);
     }

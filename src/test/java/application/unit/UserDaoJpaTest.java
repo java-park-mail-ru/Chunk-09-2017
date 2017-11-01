@@ -2,7 +2,8 @@ package application.unit;
 
 import application.dao.user.UserDao;
 import application.dao.user.UserDaoJpa;
-import application.models.user.UserModel;
+import application.models.user.UserSignUp;
+import application.models.user.UserUpdate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,13 +28,16 @@ public class UserDaoJpaTest implements UserDaoTest {
     @Autowired
     private UserDaoJpa userDao;
 
-    protected UserModel sampleUser;
-    protected UserModel wrongUser;
-    protected UserModel getUser;
+    protected UserSignUp sampleUser;
+    protected UserSignUp wrongUser;
+    protected UserSignUp getUser;
+    protected UserUpdate updateUser;
 
     public UserDaoJpaTest() {
-        sampleUser = new UserModel("testuser", "testemail","testpass");
-        wrongUser = new UserModel("wronguser", "wrongemail","wrongpass");
+        sampleUser = new UserSignUp("testuser", "testemail","testpass");
+        wrongUser = new UserSignUp("wronguser", "wrongemail","wrongpass");
+        updateUser = new UserUpdate("newtestuser", "newtestemail",
+                "testpass", "testpass");
     }
 
     @Rule
@@ -103,27 +107,29 @@ public class UserDaoJpaTest implements UserDaoTest {
     @Override
     @Test
     public void testUpdateUser() {
-        getUser  = getUserDao().updateUser(wrongUser, sampleUser.getId());
+        getUser = getUserDao().updateUser(updateUser, sampleUser.getId());
         assertNotNull(getUser);
         assertNotNull(getUser.getId());
         assertEquals(getUser.getId(), sampleUser.getId());
-        assertEquals(getUser, wrongUser);
+        assertEquals(getUser.getEmail(), updateUser.getEmail());
+        assertEquals(getUser.getUsername(), updateUser.getUsername());
+        assertEquals(getUser.getPassword(), updateUser.getPassword());
     }
 
     @Override
     @Test
     public void testGetUsersList() {
-        getUserDao().addUser(new UserModel("test0", "test0", "pass"));
-        final List<UserModel> addedUserList = Arrays.asList(
-                new UserModel("test1", "test1", "pass"),
-                new UserModel("test2", "test2", "pass"),
-                new UserModel("test3", "test3", "pass"),
-                new UserModel("test4", "test4", "pass"),
-                new UserModel("test5", "test5", "pass")
+        getUserDao().addUser(new UserSignUp("test0", "test0", "pass"));
+        final List<UserSignUp> addedUserList = Arrays.asList(
+                new UserSignUp("test1", "test1", "pass"),
+                new UserSignUp("test2", "test2", "pass"),
+                new UserSignUp("test3", "test3", "pass"),
+                new UserSignUp("test4", "test4", "pass"),
+                new UserSignUp("test5", "test5", "pass")
         );
         addedUserList.forEach(user -> getUserDao().addUser(user));
 
-        final List<UserModel> gettedUserList = getUserDao()
+        final List<UserSignUp> gettedUserList = getUserDao()
                 .getUsers(addedUserList.size(), true);
         assertTrue(addedUserList.containsAll(gettedUserList));
     }

@@ -2,9 +2,11 @@ package application.services.user;
 
 import application.dao.user.UserDao;
 import application.dao.user.UserDaoJpa;
-import application.models.user.UpdateUser;
-import application.models.user.UserModel;
-import application.services.user.UserServiceExceptions.*;
+import application.exceptions.user.UserExceptionDuplicateUser;
+import application.exceptions.user.UserExceptionPasswordFail;
+import application.exceptions.user.UserExceptionUserIsNotExist;
+import application.models.user.UserUpdate;
+import application.models.user.UserSignUp;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -24,57 +26,53 @@ public class UserServiceJpa implements UserService {
     }
 
     @Override
-    public Long addUser(UserModel userModel) {
+    public Long addUser(UserSignUp userSignUp) {
         try {
-            UserServiceTools.userValidation(userModel);
-            return userDao.addUser(userModel).getId();
+            UserServiceTools.userValidation(userSignUp);
+            return userDao.addUser(userSignUp).getId();
 
         } catch (DataIntegrityViolationException e) {
-            throw new UserServiceExceptionDuplicateUser(
-                    userModel.getUsername(), userModel.getEmail(), e);
+            throw new UserExceptionDuplicateUser(
+                    userSignUp.getUsername(), userSignUp.getEmail(), e);
         }
     }
 
     @Override
-    public UserModel signInByLogin(String login, String password) {
-        UserModel userModel;
+    public UserSignUp signInByLogin(String login, String password) {
+        final UserSignUp userSignUp;
         try {
-            userModel = userDao.getUserByUsername(login);
-        } catch (EmptyResultDataAccessException e1) {
-            try {
-                userModel = userDao.getUserByEmail(login);
-            } catch (EmptyResultDataAccessException e2) {
-                throw new UserServiceExceptionUserIsNotExist(
-                        "Username with email/username '"
-                                + login + "' does not exist", e2);
-            }
+            userSignUp = userDao.getUserByUsernameOrEmail(login);
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserExceptionUserIsNotExist(
+                    "Username with email/username '"
+                            + login + "' does not exist", e);
         }
-        if (!password.equals(userModel.getPassword())) {
-            throw new UserServiceExceptionPasswordFail();
+        if (!password.equals(userSignUp.getPassword())) {
+            throw new UserExceptionPasswordFail();
         }
-        return userModel;
+        return userSignUp;
     }
 
     @Override
-    public UserModel updateUserProfile(UpdateUser newUser, @NotNull Long id) {
+    public UserSignUp updateUserProfile(UserUpdate newUser, @NotNull Long id) {
         try {
             UserServiceTools.userValidationUpdate(newUser);
-            final UserModel oldUser = this.getUserById(id);
+            final UserSignUp oldUser = this.getUserById(id);
             if (!oldUser.getPassword().equals(newUser.getOldPassword())) {
-                throw new UserServiceExceptionPasswordFail("Wrong password");
+                throw new UserExceptionPasswordFail("Wrong password");
             }
             return userDao.updateUser(newUser, id);
         } catch (DataIntegrityViolationException e) {
-            throw new UserServiceExceptionDuplicateUser(
+            throw new UserExceptionDuplicateUser(
                     newUser.getUsername(), newUser.getEmail(), e);
         }
     }
 
     @Override
-    public UserModel getUserById(@NotNull Long id) {
-        final UserModel user = userDao.getUserById(id);
+    public UserSignUp getUserById(@NotNull Long id) {
+        final UserSignUp user = userDao.getUserById(id);
         if (user == null) {
-            throw new UserServiceExceptionUserIsNotExist("Your session expired");
+            throw new UserExceptionUserIsNotExist("Your session expired");
         }
         return user;
     }

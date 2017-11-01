@@ -1,6 +1,6 @@
 package application.models.game;
 
-import application.models.user.UserModel;
+import application.models.user.UserSignUp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Player {
@@ -19,7 +19,7 @@ public class Player {
         this.userID = userID;
     }
 
-    public Player(UserModel userModel) {
+    public Player(UserSignUp userModel) {
         this.userID = userModel.getId();
         this.username = userModel.getUsername();
     }

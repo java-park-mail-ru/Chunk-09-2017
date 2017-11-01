@@ -1,6 +1,6 @@
 package application.views.user;
 
-import application.models.user.UserModel;
+import application.models.user.UserSignUp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @SuppressWarnings("unused")
@@ -12,7 +12,7 @@ public final class UserSuccess {
     @JsonProperty
     private String email;
 
-    public UserSuccess(UserModel user) {
+    public UserSuccess(UserSignUp user) {
         this.username = user.getUsername();
         this.email = user.getEmail();
     }

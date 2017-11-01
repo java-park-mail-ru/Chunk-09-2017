@@ -1,6 +1,7 @@
 package application.dao.user;
 
-import application.models.user.UserModel;
+import application.models.user.UserSignUp;
+import application.models.user.UserUpdate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,19 +11,21 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface UserDao {
 
-    UserModel addUser(UserModel userModel);
+    UserSignUp addUser(UserSignUp userSignUp);
 
-    UserModel updateUser(UserModel updateUser, Long id);
+    UserSignUp updateUser(UserUpdate updateUser, Long id);
 
-    UserModel getUserById(Long id);
+    UserSignUp getUserById(Long id);
 
-    UserModel getUserByUsername(String username);
+    UserSignUp getUserByUsername(String username);
 
-    UserModel getUserByEmail(String email);
+    UserSignUp getUserByEmail(String email);
 
-    List<UserModel> getUsers(int limit, boolean asc);
+    UserSignUp getUserByUsernameOrEmail(String login);
 
-    List<UserModel> getUsers(Integer limit);
+    List<UserSignUp> getUsers(int limit, boolean asc);
 
-    List<UserModel> getUsers();
+    List<UserSignUp> getUsers(Integer limit);
+
+    List<UserSignUp> getUsers();
 }

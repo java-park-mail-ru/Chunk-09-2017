@@ -1,7 +1,7 @@
 package application.services.game;
 
 import application.models.game.*;
-import application.models.user.UserModel;
+import application.models.user.UserSignUp;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class GameService {
         return gameID;
     }
 
-    public Integer addPlayer(Long gameID, UserModel user) {
+    public Integer addPlayer(Long gameID, UserSignUp user) {
         final Integer playerID = prepareGames.get(gameID).addPlayer(user);
         if (prepareGames.get(gameID).isReady() && readyGames.get(gameID) == null) {
             startGame(gameID, prepareGames.get(gameID));
