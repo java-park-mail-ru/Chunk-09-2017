@@ -44,8 +44,7 @@ public class UserServiceJpa implements UserService {
             userSignUp = userDao.getUserByUsernameOrEmail(login);
         } catch (EmptyResultDataAccessException e) {
             throw new UserExceptionUserIsNotExist(
-                    "Username with email/username '"
-                            + login + "' does not exist", e);
+                    "Incorrect password or login", e);
         }
         if (!password.equals(userSignUp.getPassword())) {
             throw new UserExceptionPasswordFail();
