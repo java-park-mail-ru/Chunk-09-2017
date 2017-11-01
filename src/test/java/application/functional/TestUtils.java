@@ -1,6 +1,6 @@
 package application.functional;
 
-import application.models.user.UserModel;
+import application.models.user.UserSignUp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,8 +64,8 @@ public class TestUtils {
 
     public static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public static UserModel getRandomUser() {
-        return new UserModel(
+    public static UserSignUp getRandomUser() {
+        return new UserSignUp(
                 "TestUsername_" + RANDOM.nextGaussian(),
                 "TestEmail_" + RANDOM.nextGaussian(),
                 "TestPassword_" + RANDOM.nextGaussian()
