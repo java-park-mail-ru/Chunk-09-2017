@@ -5,7 +5,9 @@ import application.models.game.preGame;
 import application.models.game.Snapshot;
 import application.services.game.GameService;
 import application.services.user.UserService;
+import application.views.game.GameID;
 import application.views.user.UserFail;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -74,7 +76,7 @@ public class SingleGameController {
             );
         }
         return new ResponseEntity<>(
-                "{\"gameID\": \"" + gameID + "\"}",
+                new GameID(gameID),
                 HttpStatus.CREATED
         );
     }
