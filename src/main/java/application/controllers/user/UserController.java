@@ -8,6 +8,7 @@ import application.services.user.UserService;
 import application.services.user.UserServiceJpa;
 import application.views.user.UserFail;
 import application.views.user.UserSuccess;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +45,9 @@ public class UserController {
     @GetMapping(path = "/exit")
     public ResponseEntity exit(HttpSession httpSession) {
         httpSession.invalidate();
-        return new ResponseEntity(HttpStatus.OK);
+        final HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Content-Type", "application/json");
+        return new ResponseEntity(httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(path = "/update", consumes = "application/json")

@@ -98,7 +98,7 @@ public class SingleGameController {
         }
     }
 
-    @PutMapping(path = "/play")
+    @PostMapping(path = "/play")
     public ResponseEntity play(
             @RequestBody Snapshot snapshot,
             HttpSession httpSession) {

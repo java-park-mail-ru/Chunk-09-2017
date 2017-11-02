@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -136,7 +136,7 @@ public class TestGameController {
                 .andExpect(status().isCreated())
                 .andDo(print());
 
-        mockMvc.perform(put(baseUrl + "/play")
+        mockMvc.perform(post(baseUrl + "/play")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.toJson(new TestUtils.TestPlaystep(
@@ -167,7 +167,7 @@ public class TestGameController {
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID")))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(put(baseUrl + "/play")
+        mockMvc.perform(post(baseUrl + "/play")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.toJson(new TestUtils.TestPlaystep(
@@ -207,7 +207,7 @@ public class TestGameController {
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID")))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(put(baseUrl + "/play")
+        mockMvc.perform(post(baseUrl + "/play")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.toJson(new TestUtils.TestPlaystep(
@@ -223,7 +223,7 @@ public class TestGameController {
                 .andDo(print());
 
 
-        mockMvc.perform(put(baseUrl + "/play")
+        mockMvc.perform(post(baseUrl + "/play")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.toJson(new TestUtils.TestPlaystep(
