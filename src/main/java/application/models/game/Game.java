@@ -61,7 +61,22 @@ public class Game {
                         if ( ii < 0 || ii >= field.getMaxX()) {
                             continue;
                         }
-                        for (int jj = j - 1; jj < j + 1; ++jj) {
+                        for (int jj = j - 1; jj <= j + 1; ++jj) {
+                            if ( jj < 0 || jj >= field.getMaxY()) {
+                                continue;
+                            }
+                            if (field.getField()[ii][jj].equals(GameServiceTools.EMPTY_CELL)) {
+                                this.gameOver = field.step(i, j, ii, jj);
+                                currentPlayerID = (currentPlayerID + 1) % players.size();
+                                return;
+                            }
+                        }
+                    }
+                    for (int ii = i - 2; ii <= i + 2; ++ii) {
+                        if ( ii < 0 || ii >= field.getMaxX()) {
+                            continue;
+                        }
+                        for (int jj = j - 2; jj <= j + 2; ++jj) {
                             if ( jj < 0 || jj >= field.getMaxY()) {
                                 continue;
                             }
