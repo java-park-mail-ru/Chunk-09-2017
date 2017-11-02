@@ -61,7 +61,7 @@ public class Field {
     public boolean isGameOver() {
         for (int i = 0; i < maxX; ++i) {
             for (int j = 0; j < maxY; ++j) {
-                if ( field[i][j] == GameServiceTools.EMPTY_CELL ) {
+                if ( field[i][j].equals(GameServiceTools.EMPTY_CELL) ) {
                     return false;
                 }
             }

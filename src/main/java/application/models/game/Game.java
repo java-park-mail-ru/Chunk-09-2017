@@ -77,7 +77,6 @@ public class Game {
         }
         this.gameOver = true;
         currentPlayerID = (currentPlayerID + 1) % players.size();
-        this.playByCurrentBot();
     }
     public ArrayList<Player> getPlayers() {
         return players;
