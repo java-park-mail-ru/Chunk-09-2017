@@ -75,6 +75,7 @@ public class Game {
                 }
             }
         }
+        this.gameOver = true;
         currentPlayerID = (currentPlayerID + 1) % players.size();
         this.playByCurrentBot();
     }
