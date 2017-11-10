@@ -98,14 +98,6 @@ public class UserController {
         );
     }
 
-    @GetMapping(path = "/userlist")
-    public ResponseEntity getUserList() {
-        return new ResponseEntity<>(
-                service.getUserList(),
-                HttpStatus.OK
-        );
-    }
-
     @ExceptionHandler(UserException.class)
     public ResponseEntity<UserFail> handleUserServiceError(UserException exception) {
         exception.printStackTrace();

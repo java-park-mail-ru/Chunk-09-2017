@@ -7,14 +7,13 @@ import application.exceptions.user.UserExceptionPasswordFail;
 import application.exceptions.user.UserExceptionUserIsNotExist;
 import application.models.user.UserUpdate;
 import application.models.user.UserSignUp;
-import application.views.user.UserSuccess;
+import application.views.game.ScoreTable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 
 @Service
@@ -79,7 +78,10 @@ public class UserServiceJpa implements UserService {
     }
 
     @Override
-    public List<UserSignUp> getUserList() {
-        return userDao.getUsers();
+    public ScoreTable getScoreTable(Integer offset, Integer pageSize) {
+        return new ScoreTable(
+                userDao.getScore(offset, pageSize),
+                userDao.getNumberOfUsers()
+        );
     }
 }

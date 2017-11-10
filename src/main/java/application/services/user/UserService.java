@@ -2,10 +2,9 @@ package application.services.user;
 
 import application.models.user.UserSignUp;
 import application.models.user.UserUpdate;
-import application.views.user.UserSuccess;
+import application.views.game.ScoreTable;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 
 public interface UserService {
@@ -18,5 +17,5 @@ public interface UserService {
 
     UserSignUp getUserById(@NotNull Long id);
 
-    List<UserSignUp> getUserList();
+    ScoreTable getScoreTable(Integer offset, Integer pageSize);
 }

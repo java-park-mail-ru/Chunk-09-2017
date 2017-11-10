@@ -116,23 +116,23 @@ public class UserDaoJpaTest implements UserDaoTest {
         assertEquals(getUser.getPassword(), updateUser.getPassword());
     }
 
-    @Override
-    @Test
-    public void testGetUsersList() {
-        getUserDao().addUser(new UserSignUp("test0", "test0", "pass"));
-        final List<UserSignUp> addedUserList = Arrays.asList(
-                new UserSignUp("test1", "test1", "pass"),
-                new UserSignUp("test2", "test2", "pass"),
-                new UserSignUp("test3", "test3", "pass"),
-                new UserSignUp("test4", "test4", "pass"),
-                new UserSignUp("test5", "test5", "pass")
-        );
-        addedUserList.forEach(user -> getUserDao().addUser(user));
-
-        final List<UserSignUp> gettedUserList = getUserDao()
-                .getUsers(addedUserList.size(), true);
-        assertTrue(addedUserList.containsAll(gettedUserList));
-    }
+//    @Override
+//    @Test
+//    public void testGetUsersList() {
+//        getUserDao().addUser(new UserSignUp("test0", "test0", "pass"));
+//        final List<UserSignUp> addedUserList = Arrays.asList(
+//                new UserSignUp("test1", "test1", "pass"),
+//                new UserSignUp("test2", "test2", "pass"),
+//                new UserSignUp("test3", "test3", "pass"),
+//                new UserSignUp("test4", "test4", "pass"),
+//                new UserSignUp("test5", "test5", "pass")
+//        );
+//        addedUserList.forEach(user -> getUserDao().addUser(user));
+//
+//        final List<UserSignUp> gettedUserList = getUserDao()
+//                .getUsers(addedUserList.size(), true);
+//        assertTrue(addedUserList.containsAll(gettedUserList));
+//    }
 
     protected UserDao getUserDao() {
         return this.userDao;
