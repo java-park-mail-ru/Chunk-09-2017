@@ -2,6 +2,7 @@ package application.dao.user;
 
 import application.models.user.UserSignUp;
 import application.models.user.UserUpdate;
+import application.views.user.UserScore;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,9 +24,7 @@ public interface UserDao {
 
     UserSignUp getUserByUsernameOrEmail(String login);
 
-    List<UserSignUp> getUsers(int limit, boolean asc);
+    List<UserScore> getScore(Integer offset, Integer pageSize);
 
-    List<UserSignUp> getUsers(Integer limit);
-
-    List<UserSignUp> getUsers();
+    Long getNumberOfUsers();
 }

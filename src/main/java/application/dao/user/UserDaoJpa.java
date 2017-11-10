@@ -3,6 +3,7 @@ package application.dao.user;
 import application.entities.UserEntity;
 import application.models.user.UserSignUp;
 import application.models.user.UserUpdate;
+import application.views.user.UserScore;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
@@ -89,30 +90,24 @@ public class UserDaoJpa implements UserDao {
     }
 
     @Override
-    public List<UserSignUp> getUsers(int limit, boolean desc) {
-        final List<UserEntity> userEntityList = em.createQuery(
-                "SELECT u FROM UserEntity u ORDER BY id " + (desc ? "DESC" : "ASC"),
-                UserEntity.class
-        ).setMaxResults(limit).getResultList();
+    public List<UserScore> getScore(@NotNull Integer offset, @NotNull Integer pageSize) {
 
-        final List<UserSignUp> userSignUpList = new ArrayList<>(userEntityList.size());
-        userEntityList.forEach(userEntity -> userSignUpList.add(new UserSignUp(userEntity)));
+        final TypedQuery<UserEntity> query = em.createQuery(
+                "SELECT u FROM UserEntity u", UserEntity.class);
 
-        return userSignUpList;
+        query.setFirstResult(offset);
+        query.setMaxResults(pageSize);
+        final  List<UserEntity> userEntityList = query.getResultList();
+
+        final List<UserScore> userScoreList = new ArrayList<>(userEntityList.size());
+        userEntityList.forEach(userEntity -> userScoreList.add(new UserScore(userEntity)));
+        return userScoreList;
     }
 
     @Override
-    public List<UserSignUp> getUsers(@Nullable Integer limit) {
-        if (limit == null) {
-            limit = DEFAULT_LIMIT;
-        }
-        return getUsers(limit, false);
+    public Long getNumberOfUsers() {
+        return (Long) em.createQuery(
+                "SELECT COUNT(u.id) FROM UserEntity u")
+                .getSingleResult();
     }
-
-    @Override
-    public List<UserSignUp> getUsers() {
-        return getUsers(DEFAULT_LIMIT, false);
-    }
-
-    private static final Integer DEFAULT_LIMIT = 100;
 }

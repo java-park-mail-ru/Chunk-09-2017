@@ -17,5 +17,5 @@ public interface UserDaoTest {
 
     void testUpdateUser();
 
-    void testGetUsersList();
+//    void testGetUsersList();
 }
