@@ -33,13 +33,6 @@ public class SingleGameController {
 	}
 
 
-	@MessageMapping("/chat")
-	@SendTo("/topic/messages")
-	public String send(Message message) throws Exception {
-		String time = new SimpleDateFormat("HH:mm").format(new Date());
-		return time;
-	}
-
 	@PostMapping(path = "/single/create")
 	public ResponseEntity createSingleGame(
 			@RequestBody preGame preGame,

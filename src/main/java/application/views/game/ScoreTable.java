@@ -10,7 +10,7 @@ public class ScoreTable {
 	@JsonProperty
 	private List<UserScore> players;
 
-	@JsonProperty
+	@JsonProperty(value = "numberOfRecords")
 	private Long numberOfPlayers;
 
 	public ScoreTable(List<UserScore> players, Long numberOfPlayers) {
