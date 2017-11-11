@@ -54,11 +54,12 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
 		final Long code = jsonNode.get("code").asLong();
 
 		if (GameSocketStatusCode.isPreparing(code)) {
-			gameSocketController1xx.controller(code, jsonNode);
+			gameSocketController1xx.controller(code, jsonNode, session);
 			return;
 		}
 		if (GameSocketStatusCode.isPlaying(code)) {
-			gameSocketController2xx.controller(code, jsonNode);
+			gameSocketController2xx.controller(code, jsonNode, session);
+			return;
 		}
 	}
 }

@@ -1,35 +1,32 @@
 package application.controllers.game;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.io.IOException;
 
 
 public abstract class GameSocketController {
 
-	public final void controller(Long code, JsonNode jsonNode) {
-		final GameThread gameThread = new GameThread(code, jsonNode);
-		gameThread.start();
+	private final ObjectMapper mapper = new ObjectMapper()
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+	public final void controller(Long code, JsonNode jsonNode, WebSocketSession session) {
+
+		new Thread( () -> chooseAction(code, jsonNode, session) ).run();
 	}
 
-	protected abstract void chooseAction(Long code, JsonNode jsonNode);
-
-	private AtomicLong generatorID = new AtomicLong();
-
-	private final class GameThread extends Thread {
-
-		private final Long code;
-		private final JsonNode jsonNode;
-
-		GameThread(Long code, JsonNode jsonNode) {
-			this.code = code;
-			this.jsonNode = jsonNode;
-		}
-
-		@Override
-		public void run() {
-			chooseAction(code, jsonNode);
-			System.out.println("Поток №" + generatorID.getAndIncrement() + " запущен");
+	protected final synchronized void sendMessage(WebSocketSession session) {
+		try {
+			session.sendMessage(new TextMessage("asdasd"));
+		} catch (IOException e) {
+			// и как отрабатывать?
 		}
 	}
+
+	protected abstract void chooseAction(Long code, JsonNode jsonNode,
+	                                     WebSocketSession session);
 }
