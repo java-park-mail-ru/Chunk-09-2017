@@ -15,6 +15,8 @@ public class UserServiceTools {
     private static final int MAX_USERNAME_LENGTH = 40;
     private static final int MAX_EMAIL_LENGTH = 50;
 
+    public static final String USER_ID = "ID";
+
     // Validation
     public static void userValidationUpdate(UserUpdate user) throws UserExceptionIncorrectData {
         if (user.getPassword() != null
