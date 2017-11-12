@@ -1,11 +1,10 @@
 package application.websockets;
 
-import application.controllers.game.GameSocketController;
 import application.controllers.game.GameSocketController1xx;
 import application.controllers.game.GameSocketController2xx;
 import application.services.game.GameSocketStatusCode;
 import application.services.user.UserServiceTools;
-import application.views.game.StatusCode;
+import application.views.game.StatusCode3xx;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,8 +20,8 @@ import java.io.IOException;
 @Component
 public class WebSocketGameHandler extends AbstractWebSocketHandler {
 
-	private final GameSocketController gameSocketController1xx;
-	private final GameSocketController gameSocketController2xx;
+	private final GameSocketController1xx gameSocketController1xx;
+	private final GameSocketController2xx gameSocketController2xx;
 	private final ObjectMapper mapper;
 
 
@@ -41,7 +40,9 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
 		final Long userID = (Long) session.getAttributes().get(UserServiceTools.USER_ID);
 		if (userID == null) {
 			session.sendMessage(new TextMessage(
-					mapper.writeValueAsString(new StatusCode(GameSocketStatusCode.NOT_AUTHORIZED))
+					mapper.writeValueAsString(
+							new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED)
+					)
 			));
 			session.close(CloseStatus.NOT_ACCEPTABLE);
 		}
@@ -51,7 +52,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
 	public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
 		final JsonNode jsonNode = mapper.readTree(message.getPayload());
-		final Long code = jsonNode.get("code").asLong();
+		final Integer code = jsonNode.get("code").asInt();
 
 		if (GameSocketStatusCode.isPreparing(code)) {
 			gameSocketController1xx.controller(code, jsonNode, session);

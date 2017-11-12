@@ -3,24 +3,21 @@ package application.views.game;
 import application.services.game.GameSocketStatusCode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class StatusCode {
+public abstract class StatusCode {
 
-	@JsonProperty(value = "code")
-	private Integer value;
-	@JsonProperty(value = "reason")
-	private String reasonPhrase;
+	private final Integer code;
+	private final String reason;
 
-
-	public StatusCode(GameSocketStatusCode socketStatusCode) {
-		this.value = socketStatusCode.getValue();
-		this.reasonPhrase = socketStatusCode.getReasonPhrase();
+	public StatusCode(GameSocketStatusCode statusCode) {
+		this.code = statusCode.getValue();
+		this.reason = statusCode.getReasonPhrase();
 	}
 
-	public Integer getValue() {
-		return value;
+	public Integer getCode() {
+		return code;
 	}
 
-	public String getReasonPhrase() {
-		return reasonPhrase;
+	public String getReason() {
+		return reason;
 	}
 }

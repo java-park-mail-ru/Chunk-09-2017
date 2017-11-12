@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
-public class GameSocketController2xx extends GameSocketController {
+public final class GameSocketController2xx extends GameSocketController {
 
 	@Override
-	protected void chooseAction(Long code, JsonNode jsonNode,
+	protected void chooseAction(Integer code, JsonNode jsonNode,
 	                            WebSocketSession session) {
 
 	}
