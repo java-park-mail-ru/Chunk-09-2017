@@ -1,6 +1,6 @@
 package application.services.game;
 
-public class GameServiceTools {
+public class GameTools {
 
     public static final Integer EMPTY_CELL = -1;
 
@@ -16,5 +16,9 @@ public class GameServiceTools {
     public static final Integer SPOT_OF_PLAYER_3 = 12;
     public static final Integer SPOT_OF_PLAYER_4 = 13;
     public static final Integer SPOT_OF_PLAYER_5 = 14;
+
+    public static final String NUMBER_OF_PLAYERS = "numberOfPlayers";
+    public static final String GAME_ID_ATTR = "gameID";
+
 
 }

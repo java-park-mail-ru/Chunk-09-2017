@@ -7,20 +7,30 @@ public enum GameSocketStatusCode {
 
 	/* Prepare status code */
 	CREATE(100, "Create new game"),
-	CONNECT_ACTIVE(101, "Connect to preparing game as a Player"),
+	CONNECT_ACTIVE(101, "Connect to preparing game as a player"),
 	CONNECT_WATCHER(102, "Connect to preparing game as a Watcher"),
 	EXIT(103, "Exit from preparing game"),
-	STATUS(104, "Get the current game"),
+	STATUS(104, "Get inforamtion about updates in preparing games"),
 	START(105, "Start preparing game"),
 	SUBSCRIBE(106, "Subscribe to the update of the playlist"),
 	UNSUBSCRIBE(107, "Unsubscribe from the updating of the playlist"),
+	ADD_BOT(108, "Adding bot-player to multiplayer game"),
+	REMOVE_BOT(109, "Removing bot-player from multiplayer game"),
 	DESTROY(110, "Destroy exist preparing game"),
+	FULL_STATUS(111, "Get information about all preparing games"),
+
 	/* Playing status code */
 	BEGIN(200, "Start the game"),
 
 	/* Client Error status code */
-	NOT_AUTHORIZED(300, "You must be sign in"),
-	ALREADY_PLAY(301, "First, quite out of the previous game");
+	UNEXPECTED(300, "The requested code does not exist"),
+	ALREADY_PLAY(301, "First, quite out of the previous game"),
+	NOT_EXIST(302, "The requested game does not exist"),
+	FORBIDDEN(303, "To perfom this action you must be a master of the game"),
+	NOT_ENOUGH(304, "Not enought players (the game master is able to add bots"),
+	NOT_AUTHORIZED(305, "You must be sign in");
+
+
 
 
 

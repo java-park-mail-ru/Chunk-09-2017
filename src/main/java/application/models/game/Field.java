@@ -1,9 +1,8 @@
 package application.models.game;
 
-import application.services.game.GameServiceTools;
+import application.services.game.GameTools;
 
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
 
 public class Field {
 
@@ -20,14 +19,14 @@ public class Field {
         field = new Integer[maxX][maxY];
         for (int i = 0; i < maxX; ++i) {
             for (int j = 0; j < maxY; ++j) {
-                field[i][j] = GameServiceTools.EMPTY_CELL;
+                field[i][j] = GameTools.EMPTY_CELL;
             }
         }
     }
 
     public void simpleInitializeField() {
-        field[0][maxY - 1] = field[maxX - 1][0] = GameServiceTools.PLAYER_1;
-        field[0][0] = field[maxX - 1][maxY - 1] = GameServiceTools.PLAYER_2;
+        field[0][maxY - 1] = field[maxX - 1][0] = GameTools.PLAYER_1;
+        field[0][0] = field[maxX - 1][maxY - 1] = GameTools.PLAYER_2;
     }
 
     public boolean step(Integer x1, Integer y1, Integer x2, Integer y2) {
@@ -43,7 +42,7 @@ public class Field {
                 break;
             case 2:
                 field[x2][y2] = field[x1][y1];
-                field[x1][y1] = GameServiceTools.EMPTY_CELL;
+                field[x1][y1] = GameTools.EMPTY_CELL;
                 break;
             default:
                 //TODO throw exception
@@ -61,7 +60,7 @@ public class Field {
     public boolean isGameOver() {
         for (int i = 0; i < maxX; ++i) {
             for (int j = 0; j < maxY; ++j) {
-                if ( field[i][j] == GameServiceTools.EMPTY_CELL ) {
+                if ( field[i][j] == GameTools.EMPTY_CELL ) {
                     return false;
                 }
             }
@@ -84,7 +83,7 @@ public class Field {
                 if ( j < 0 || j >= maxY) {
                     continue;
                 }
-                if ( GameServiceTools.PLAYER_1 <= field[i][j] && field[i][j] < GameServiceTools.PLAYER_MAX ) {
+                if ( GameTools.PLAYER_1 <= field[i][j] && field[i][j] < GameTools.PLAYER_MAX ) {
                     field[i][j] = field[x][y];
                 }
             }

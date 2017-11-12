@@ -1,11 +1,13 @@
 package application.controllers.game;
 
-import application.models.game.Game.GamePrepare;
-import application.models.game.Player.PlayerWatcher;
+import application.models.game.game.GamePrepare;
+import application.models.game.player.PlayerWatcher;
+import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
 import application.services.user.UserService;
-import application.services.user.UserServiceTools;
+import application.services.user.UserTools;
 import application.views.game.StatusCode1xx;
+import application.views.game.StatusCode111;
 import application.views.game.StatusCode3xx;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,23 +15,27 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicLong;
 
 
 @Component
 public final class GameSocketController1xx extends GameSocketController {
 
-	private final HashSet<WebSocketSession> subscribers;
+	private final GameSocketController2xx controller2xx;
+
+	private final CopyOnWriteArraySet<WebSocketSession> subscribers;
 	private final ConcurrentHashMap<Long, GamePrepare> preparingGames;
 	private final AtomicLong generatorGameID;
 	private final UserService userService;
 
 
-	public GameSocketController1xx(UserService userService) {
+	public GameSocketController1xx(GameSocketController2xx controller2xx,
+	                               UserService userService ) {
 
-		this.subscribers = new HashSet<>();
+		this.controller2xx = controller2xx;
+		this.subscribers = new CopyOnWriteArraySet<>();
 		this.preparingGames = new ConcurrentHashMap<>();
 		this.generatorGameID = new AtomicLong();
 		this.userService = userService;
@@ -55,10 +61,6 @@ public final class GameSocketController1xx extends GameSocketController {
 			exit(session);
 			return;
 		}
-		if (code.equals(GameSocketStatusCode.STATUS.getValue())) {
-			status(session);
-			return;
-		}
 		if (code.equals(GameSocketStatusCode.START.getValue())) {
 			start(session);
 			return;
@@ -75,10 +77,22 @@ public final class GameSocketController1xx extends GameSocketController {
 			destroy(session);
 			return;
 		}
+		if (code.equals(GameSocketStatusCode.FULL_STATUS.getValue())) {
+			fullStatus(session);
+			return;
+		}
+
+		// Запрашиваемый код не найден
+		final ObjectMapper mapper = new ObjectMapper();
+		final String payload = toJSON(mapper,
+				new StatusCode3xx(GameSocketStatusCode.UNEXPECTED));
+		this.sendMessage(session, payload);
 	}
 
 
 	public void create(final WebSocketSession session, JsonNode jsonNode) {
+
+		unsubscribe(session);
 
 		final ObjectMapper mapper = new ObjectMapper();
 		final String payload;
@@ -93,34 +107,35 @@ public final class GameSocketController1xx extends GameSocketController {
 			return;
 		}
 
-		final Long masterID = (Long) session.getAttributes().get(UserServiceTools.USER_ID);
+		final Long masterID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
 		final PlayerWatcher master = new PlayerWatcher(userService.getUserById(masterID), session);
 
 		newGameID = generatorGameID.getAndIncrement();
-		final GamePrepare newGame = new GamePrepare(newGameID, masterID);
+		final Integer numberOfPlayers = jsonNode.get(GameTools.NUMBER_OF_PLAYERS).asInt();
+		final GamePrepare newGame = new GamePrepare(newGameID, masterID, numberOfPlayers);
 		setAttribute(session, "gameID", newGameID);
 
 		newGame.addGamer(master);
 		preparingGames.put(newGameID, newGame);
 
-		unsubscribe(session);
-
-		// Ответ 101
+		// Оповестить подписчиков
 		payload = this.toJSON(mapper, new StatusCode1xx(
-				GameSocketStatusCode.CONNECT_ACTIVE, newGameID)
-		);
-		this.sendMessage(session, payload);
+				GameSocketStatusCode.STATUS, newGame
+		));
+		this.notifySubscribers(payload);
 	}
 	
 	private void connectActive(final WebSocketSession session, JsonNode jsonNode) {
 
-		final ObjectMapper mapper = new ObjectMapper();
+		unsubscribe(session);
 
+		final ObjectMapper mapper = new ObjectMapper();
+		final String payload;
 
 		// Проверка 301
 		Long gameID = (Long) session.getAttributes().get("gameID");
 		if (gameID != null) {
-			final String payload = this.toJSON(mapper, new StatusCode3xx(
+			payload = this.toJSON(mapper, new StatusCode3xx(
 					GameSocketStatusCode.ALREADY_PLAY, gameID)
 			);
 			this.sendMessage(session, payload);
@@ -131,62 +146,138 @@ public final class GameSocketController1xx extends GameSocketController {
 		final GamePrepare game = preparingGames.get(gameID);
 		setAttribute(session, "gameID", gameID);
 
-		unsubscribe(session);
-
-		final Long gamerID = (Long) session.getAttributes().get(UserServiceTools.USER_ID);
+		final Long gamerID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
 		final PlayerWatcher gamer = new PlayerWatcher(userService.getUserById(gamerID), session);
 
 		game.addGamer(gamer);
+
+		// Оповестить подписчиков
+		payload = this.toJSON(mapper, new StatusCode1xx(
+				GameSocketStatusCode.STATUS, game
+		));
+		this.notifySubscribers(payload);
 	}
 
 	private void connectWatcher(WebSocketSession session, JsonNode jsonNode) {
 
-		final ObjectMapper mapper = new ObjectMapper();
-
-		// Проверка 301
-		Long gameID = (Long) session.getAttributes().get("gameID");
-		if (gameID != null) {
-			final String payload = this.toJSON(mapper, new StatusCode3xx(
-					GameSocketStatusCode.ALREADY_PLAY, gameID)
-			);
-			this.sendMessage(session, payload);
-			return;
-		}
-
-		gameID = jsonNode.get("gameID").asLong();
-		final GamePrepare game = preparingGames.get(gameID);
-		setAttribute(session, "gameID", gameID);
-
 		unsubscribe(session);
 
-		final Long watcherID = (Long) session.getAttributes().get(UserServiceTools.USER_ID);
+		final ObjectMapper mapper = new ObjectMapper();
+		final String payload;
+
+		final Long gameID = jsonNode.get("gameID").asLong();
+		final GamePrepare game = preparingGames.get(gameID);
+
+		final Long watcherID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
 		final PlayerWatcher watcher = new PlayerWatcher(userService.getUserById(watcherID), session);
 
 		game.addWatcher(watcher);
+
+		// Оповестить подписчиков
+		payload = this.toJSON(mapper,
+				new StatusCode1xx(GameSocketStatusCode.STATUS, game));
+		this.notifySubscribers(payload);
 	}
 
 	private void exit(WebSocketSession session) {
-
+		final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+		final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
+		if (gameID == null || userID == null) {
+			return;
+		}
+		final GamePrepare game = preparingGames.get(gameID);
+		game.removeGamer(userID);
 	}
 
-	private void status(WebSocketSession session) {
+	private void fullStatus(WebSocketSession session) {
 
+		final ObjectMapper mapper = new ObjectMapper();
+		final String paylod = this.toJSON(
+				mapper, new StatusCode111(
+						GameSocketStatusCode.FULL_STATUS, preparingGames.values()
+				)
+		);
+		this.sendMessage(session, paylod);
 	}
 
 	private void start(WebSocketSession session) {
 
+		final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+		final Long gameID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+
+		final ObjectMapper mapper = new ObjectMapper();
+		String payload;
+
+		// Проверка 300 (авторизация)
+		if (gameID == null || userID == null) {
+			payload = this.toJSON(
+					mapper, new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED) );
+			this.sendMessage( session, payload );
+			return;
+		}
+
+		final GamePrepare game = preparingGames.get(gameID);
+
+		// Проверка 303 (хозяин игры)
+		if ( !game.getMasterID().equals(userID) ) {
+			payload = this.toJSON(
+					mapper, new StatusCode3xx(GameSocketStatusCode.FORBIDDEN) );
+			this.sendMessage( session, payload );
+			return;
+		}
+
+		// Проверка 304 (хватает ли игроков)
+		if ( !game.isReady() ) {
+			payload = this.toJSON(
+					mapper, new StatusCode3xx(GameSocketStatusCode.NOT_ENOUGH) );
+			this.sendMessage( session, payload );
+			return;
+		}
+
+		controller2xx.addGame(preparingGames.remove(gameID));
+
+		payload = this.toJSON(mapper, new StatusCode1xx(GameSocketStatusCode.START, gameID));
+		notifySubscribers(payload);
 	}
 
 	private void destroy(WebSocketSession session) {
 
+		final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+		final Long gameID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+
+		final ObjectMapper mapper = new ObjectMapper();
+		String payload;
+
+		// Проверка 300 (авторизация)
+		if (gameID == null || userID == null) {
+			payload = this.toJSON(
+					mapper, new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED) );
+			this.sendMessage( session, payload );
+			return;
+		}
+
+		final GamePrepare game = preparingGames.get(gameID);
+
+		// Проверка 303 (хозяин игры)
+		if ( !game.getMasterID().equals(userID) ) {
+			payload = this.toJSON(
+					mapper, new StatusCode3xx(GameSocketStatusCode.FORBIDDEN) );
+			this.sendMessage( session, payload );
+			return;
+		}
+
+
 	}
 
-	public synchronized void subscribe(@NotNull WebSocketSession session) {
+	private synchronized void subscribe(@NotNull WebSocketSession session) {
 		subscribers.add(session);
 	}
 
-	public synchronized void unsubscribe(WebSocketSession session) {
+	private synchronized void unsubscribe(WebSocketSession session) {
 		subscribers.remove(session);
 	}
 
+	private void notifySubscribers(final String payload) {
+		subscribers.forEach( websession -> this.sendMessage(websession, payload) );
+	}
 }

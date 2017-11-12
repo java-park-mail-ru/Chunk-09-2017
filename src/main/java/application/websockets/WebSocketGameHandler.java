@@ -3,7 +3,7 @@ package application.websockets;
 import application.controllers.game.GameSocketController1xx;
 import application.controllers.game.GameSocketController2xx;
 import application.services.game.GameSocketStatusCode;
-import application.services.user.UserServiceTools;
+import application.services.user.UserTools;
 import application.views.game.StatusCode3xx;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,7 +37,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws IOException {
-		final Long userID = (Long) session.getAttributes().get(UserServiceTools.USER_ID);
+		final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
 		if (userID == null) {
 			session.sendMessage(new TextMessage(
 					mapper.writeValueAsString(

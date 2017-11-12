@@ -1,7 +1,4 @@
-package application.models.game.Player;
-
-import application.models.user.UserSignUp;
-import org.springframework.web.socket.WebSocketSession;
+package application.models.game.player;
 
 //public final class PlayerActive extends PlayerAbstract {
 //

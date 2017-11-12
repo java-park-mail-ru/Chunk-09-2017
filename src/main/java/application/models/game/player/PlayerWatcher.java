@@ -1,4 +1,4 @@
-package application.models.game.Player;
+package application.models.game.player;
 
 import application.models.user.UserSignUp;
 import org.springframework.web.socket.WebSocketSession;
