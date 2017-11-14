@@ -1,5 +1,6 @@
 package application.models.game.game;
 
+import application.models.game.Field;
 import application.models.game.player.PlayerAbstract;
 import application.models.game.player.PlayerWatcher;
 import application.views.game.StatusCode;
@@ -14,16 +15,29 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class GameAbstract {
 
-	protected final ConcurrentHashMap<Long, PlayerWatcher> watchers;
 	protected final Long gameID;
+	protected final Field gameField;
 	protected final Integer numberOfPlayer;
+	protected final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;
 	@JsonIgnore
 	protected final ObjectMapper mapper = new ObjectMapper();
 
-	protected GameAbstract(@NotNull Long gameID, @NotNull Integer numberOfPlayers) {
+
+	protected GameAbstract(@NotNull Long gameID, @NotNull Field gameField,
+	                       @NotNull Integer numberOfPlayer) {
+
 		this.gameID = gameID;
+		this.gameField = gameField;
+		this.numberOfPlayer = numberOfPlayer;
 		this.watchers = new ConcurrentHashMap<>();
-		this.numberOfPlayer = numberOfPlayers;
+	}
+
+	public GameAbstract(Long gameID, Field gameField, Integer numberOfPlayer,
+	                    ConcurrentHashMap<Long, PlayerWatcher> watchers) {
+		this.gameID = gameID;
+		this.gameField = gameField;
+		this.numberOfPlayer = numberOfPlayer;
+		this.watchers = watchers;
 	}
 
 	public void addWatcher(PlayerWatcher watcher) {

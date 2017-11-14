@@ -1,5 +1,6 @@
 package application.models.game.game;
 
+import application.models.game.Field;
 import application.models.game.player.PlayerWatcher;
 import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
@@ -13,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class GamePrepare extends GameAbstract {
 
-	private final ConcurrentHashMap<Long, PlayerWatcher> gamers;
+	final ConcurrentHashMap<Long, PlayerWatcher> gamers;
 	@JsonIgnore
 	private final Long masterID;
 	@JsonIgnore
@@ -22,7 +23,17 @@ public final class GamePrepare extends GameAbstract {
 	public GamePrepare(@NotNull Long gameID,
 	                   @NotNull Long masterID,
 	                   @NotNull Integer numberOfPlayers) {
-		super(gameID, numberOfPlayers);
+		super(gameID,null, numberOfPlayers);
+		this.masterID = masterID;
+		this.isReady = false;
+		this.gamers = new ConcurrentHashMap<>(this.numberOfPlayer);
+		// TODO remove this constructor
+	}
+
+	public GamePrepare(@NotNull Field gameField, @NotNull Long gameID,
+	                   @NotNull Integer numberOfPlayer, @NotNull Long masterID) {
+
+		super(gameID, gameField, numberOfPlayer);
 		this.masterID = masterID;
 		this.isReady = false;
 		this.gamers = new ConcurrentHashMap<>(this.numberOfPlayer);

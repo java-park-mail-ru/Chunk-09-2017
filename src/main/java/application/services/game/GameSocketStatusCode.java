@@ -21,6 +21,9 @@ public enum GameSocketStatusCode {
 
 	/* Playing status code */
 	BEGIN(200, "Start the game"),
+	STEP(201, "Game step"),
+	TIMEOUT(202, "Timeout expired"),
+	BLOCKED(203, "Player is blocked"),
 
 	/* Client Error status code */
 	UNEXPECTED(300, "The requested code does not exist"),
@@ -28,7 +31,8 @@ public enum GameSocketStatusCode {
 	NOT_EXIST(302, "The requested game does not exist"),
 	FORBIDDEN(303, "To perfom this action you must be a master of the game"),
 	NOT_ENOUGH(304, "Not enought players (the game master is able to add bots"),
-	NOT_AUTHORIZED(305, "You must be sign in");
+	NOT_AUTHORIZED(305, "You must be sign in"),
+	FALSE(306, "Invalid game step");
 
 
 

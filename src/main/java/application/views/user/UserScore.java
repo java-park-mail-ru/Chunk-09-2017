@@ -4,7 +4,7 @@ import application.entities.UserEntity;
 import application.models.user.UserSignUp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserScore {
+public final class UserScore {
 
 	@JsonProperty
 	private String username;
