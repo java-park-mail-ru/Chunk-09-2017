@@ -15,64 +15,64 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class GameAbstract {
 
-	protected final Long gameID;
-	protected final Field field;
-	protected final Integer numberOfPlayer;
-	protected final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;
-	@JsonIgnore
-	protected final ObjectMapper mapper = new ObjectMapper();
+    protected final Long gameID;
+    protected final Field field;
+    protected final Integer numberOfPlayer;
+    protected final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;
+    @JsonIgnore
+    protected final ObjectMapper mapper = new ObjectMapper();
 
 
-	protected GameAbstract(@NotNull Long gameID, @NotNull Field gameField,
-	                       @NotNull Integer numberOfPlayer) {
+    protected GameAbstract(@NotNull Long gameID, @NotNull Field gameField,
+                           @NotNull Integer numberOfPlayer) {
 
-		this.gameID = gameID;
-		this.field = gameField;
-		this.numberOfPlayer = numberOfPlayer;
-		this.watchers = new ConcurrentHashMap<>();
-	}
+        this.gameID = gameID;
+        this.field = gameField;
+        this.numberOfPlayer = numberOfPlayer;
+        this.watchers = new ConcurrentHashMap<>();
+    }
 
-	public GameAbstract(Long gameID, Field gameField, Integer numberOfPlayer,
-	                    ConcurrentHashMap<Long, PlayerWatcher> watchers) {
-		this.gameID = gameID;
-		this.field = gameField;
-		this.numberOfPlayer = numberOfPlayer;
-		this.watchers = watchers;
-	}
+    public GameAbstract(Long gameID, Field gameField, Integer numberOfPlayer,
+                        ConcurrentHashMap<Long, PlayerWatcher> watchers) {
+        this.gameID = gameID;
+        this.field = gameField;
+        this.numberOfPlayer = numberOfPlayer;
+        this.watchers = watchers;
+    }
 
-	public void addWatcher(PlayerWatcher watcher) {
-		watchers.put(watcher.getUserID(), watcher);
-	}
+    public void addWatcher(PlayerWatcher watcher) {
+        watchers.put(watcher.getUserID(), watcher);
+    }
 
-	public void removeWatcher(Long userID) {
-		watchers.remove(userID);
-	}
+    public void removeWatcher(Long userID) {
+        watchers.remove(userID);
+    }
 
-	protected synchronized void sendMessageToPlayer(PlayerAbstract player,
-	                                                StatusCode statusCode) {
-		try {
-			player.getSession().sendMessage(
-					new TextMessage(mapper.writeValueAsString(statusCode)));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    protected synchronized void sendMessageToPlayer(PlayerAbstract player,
+                                                    StatusCode statusCode) {
+        try {
+            player.getSession().sendMessage(
+                    new TextMessage(mapper.writeValueAsString(statusCode)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
-	public Long getGameID() {
-		return gameID;
-	}
+    public Long getGameID() {
+        return gameID;
+    }
 
-	public Integer getWatchers() {
-		return watchers.size();
-	}
+    public Integer getWatchers() {
+        return watchers.size();
+    }
 
-	public Integer getNumberOfPlayer() {
-		return numberOfPlayer;
-	}
+    public Integer getNumberOfPlayer() {
+        return numberOfPlayer;
+    }
 
-	@JsonIgnore
-	public ConcurrentHashMap<Long, PlayerWatcher> getHashMapOfWatchers() {
-		return watchers;
-	}
+    @JsonIgnore
+    public ConcurrentHashMap<Long, PlayerWatcher> getHashMapOfWatchers() {
+        return watchers;
+    }
 }

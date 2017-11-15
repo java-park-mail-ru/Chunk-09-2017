@@ -13,21 +13,21 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 @EnableWebSocket
 public class WebSocketGameConfigurer implements WebSocketConfigurer {
 
-	private final GameSocketController1xx gameSocketController1xx;
-	private final GameSocketController2xx gameSocketController2xx;
+    private final GameSocketController1xx gameSocketController1xx;
+    private final GameSocketController2xx gameSocketController2xx;
 
-	WebSocketGameConfigurer(GameSocketController1xx controller1xx,
-	                        GameSocketController2xx controller2xx) {
+    WebSocketGameConfigurer(GameSocketController1xx controller1xx,
+                            GameSocketController2xx controller2xx) {
 
-		this.gameSocketController1xx = controller1xx;
-		this.gameSocketController2xx = controller2xx;
-	}
+        this.gameSocketController1xx = controller1xx;
+        this.gameSocketController2xx = controller2xx;
+    }
 
-	@Override
-	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(new WebSocketGameHandler(
-				gameSocketController1xx, gameSocketController2xx), "/play")
-				.addInterceptors(new HttpSessionHandshakeInterceptor())
-				.setAllowedOrigins("*");
-	}
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(new WebSocketGameHandler(
+                gameSocketController1xx, gameSocketController2xx), "/play")
+                .addInterceptors(new HttpSessionHandshakeInterceptor())
+                .setAllowedOrigins("*");
+    }
 }

@@ -7,61 +7,60 @@ import application.services.game.GameTools;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
 
 public final class PlayerBot extends PlayerAbstractActive {
 
-	static AtomicLong generatorBotName = new AtomicLong();
-	final Random random = new Random(new Date().getTime());
-	final Integer level;
+    private static AtomicLong generatorBotName = new AtomicLong();
+    private final Random random = new Random(new Date().getTime());
+    private final Integer level;
 
-	public PlayerBot(Integer level) {
-		// TODO какой-то конструтор надо удалить слишком много костылей
-		super("Bot_" + generatorBotName.getAndIncrement());
-		this.level = level;
-	}
+    public PlayerBot(Integer level) {
+        // TODO какой-то конструтор надо удалить слишком много костылей
+        super("Bot_" + generatorBotName.getAndIncrement());
+        this.level = level;
+    }
 
-	public synchronized Step generateStep(final Field field) {
+    public synchronized Step generateStep(final Field field) {
 
-		final ArrayList<Spot> sourceSpots;
-		final ArrayList<Spot> destinationSpots;
-		final Spot src;
-		final Spot dst;
+        final ArrayList<Spot> sourceSpots;
+        final ArrayList<Spot> destinationSpots;
+        final Spot src;
+        final Spot dst;
 
-		switch (level) {
-			case GameTools.BOT_LEVEL_LOW: {
-				sourceSpots = field.getPlayerSpots(playerID);
-				src = sourceSpots.get(random.nextInt(sourceSpots.size()));
+        switch (level) {
+            case GameTools.BOT_LEVEL_LOW:
+                sourceSpots = field.getPlayerSpots(playerID);
+                src = sourceSpots.get(random.nextInt(sourceSpots.size()));
 
-				destinationSpots = field.getPossiblePoints(src);
-				dst = destinationSpots.get(random.nextInt(sourceSpots.size()));
+                destinationSpots = field.getPossiblePoints(src);
+                dst = destinationSpots.get(random.nextInt(sourceSpots.size()));
 
-				return new Step(src, dst);
-			}
-			case GameTools.BOT_LEVEL_MEDIUM: {
-				sourceSpots = field.getPlayerSpots(playerID);
-				destinationSpots = new ArrayList<>();
+                return new Step(src, dst);
 
-				for (Spot spot : sourceSpots) {
-					destinationSpots.addAll(field.getPossiblePoints(spot));
-				}
+            case GameTools.BOT_LEVEL_MEDIUM:
+                sourceSpots = field.getPlayerSpots(playerID);
+                destinationSpots = new ArrayList<>();
 
-				final ArrayList<Integer> count = new ArrayList<>(destinationSpots.size());
-				for (Spot spot : destinationSpots) {
-					count.add(field.getAssumedCount(spot, playerID));
-				}
-				// TODO hashmap все дела
+                for (Spot spot : sourceSpots) {
+                    destinationSpots.addAll(field.getPossiblePoints(spot));
+                }
+
+                final ArrayList<Integer> count = new ArrayList<>(destinationSpots.size());
+                for (Spot spot : destinationSpots) {
+                    count.add(field.getAssumedCount(spot, playerID));
+                }
+                // TODO hashmap все дела
+                return null;
 
 
-			}
-			// TODO generateStep in bot;
-			default: {
-				System.err.println("Level of the bot is nor recognized");
-				return null;
-			}
-		}
-	}
+            // TODO generateStep in bot;
+            default:
+                System.err.println("Level of the bot is nor recognized");
+                return null;
+
+        }
+    }
 }
