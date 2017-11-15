@@ -39,7 +39,7 @@ public class GameBusinessLogicTest {
 
 
         assertEquals(gamePrepare.getMasterID(), masterID);
-        assertEquals(gamePrepare.getNumberOfPlayer(), numberOfPlayers);
+        assertEquals(gamePrepare.getNumberOfPlayers(), numberOfPlayers);
         assertEquals(gamePrepare.getGameID(), gameID);
         assertEquals(gamePrepare.getField(), field);
     }

@@ -21,9 +21,9 @@ public final class GameActive extends GameAbstract {
 
     public GameActive(GamePrepare prepared) {
         super(prepared.getGameID(), prepared.getField(),
-                prepared.getNumberOfPlayer(), prepared.getHashMapOfWatchers());
+                prepared.getNumberOfPlayers(), prepared.getHashMapOfWatchers());
 
-        this.gamers = new ConcurrentHashMap<>(getNumberOfPlayer());
+        this.gamers = new ConcurrentHashMap<>(getNumberOfPlayers());
 
         final Iterator<PlayerGamer> iteratorGamer = prepared.getGamers().iterator();
         for (int i = 1; iteratorGamer.hasNext(); ++i) {
@@ -39,7 +39,7 @@ public final class GameActive extends GameAbstract {
             gamers.put(i, bot);
         }
 
-        this.getField().initialize(getNumberOfPlayer());
+        this.getField().initialize(getNumberOfPlayers());
         this.currentPlayerID = GameTools.PLAYER_1;
         this.gameOver = false;
     }
@@ -63,7 +63,7 @@ public final class GameActive extends GameAbstract {
         }
 
         while (true) {
-            currentPlayerID = (currentPlayerID + 1) % getNumberOfPlayer();
+            currentPlayerID = (currentPlayerID + 1) % getNumberOfPlayers();
             if (!getField().isBlocked(currentPlayerID)) {
                 break;
             }

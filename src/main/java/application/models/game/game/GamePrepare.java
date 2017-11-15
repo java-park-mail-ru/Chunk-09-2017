@@ -29,7 +29,7 @@ public final class GamePrepare extends GameAbstract {
         super(gameID, gameField, numberOfPlayers);
         this.masterID = masterID;
         this.isReady = false;
-        this.gamers = new ConcurrentHashMap<>(this.getNumberOfPlayer());
+        this.gamers = new ConcurrentHashMap<>(this.getNumberOfPlayers());
         this.bots = new CopyOnWriteArraySet<>();
     }
 
@@ -39,7 +39,7 @@ public final class GamePrepare extends GameAbstract {
         }
         gamers.put(gamer.getUserID(), gamer);
         notifyPlayers(gamer, GameSocketStatusCode.CONNECT_ACTIVE);
-        if (gamers.size() + bots.size() == getNumberOfPlayer()) {
+        if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
         }
     }
@@ -50,7 +50,7 @@ public final class GamePrepare extends GameAbstract {
         }
         bots.add(bot);
         notifyPlayers(GameSocketStatusCode.ADD_BOT);
-        if (gamers.size() + bots.size() == getNumberOfPlayer()) {
+        if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
         }
     }
@@ -59,7 +59,7 @@ public final class GamePrepare extends GameAbstract {
     public void removeGamer(Long userID) {
         gamers.get(userID).getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
         notifyPlayers(gamers.remove(userID), GameSocketStatusCode.EXIT);
-        if (isReady && gamers.size() < getNumberOfPlayer()) {
+        if (isReady && gamers.size() < getNumberOfPlayers()) {
             isReady = false;
         }
     }
@@ -124,6 +124,6 @@ public final class GamePrepare extends GameAbstract {
 
     @JsonIgnore
     public synchronized Boolean isReady() {
-        return gamers.size() + bots.size() >= getNumberOfPlayer();
+        return gamers.size() + bots.size() >= getNumberOfPlayers();
     }
 }

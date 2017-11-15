@@ -18,26 +18,26 @@ public abstract class GameAbstract {
     private final Long gameID;
     @JsonIgnore
     private final Field field;
-    private final Integer numberOfPlayer;
+    private final Integer numberOfPlayers;
     private final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;
     @JsonIgnore
     private final ObjectMapper mapper = new ObjectMapper();
 
 
     protected GameAbstract(@NotNull Long gameID, @NotNull Field gameField,
-                           @NotNull Integer numberOfPlayer) {
+                           @NotNull Integer numberOfPlayers) {
 
         this.gameID = gameID;
         this.field = gameField;
-        this.numberOfPlayer = numberOfPlayer;
+        this.numberOfPlayers = numberOfPlayers;
         this.watchers = new ConcurrentHashMap<>();
     }
 
-    public GameAbstract(Long gameID, Field gameField, Integer numberOfPlayer,
+    public GameAbstract(Long gameID, Field gameField, Integer numberOfPlayers,
                         ConcurrentHashMap<Long, PlayerWatcher> watchers) {
         this.gameID = gameID;
         this.field = gameField;
-        this.numberOfPlayer = numberOfPlayer;
+        this.numberOfPlayers = numberOfPlayers;
         this.watchers = watchers;
     }
 
@@ -68,8 +68,8 @@ public abstract class GameAbstract {
         return watchers.size();
     }
 
-    public Integer getNumberOfPlayer() {
-        return numberOfPlayer;
+    public Integer getNumberOfPlayers() {
+        return numberOfPlayers;
     }
 
     public Field getField() {
