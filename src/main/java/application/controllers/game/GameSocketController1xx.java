@@ -103,7 +103,16 @@ public final class GameSocketController1xx extends GameSocketController {
     public void emergencyDiconnect(WebSocketSession session, Long userID, Long gameID) {
         final GamePrepare game = preparingGames.get(gameID);
         if (game != null) {
-            game.removeGamer(userID);
+            if (game.getMasterID().equals(userID)) {
+                game.destroy();
+                preparingGames.remove(gameID);
+                final String payload = this.toJSON(
+                        new ObjectMapper(), new StatusCode3xx(GameSocketStatusCode.DESTROY)
+                );
+                notifySubscribers(payload);
+            } else {
+                game.removeGamer(userID);
+            }
         } else {
             this.unsubscribe(session);
         }
@@ -288,7 +297,7 @@ public final class GameSocketController1xx extends GameSocketController {
         final Long gameID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
 
         final ObjectMapper mapper = new ObjectMapper();
-        String payload;
+        final String payload;
 
         // Проверка 300 (авторизация)
         if (gameID == null || userID == null) {
@@ -303,12 +312,18 @@ public final class GameSocketController1xx extends GameSocketController {
         // Проверка 303 (хозяин игры)
         if (!game.getMasterID().equals(userID)) {
             payload = this.toJSON(
-                    mapper, new StatusCode3xx(GameSocketStatusCode.FORBIDDEN));
+                    mapper, new StatusCode3xx(GameSocketStatusCode.FORBIDDEN)
+            );
             this.sendMessage(session, payload);
             return;
         }
 
-
+        game.destroy();
+        preparingGames.remove(gameID);
+        payload = this.toJSON(
+                mapper, new StatusCode3xx(GameSocketStatusCode.DESTROY)
+        );
+        notifySubscribers(payload);
     }
 
     private void addBot(WebSocketSession session, JsonNode jsonNode) {

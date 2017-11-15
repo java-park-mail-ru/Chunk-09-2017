@@ -124,7 +124,6 @@ public final class GamePrepare extends GameAbstract {
 
     @JsonIgnore
     public synchronized Boolean isReady() {
-
         return gamers.size() + bots.size() >= getNumberOfPlayers();
     }
 }
