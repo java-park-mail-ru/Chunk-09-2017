@@ -39,6 +39,15 @@ public final class GameSocketController2xx extends GameSocketController {
         this.sendMessage(session, payload);
     }
 
+    @Override
+    public void emergencyDiconnect(WebSocketSession session, Long userID, Long gameID) {
+//        final GameActive game = activeGames.get(gameID);
+//        if (game != null) {
+//            activeGames.
+//        }
+        // TODO gamerOff
+    }
+
     void addGame(GamePrepare readyGame) {
         activeGames.put(readyGame.getGameID(), new GameActive(readyGame));
     }

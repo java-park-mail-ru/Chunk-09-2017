@@ -90,6 +90,9 @@ public final class GameActive extends GameAbstract {
         return true;
     }
 
+//    public synchronized void playerOff()
+    // TODO check on session.isOpen();
+
     // Опопвестить пользователей о совершенном ходе
     private synchronized void notifyPlayers(Step step) {
         // make step
@@ -128,7 +131,6 @@ public final class GameActive extends GameAbstract {
                 this.sendMessageToPlayer(watcher, new StatusCode204(getField())));
     }
 
-
     private void end() {
         notifyPlayers();
         gamers.values().forEach(gamer -> {
@@ -138,6 +140,7 @@ public final class GameActive extends GameAbstract {
         });
         gamers.clear();
     }
+
 
     public boolean getGameOver() {
         return gameOver;

@@ -4,6 +4,7 @@ import application.models.user.UserSignUp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -11,9 +12,6 @@ import java.util.Random;
 
 @Component
 public class TestUtils {
-
-    public static final Integer MAX_GAME_FIELD_WIDTH = 10;
-    public static final Integer MAX_GAME_FIELD_HEIGHT = 10;
 
     static class TestPlayer {
         @JsonProperty
@@ -61,6 +59,7 @@ public class TestUtils {
     }
 
     public static final Random RANDOM = new Random(new Date().getTime());
+
 
     public static final ObjectMapper MAPPER = new ObjectMapper();
 

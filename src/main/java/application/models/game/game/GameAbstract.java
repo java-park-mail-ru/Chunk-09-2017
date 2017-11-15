@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class GameAbstract {
 
     private final Long gameID;
+    @JsonIgnore
     private final Field field;
     private final Integer numberOfPlayers;
     private final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;

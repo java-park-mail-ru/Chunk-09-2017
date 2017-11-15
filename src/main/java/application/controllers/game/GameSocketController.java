@@ -42,4 +42,6 @@ public abstract class GameSocketController {
     }
 
     protected abstract void chooseAction(Integer code, JsonNode jsonNode, WebSocketSession session);
+
+    public abstract void emergencyDiconnect(WebSocketSession session, Long userID, Long gameID);
 }

@@ -39,7 +39,7 @@ public final class GamePrepare extends GameAbstract {
         }
         gamers.put(gamer.getUserID(), gamer);
         notifyPlayers(gamer, GameSocketStatusCode.CONNECT_ACTIVE);
-        if (gamers.size() == getNumberOfPlayers()) {
+        if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
         }
     }
@@ -50,7 +50,7 @@ public final class GamePrepare extends GameAbstract {
         }
         bots.add(bot);
         notifyPlayers(GameSocketStatusCode.ADD_BOT);
-        if (gamers.size() == getNumberOfPlayers()) {
+        if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
         }
     }
@@ -75,21 +75,37 @@ public final class GamePrepare extends GameAbstract {
 
     // Оповещение участников о каком либо событии
     private void notifyPlayers(PlayerGamer player, GameSocketStatusCode code) {
-        gamers.values().forEach(gamer -> this.sendMessageToPlayer(
-                gamer, new StatusCode1xx(code, getGameID(), player)
-       ));
-        getHashMapOfWatchers().values().forEach(gamer -> this.sendMessageToPlayer(
-                gamer, new StatusCode1xx(code, getGameID(), player)
-       ));
+        gamers.values().forEach(gamer -> {
+            if (gamer.getSession().isOpen()) {
+                this.sendMessageToPlayer(gamer, new StatusCode1xx(code, getGameID(), player));
+            } else {
+                this.removeGamer(gamer.getUserID());
+            }
+        });
+        getHashMapOfWatchers().values().forEach(watcher -> {
+            if (watcher.getSession().isOpen()) {
+                this.sendMessageToPlayer(watcher, new StatusCode1xx(code, getGameID(), player));
+            } else {
+                getHashMapOfWatchers().remove(watcher.getUserID());
+            }
+        });
     }
 
     private void notifyPlayers(GameSocketStatusCode code) {
-        gamers.values().forEach(gamer -> this.sendMessageToPlayer(
-                gamer, new StatusCode1xx(code, getGameID())
-       ));
-        getHashMapOfWatchers().values().forEach(watcher -> this.sendMessageToPlayer(
-                watcher, new StatusCode1xx(code, getGameID())
-       ));
+        gamers.values().forEach(gamer -> {
+            if (gamer.getSession().isOpen()) {
+                this.sendMessageToPlayer(gamer, new StatusCode1xx(code, getGameID()));
+            } else {
+                this.removeGamer(gamer.getUserID());
+            }
+        });
+        getHashMapOfWatchers().values().forEach(watcher -> {
+            if (watcher.getSession().isOpen()) {
+                this.sendMessageToPlayer(watcher, new StatusCode1xx(code, getGameID()));
+            } else {
+                getHashMapOfWatchers().remove(watcher.getUserID());
+            }
+        });
     }
 
 
@@ -108,6 +124,7 @@ public final class GamePrepare extends GameAbstract {
 
     @JsonIgnore
     public synchronized Boolean isReady() {
-        return gamers.size() >= getNumberOfPlayers();
+
+        return gamers.size() + bots.size() >= getNumberOfPlayers();
     }
 }

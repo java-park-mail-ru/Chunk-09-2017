@@ -3,6 +3,7 @@ package application.websockets;
 import application.controllers.game.GameSocketController1xx;
 import application.controllers.game.GameSocketController2xx;
 import application.services.game.GameSocketStatusCode;
+import application.services.game.GameTools;
 import application.services.user.UserTools;
 import application.views.game.statuscode3xx.StatusCode3xx;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -37,6 +38,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
+
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         if (userID == null) {
             session.sendMessage(new TextMessage(
@@ -62,5 +64,17 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
             gameSocketController2xx.controller(code, jsonNode, session);
             return;
         }
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+
+        final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+        final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
+        if (userID == null || gameID == null) {
+            return;
+        }
+        gameSocketController1xx.emergencyDiconnect(session, userID, gameID);
+        gameSocketController2xx.emergencyDiconnect(session, userID, gameID);
     }
 }

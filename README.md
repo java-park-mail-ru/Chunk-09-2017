@@ -1,16 +1,9 @@
-<<<<<<< HEAD
-# Chunk-09-2017 [![Build Status](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017.svg?branch=trubnikov)](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017)
-## Halloween Defense
->***Выстраивай тактику, думай наперёд, поглащай врагов<br>
-=======
-# Chunk-09-2017 [![Build Status](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017.svg?branch=develop)](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017)
-## Tower Defense
->***Строй башни, уничтожай врагов, оберегай ядро<br>
->>>>>>> 4300b5d42442c95d57883c9e473f6e6c0b030121
->(пока только авторизируйся)***
-***
 
-## [Frontend](https://tower-defense.herokuapp.com)<=>[Backend](https://backend-java-spring.herokuapp.com/)
+# Chunk-09-2017 [![Build Status](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017.svg?branch=develop)](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017)
+## Halloween Defense
+>***Выстраивай тактику, думай наперёд, поглащай врагов<br>***
+
+## [Frontend](https://chunk-frontend.herokuapp.com/)<=>[Backend](https://backend-java-spring.herokuapp.com/)
 
 ## Members
 * Андрей Савосин
