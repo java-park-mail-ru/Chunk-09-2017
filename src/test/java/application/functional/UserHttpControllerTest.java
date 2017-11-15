@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Random;
@@ -84,7 +85,7 @@ public class UserHttpControllerTest {
 
     @Test
     public void testSignUpUserDuplicate() throws Exception {
-        final UserSignUp userSignUp = new UserSignUp("testName", "testEmail", "pass");
+        final UserSignUp userSignUp = getRandomUser();
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(userSignUp)))
@@ -93,7 +94,6 @@ public class UserHttpControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(userSignUp)))
                 .andExpect(status().isConflict());
-
     }
 
     @Test
