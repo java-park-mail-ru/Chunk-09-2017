@@ -1,8 +1,8 @@
 package application.functional;
 
-import application.models.UserSignIn;
-import application.models.UserUpdate;
-import application.models.UserSignUp;
+import application.models.user.UserSignIn;
+import application.models.user.UserSignUp;
+import application.models.user.UserUpdate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Rule;
