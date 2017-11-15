@@ -39,7 +39,7 @@ public final class GamePrepare extends GameAbstract {
         }
         gamers.put(gamer.getUserID(), gamer);
         notifyPlayers(gamer, GameSocketStatusCode.CONNECT_ACTIVE);
-        if (gamers.size() == getNumberOfPlayer()) {
+        if (gamers.size() + bots.size() == getNumberOfPlayer()) {
             isReady = true;
         }
     }
@@ -50,7 +50,7 @@ public final class GamePrepare extends GameAbstract {
         }
         bots.add(bot);
         notifyPlayers(GameSocketStatusCode.ADD_BOT);
-        if (gamers.size() == getNumberOfPlayer()) {
+        if (gamers.size() + bots.size() == getNumberOfPlayer()) {
             isReady = true;
         }
     }
@@ -108,6 +108,6 @@ public final class GamePrepare extends GameAbstract {
 
     @JsonIgnore
     public synchronized Boolean isReady() {
-        return gamers.size() >= getNumberOfPlayer();
+        return gamers.size() + bots.size() >= getNumberOfPlayer();
     }
 }

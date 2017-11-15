@@ -228,8 +228,8 @@ public final class GameSocketController1xx extends GameSocketController {
         final String paylod = this.toJSON(
                 mapper, new StatusCode111(
                         GameSocketStatusCode.FULL_STATUS, preparingGames.values()
-               )
-       );
+                )
+        );
         this.sendMessage(session, paylod);
     }
 
