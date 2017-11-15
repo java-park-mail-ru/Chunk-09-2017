@@ -25,7 +25,7 @@ public final class GameSocketController2xx extends GameSocketController {
     }
 
     @Override
-    protected void chooseAction(Integer code, JsonNode jsonNode,
+    public void controller(Integer code, JsonNode jsonNode,
                                 WebSocketSession session) {
 
         if (code.equals(GameSocketStatusCode.STEP.getValue())) {
