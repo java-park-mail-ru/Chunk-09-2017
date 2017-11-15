@@ -42,6 +42,7 @@ public final class GamePrepare extends GameAbstract {
         if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
         }
+        gamer.getSession().getAttributes().put(GameTools.GAME_ID_ATTR, getGameID());
     }
 
     public synchronized void addBot(PlayerBot bot) {

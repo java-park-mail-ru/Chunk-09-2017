@@ -45,7 +45,7 @@ public final class GameSocketController1xx extends GameSocketController {
     }
 
     @Override
-    protected void chooseAction(Integer code, JsonNode jsonNode,
+    public void controller(Integer code, JsonNode jsonNode,
                                 final WebSocketSession session) {
 
         if (code.equals(GameSocketStatusCode.CREATE.getValue())) {
@@ -104,12 +104,7 @@ public final class GameSocketController1xx extends GameSocketController {
         final GamePrepare game = preparingGames.get(gameID);
         if (game != null) {
             if (game.getMasterID().equals(userID)) {
-                game.destroy();
-                preparingGames.remove(gameID);
-                final String payload = this.toJSON(
-                        new ObjectMapper(), new StatusCode3xx(GameSocketStatusCode.DESTROY)
-                );
-                notifySubscribers(payload);
+                this.destroy(session);
             } else {
                 game.removeGamer(userID);
             }
@@ -158,7 +153,6 @@ public final class GameSocketController1xx extends GameSocketController {
                 jsonNode.get(GameTools.MAX_Y_ATTR).asInt()
        );
         final GamePrepare newGame = new GamePrepare(field, newGameID, numberOfPlayers, masterID);
-        setAttribute(session, "gameID", newGameID);
 
         newGame.addGamer(master);
         preparingGames.put(newGameID, newGame);
@@ -187,9 +181,20 @@ public final class GameSocketController1xx extends GameSocketController {
             return;
         }
 
-        gameID = jsonNode.get("gameID").asLong();
+        if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
+            payload = this.toJSON(mapper, new StatusCode3xx(GameSocketStatusCode.ATTR));
+            this.sendMessage(session, payload);
+            return;
+        }
+        gameID = jsonNode.get(GameTools.GAME_ID_ATTR).asLong();
         final GamePrepare game = preparingGames.get(gameID);
-        setAttribute(session, "gameID", gameID);
+
+        if (game == null) {
+            payload = this.toJSON(mapper, new StatusCode3xx(
+                    GameSocketStatusCode.NOT_EXIST, gameID));
+            this.sendMessage(session, payload);
+            return;
+        }
 
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         final PlayerGamer gamer = new PlayerGamer(userService.getUserById(userID), session);
@@ -294,7 +299,7 @@ public final class GameSocketController1xx extends GameSocketController {
     private void destroy(WebSocketSession session) {
 
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
-        final Long gameID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+        final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
 
         final ObjectMapper mapper = new ObjectMapper();
         final String payload;
@@ -309,10 +314,18 @@ public final class GameSocketController1xx extends GameSocketController {
 
         final GamePrepare game = preparingGames.get(gameID);
 
+        if (game == null) {
+            payload = this.toJSON(
+                    mapper, new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID)
+            );
+            this.sendMessage(session, payload);
+            return;
+        }
+
         // Проверка 303 (хозяин игры)
         if (!game.getMasterID().equals(userID)) {
             payload = this.toJSON(
-                    mapper, new StatusCode3xx(GameSocketStatusCode.FORBIDDEN)
+                    mapper, new StatusCode3xx(GameSocketStatusCode.FORBIDDEN, gameID)
             );
             this.sendMessage(session, payload);
             return;
