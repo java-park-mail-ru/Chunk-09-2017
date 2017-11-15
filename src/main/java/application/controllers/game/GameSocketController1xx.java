@@ -99,6 +99,15 @@ public final class GameSocketController1xx extends GameSocketController {
         this.sendMessage(session, payload);
     }
 
+    @Override
+    public void emergencyDiconnect(WebSocketSession session, Long userID, Long gameID) {
+        final GamePrepare game = preparingGames.get(gameID);
+        if (game != null) {
+            game.removeGamer(userID);
+        } else {
+            this.unsubscribe(session);
+        }
+    }
 
     public void create(final WebSocketSession session, JsonNode jsonNode) {
 
@@ -354,7 +363,13 @@ public final class GameSocketController1xx extends GameSocketController {
         subscribers.remove(session);
     }
 
-    private void notifySubscribers(final String payload) {
-        subscribers.forEach(websession -> this.sendMessage(websession, payload));
+    private synchronized void notifySubscribers(final String payload) {
+        subscribers.forEach(websession -> {
+            if (websession.isOpen()) {
+                this.sendMessage(websession, payload);
+            } else {
+                this.unsubscribe(websession);
+            }
+        });
     }
 }

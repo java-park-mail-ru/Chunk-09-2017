@@ -41,7 +41,6 @@ public class UserHttpControllerTest {
     @Rule
     public ExpectedException expected = ExpectedException.none();
 
-
     // SignUp
     @Test
     public void testSignUpUserSuccess() throws Exception {
