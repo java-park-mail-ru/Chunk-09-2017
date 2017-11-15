@@ -7,9 +7,9 @@ public enum GameSocketStatusCode {
     /* Prepare status code */
     CREATE(100, "Create new game"),
     CONNECT_ACTIVE(101, "Connect to preparing game as a player"),
-    CONNECT_WATCHER(102, "Connect to preparing game as a Watcher"),
+    CONNECT_WATCHER(102, "Connect to preparing game as a watcher"),
     EXIT(103, "Exit from preparing game"),
-    STATUS(104, "Get inforamtion about updates in preparing games"),
+    STATUS(104, "Get full information about explicit game"),
     START(105, "Start preparing game"),
     SUBSCRIBE(106, "Subscribe to the update of the playlist"),
     UNSUBSCRIBE(107, "Unsubscribe from the updating of the playlist"),

@@ -64,6 +64,10 @@ public final class GameSocketController1xx extends GameSocketController {
             exit(session);
             return;
         }
+        if (code.equals(GameSocketStatusCode.STATUS.getValue())) {
+            status(session, jsonNode);
+            return;
+        }
         if (code.equals(GameSocketStatusCode.START.getValue())) {
             start(session);
             return;
@@ -121,7 +125,7 @@ public final class GameSocketController1xx extends GameSocketController {
         final String payload;
 
         // Проверка 301
-        Long newGameID = (Long) session.getAttributes().get("gameID");
+        Long newGameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
         if (newGameID != null) {
             payload = this.toJSON(mapper, new StatusCode3xx(
                     GameSocketStatusCode.ALREADY_PLAY, newGameID)
@@ -159,7 +163,7 @@ public final class GameSocketController1xx extends GameSocketController {
 
         // Оповестить подписчиков
         payload = this.toJSON(mapper, new StatusCode1xx(
-                GameSocketStatusCode.STATUS, newGame
+                GameSocketStatusCode.SUBSCRIBE, newGame
        ));
         this.notifySubscribers(payload);
     }
@@ -209,7 +213,7 @@ public final class GameSocketController1xx extends GameSocketController {
 
         // Оповестить подписчиков
         payload = this.toJSON(mapper, new StatusCode1xx(
-                GameSocketStatusCode.STATUS, game
+                GameSocketStatusCode.SUBSCRIBE, game
        ));
         this.notifySubscribers(payload);
     }
@@ -231,7 +235,7 @@ public final class GameSocketController1xx extends GameSocketController {
 
         // Оповестить подписчиков
         payload = this.toJSON(mapper,
-                new StatusCode1xx(GameSocketStatusCode.STATUS, game));
+                new StatusCode1xx(GameSocketStatusCode.SUBSCRIBE, game));
         this.notifySubscribers(payload);
     }
 
@@ -243,6 +247,31 @@ public final class GameSocketController1xx extends GameSocketController {
         }
         final GamePrepare game = preparingGames.get(gameID);
         game.removeGamer(userID);
+    }
+
+    private void status(WebSocketSession session, JsonNode jsonNode) {
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final String payload;
+
+        if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
+            payload = this.toJSON(mapper, new StatusCode3xx(GameSocketStatusCode.ATTR));
+            this.sendMessage(session, payload);
+            return;
+        }
+
+        final Long gameID = jsonNode.get(GameTools.GAME_ID_ATTR).asLong();
+        final GamePrepare game = preparingGames.get(gameID);
+
+        if (game == null) {
+            payload = this.toJSON(mapper, new StatusCode3xx(
+                    GameSocketStatusCode.NOT_EXIST, gameID));
+            this.sendMessage(session, payload);
+            return;
+        }
+
+        payload = this.toJSON(mapper, new StatusCode1xx(GameSocketStatusCode.STATUS, game));
+        this.sendMessage(session, payload);
     }
 
     private void fullStatus(WebSocketSession session) {
@@ -378,7 +407,7 @@ public final class GameSocketController1xx extends GameSocketController {
 
         // Оповестить подписчиков
         payload = this.toJSON(mapper, new StatusCode1xx(
-                GameSocketStatusCode.STATUS, game
+                GameSocketStatusCode.SUBSCRIBE, game
        ));
         this.notifySubscribers(payload);
     }
