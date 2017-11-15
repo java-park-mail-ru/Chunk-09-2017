@@ -16,6 +16,4 @@ public interface UserDaoTest {
     void testGetUserWrongById();
 
     void testUpdateUser();
-
-//    void testGetUsersList();
 }

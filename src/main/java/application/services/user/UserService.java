@@ -4,6 +4,7 @@ import application.models.user.UserSignUp;
 import application.models.user.UserUpdate;
 import application.views.game.ScoreTable;
 
+
 import javax.validation.constraints.NotNull;
 
 
@@ -18,4 +19,5 @@ public interface UserService {
     UserSignUp getUserById(@NotNull Long id);
 
     ScoreTable getScoreTable(Integer offset, Integer pageSize);
+
 }

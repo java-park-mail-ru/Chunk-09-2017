@@ -8,6 +8,7 @@ import application.exceptions.user.UserExceptionUserIsNotExist;
 import application.models.user.UserUpdate;
 import application.models.user.UserSignUp;
 import application.views.game.ScoreTable;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,7 @@ public class UserServiceJpa implements UserService {
         } catch (EmptyResultDataAccessException e) {
             throw new UserExceptionUserIsNotExist(
                     "Incorrect password or login", e);
+
         }
         if (!password.equals(userSignUp.getPassword())) {
             throw new UserExceptionPasswordFail();

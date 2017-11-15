@@ -25,39 +25,62 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4300b5d42442c95d57883c9e473f6e6c0b030121
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+<<<<<<< HEAD
 
+=======
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+>>>>>>> 4300b5d42442c95d57883c9e473f6e6c0b030121
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 		</dependency>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4300b5d42442c95d57883c9e473f6e6c0b030121
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
 		</dependency>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4300b5d42442c95d57883c9e473f6e6c0b030121
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4300b5d42442c95d57883c9e473f6e6c0b030121
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 		</dependency>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4300b5d42442c95d57883c9e473f6e6c0b030121
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>${h2.version}</version>
 			<scope>test</scope>
 		</dependency>
+<<<<<<< HEAD
 
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -70,11 +93,14 @@
 			<artifactId>spring-messaging</artifactId>
 			<version>4.2.4.RELEASE</version>
 		</dependency>
+=======
+>>>>>>> 4300b5d42442c95d57883c9e473f6e6c0b030121
 	</dependencies>
 
 	<build>
 		<plugins>
 
+<<<<<<< HEAD
 			<!--<plugin>-->
 				<!--<groupId>org.apache.maven.plugins</groupId>-->
 				<!--<artifactId>maven-checkstyle-plugin</artifactId>-->
@@ -99,6 +125,32 @@
 					<!--</execution>-->
 				<!--</executions>-->
 			<!--</plugin>-->
+=======
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.17</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>8.2</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<configLocation>park_checks.xml</configLocation>
+					<consoleOutput>true</consoleOutput>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+>>>>>>> 4300b5d42442c95d57883c9e473f6e6c0b030121
 
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
