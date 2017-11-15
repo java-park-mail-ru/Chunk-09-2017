@@ -1,6 +1,7 @@
 package application.views.game;
 
 import application.models.game.game.GamePrepare;
+import application.models.game.player.PlayerGamer;
 import application.models.game.player.PlayerWatcher;
 import application.services.game.GameSocketStatusCode;
 
@@ -9,7 +10,7 @@ import java.util.List;
 public final class StatusCode1xx extends StatusCode{
 
 	private Long gameID = null;
-	private PlayerWatcher player = null;
+	private PlayerGamer player = null;
 	private GamePrepare game = null;
 
 	public StatusCode1xx(GameSocketStatusCode statusCode) {
@@ -22,7 +23,7 @@ public final class StatusCode1xx extends StatusCode{
 	}
 
 	public StatusCode1xx(GameSocketStatusCode statusCode,
-	                     Long gameID, PlayerWatcher player) {
+	                     Long gameID, PlayerGamer player) {
 		super(statusCode);
 		this.gameID = gameID;
 		this.player = player;
@@ -39,7 +40,7 @@ public final class StatusCode1xx extends StatusCode{
 		return gameID;
 	}
 
-	public PlayerWatcher getPlayer() {
+	public PlayerGamer getPlayer() {
 		return player;
 	}
 

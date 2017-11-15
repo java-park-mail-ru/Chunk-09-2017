@@ -12,20 +12,12 @@ public abstract class PlayerAbstract {
 	@JsonIgnore
 	private final WebSocketSession session;
 
-	// TODO 3 конструктора для Watcher, Gamer, Bot, че то костыльно
 
 	public PlayerAbstract(UserSignUp user, WebSocketSession session) {
 		this.userID = user.getId();
 		this.username = user.getUsername();
 		this.email = user.getEmail();
 		this.session = session;
-	}
-
-	public PlayerAbstract(PlayerWatcher user) {
-		this.userID = user.getUserID();
-		this.username = user.getUsername();
-		this.email = user.getEmail();
-		this.session = user.getSession();
 	}
 
 	public PlayerAbstract(String username) {

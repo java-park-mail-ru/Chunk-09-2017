@@ -2,19 +2,19 @@ package application.models.game.field;
 
 public class Step {
 
-	public Point src;
-	public Point dst;
+	public Spot src;
+	public Spot dst;
 
-	public Step(Point src, Point dst) {
+	public Step(Spot src, Spot dst) {
 		this.src = src;
 		this.dst = dst;
 	}
 
-	public Point getSrc() {
+	public Spot getSrc() {
 		return src;
 	}
 
-	public Point getDst() {
+	public Spot getDst() {
 		return dst;
 	}
 }

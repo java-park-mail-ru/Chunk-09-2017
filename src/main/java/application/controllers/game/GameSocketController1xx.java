@@ -1,6 +1,9 @@
 package application.controllers.game;
 
+import application.models.game.field.Field;
 import application.models.game.game.GamePrepare;
+import application.models.game.player.PlayerBot;
+import application.models.game.player.PlayerGamer;
 import application.models.game.player.PlayerWatcher;
 import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
@@ -73,6 +76,14 @@ public final class GameSocketController1xx extends GameSocketController {
 			unsubscribe(session);
 			return;
 		}
+		if (code.equals(GameSocketStatusCode.ADD_BOT.getValue())) {
+			addBot(session, jsonNode);
+			return;
+		}
+//		if (code.equals(GameSocketStatusCode.REMOVE_BOT.getValue())) {
+//			removeBot(session, jsonNode);
+//			return;
+//		}
 		if (code.equals(GameSocketStatusCode.DESTROY.getValue())) {
 			destroy(session);
 			return;
@@ -99,7 +110,7 @@ public final class GameSocketController1xx extends GameSocketController {
 
 		// Проверка 301
 		Long newGameID = (Long) session.getAttributes().get("gameID");
-		if (newGameID != null) {
+		if ( newGameID != null ) {
 			payload = this.toJSON(mapper, new StatusCode3xx(
 					GameSocketStatusCode.ALREADY_PLAY, newGameID)
 			);
@@ -108,11 +119,28 @@ public final class GameSocketController1xx extends GameSocketController {
 		}
 
 		final Long masterID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
-		final PlayerWatcher master = new PlayerWatcher(userService.getUserById(masterID), session);
+		final PlayerGamer master = new PlayerGamer(userService.getUserById(masterID), session);
+
+
+		// Проверка 308 (наличие необходимых атрибутов)
+		if ( !jsonNode.hasNonNull(GameTools.NUMBER_OF_PLAYERS) ||
+				!jsonNode.hasNonNull(GameTools.MAX_X_ATTR) ||
+				!jsonNode.hasNonNull(GameTools.MAX_Y_ATTR) ) {
+
+			payload = this.toJSON(mapper, new StatusCode3xx(
+					GameSocketStatusCode.ATTR)
+			);
+			this.sendMessage(session, payload);
+			return;
+		}
 
 		newGameID = generatorGameID.getAndIncrement();
 		final Integer numberOfPlayers = jsonNode.get(GameTools.NUMBER_OF_PLAYERS).asInt();
-		final GamePrepare newGame = new GamePrepare(newGameID, masterID, numberOfPlayers);
+		final Field field = new Field(
+				jsonNode.get(GameTools.MAX_X_ATTR).asInt(),
+				jsonNode.get(GameTools.MAX_Y_ATTR).asInt()
+		);
+		final GamePrepare newGame = new GamePrepare(field, newGameID, numberOfPlayers, masterID);
 		setAttribute(session, "gameID", newGameID);
 
 		newGame.addGamer(master);
@@ -127,10 +155,10 @@ public final class GameSocketController1xx extends GameSocketController {
 	
 	private void connectActive(final WebSocketSession session, JsonNode jsonNode) {
 
-		unsubscribe(session);
-
 		final ObjectMapper mapper = new ObjectMapper();
 		final String payload;
+
+		unsubscribe(session);
 
 		// Проверка 301
 		Long gameID = (Long) session.getAttributes().get("gameID");
@@ -146,9 +174,15 @@ public final class GameSocketController1xx extends GameSocketController {
 		final GamePrepare game = preparingGames.get(gameID);
 		setAttribute(session, "gameID", gameID);
 
-		final Long gamerID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
-		final PlayerWatcher gamer = new PlayerWatcher(userService.getUserById(gamerID), session);
+		final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+		final PlayerGamer gamer = new PlayerGamer(userService.getUserById(userID), session);
 
+		// Проверка 309 (мест нет)
+		if ( game.isReady() ) {
+			payload = this.toJSON(mapper, new StatusCode3xx(GameSocketStatusCode.FULL));
+			this.sendMessage(session, payload);
+			return;
+		}
 		game.addGamer(gamer);
 
 		// Оповестить подписчиков
@@ -268,6 +302,85 @@ public final class GameSocketController1xx extends GameSocketController {
 
 
 	}
+
+	private void addBot(WebSocketSession session, JsonNode jsonNode) {
+
+		final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+		final Long gameID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+
+		final ObjectMapper mapper = new ObjectMapper();
+		final String payload;
+
+		// Проверка 300 (авторизация)
+		if (gameID == null || userID == null) {
+			payload = this.toJSON(
+					mapper, new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED) );
+			this.sendMessage( session, payload );
+			return;
+		}
+
+		final GamePrepare game = preparingGames.get(gameID);
+
+		// Проверка 303 (хозяин игры)
+		if ( !game.getMasterID().equals(userID) ) {
+			payload = this.toJSON(
+					mapper, new StatusCode3xx(GameSocketStatusCode.FORBIDDEN) );
+			this.sendMessage( session, payload );
+			return;
+		}
+
+		final Integer level = jsonNode.get(GameTools.BOT_LEVEL_ATTR).asInt();
+		final PlayerBot bot = new PlayerBot(level);
+
+		// Проверка 309 (мест нет)
+		if ( game.isReady() ) {
+			payload = this.toJSON(mapper, new StatusCode3xx(GameSocketStatusCode.FULL));
+			this.sendMessage(session, payload);
+			return;
+		}
+		game.addBot(bot);
+
+		// Оповестить подписчиков
+		payload = this.toJSON(mapper, new StatusCode1xx(
+				GameSocketStatusCode.STATUS, game
+		));
+		this.notifySubscribers(payload);
+	}
+
+//	private void removeBot(WebSocketSession session, JsonNode jsonNode) {
+//
+//		final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+//		final Long gameID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+//
+//		final ObjectMapper mapper = new ObjectMapper();
+//		final String payload;
+//
+//		// Проверка 300 (авторизация)
+//		if (gameID == null || userID == null) {
+//			payload = this.toJSON(
+//					mapper, new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED) );
+//			this.sendMessage( session, payload );
+//			return;
+//		}
+//
+//		final GamePrepare game = preparingGames.get(gameID);
+//
+//		// Проверка 303 (хозяин игры)
+//		if ( !game.getMasterID().equals(userID) ) {
+//			payload = this.toJSON(
+//					mapper, new StatusCode3xx(GameSocketStatusCode.FORBIDDEN) );
+//			this.sendMessage( session, payload );
+//			return;
+//		}
+//
+//		game.addBot(bot);
+//
+//		// Оповестить подписчиков
+//		payload = this.toJSON(mapper, new StatusCode1xx(
+//				GameSocketStatusCode.STATUS, game
+//		));
+//		this.notifySubscribers(payload);
+//	}
 
 	private synchronized void subscribe(@NotNull WebSocketSession session) {
 		subscribers.add(session);

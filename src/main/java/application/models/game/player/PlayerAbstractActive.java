@@ -5,20 +5,36 @@ import org.springframework.web.socket.WebSocketSession;
 
 public abstract class PlayerAbstractActive extends PlayerAbstract {
 
-	private final Integer playerID;
-	private Boolean online;
+	protected Integer playerID;
+	protected Boolean online;
 
-	public PlayerAbstractActive(Integer playerID, PlayerWatcher user) {
+
+	public PlayerAbstractActive(UserSignUp user, WebSocketSession session) {
 		// Конструктор для реального игрока
-		super(user);
-		this.playerID = playerID;
+		super(user, session);
 		this.online = true;
 	}
 
-	public PlayerAbstractActive(Integer playerID, String username) {
+	public PlayerAbstractActive(String username) {
 		// Конструктор для бота
 		super(username);
-		this.playerID = playerID;
 		this.online = true;
+	}
+
+
+	public Integer getPlayerID() {
+		return playerID;
+	}
+
+	public Boolean getOnline() {
+		return online;
+	}
+
+	public void setPlayerID(Integer playerID) {
+		this.playerID = playerID;
+	}
+
+	public void setOnline(Boolean online) {
+		this.online = online;
 	}
 }

@@ -1,6 +1,8 @@
 package application.models.game.game;
 
-import application.models.game.Field;
+import application.models.game.field.Field;
+import application.models.game.player.PlayerBot;
+import application.models.game.player.PlayerGamer;
 import application.models.game.player.PlayerWatcher;
 import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
@@ -10,25 +12,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 
 public final class GamePrepare extends GameAbstract {
 
-	final ConcurrentHashMap<Long, PlayerWatcher> gamers;
+	final ConcurrentHashMap<Long, PlayerGamer> gamers;
+	final CopyOnWriteArraySet<PlayerBot> bots;
 	@JsonIgnore
 	private final Long masterID;
 	@JsonIgnore
 	private Boolean isReady;
-
-	public GamePrepare(@NotNull Long gameID,
-	                   @NotNull Long masterID,
-	                   @NotNull Integer numberOfPlayers) {
-		super(gameID,null, numberOfPlayers);
-		this.masterID = masterID;
-		this.isReady = false;
-		this.gamers = new ConcurrentHashMap<>(this.numberOfPlayer);
-		// TODO remove this constructor
-	}
 
 	public GamePrepare(@NotNull Field gameField, @NotNull Long gameID,
 	                   @NotNull Integer numberOfPlayer, @NotNull Long masterID) {
@@ -37,9 +31,10 @@ public final class GamePrepare extends GameAbstract {
 		this.masterID = masterID;
 		this.isReady = false;
 		this.gamers = new ConcurrentHashMap<>(this.numberOfPlayer);
+		this.bots = new CopyOnWriteArraySet<>();
 	}
 
-	public synchronized void addGamer(PlayerWatcher gamer) {
+	public synchronized void addGamer(PlayerGamer gamer) {
 		if ( isReady ) {
 			return;
 		}
@@ -50,6 +45,18 @@ public final class GamePrepare extends GameAbstract {
 		}
 	}
 
+	public synchronized void addBot(PlayerBot bot) {
+		if ( isReady ) {
+			return;
+		}
+		bots.add(bot);
+		notifyPlayers(GameSocketStatusCode.ADD_BOT);
+		if ( gamers.size() == numberOfPlayer ) {
+			isReady = true;
+		}
+	}
+
+
 	public void removeGamer(Long userID) {
 		gamers.get(userID).getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
 		notifyPlayers(gamers.remove(userID), GameSocketStatusCode.EXIT);
@@ -58,6 +65,7 @@ public final class GamePrepare extends GameAbstract {
 		}
 	}
 
+
 	public synchronized void destroy() {
 		notifyPlayers(GameSocketStatusCode.DESTROY);
 		gamers.forEachValue(1L, gamer -> gamer.getSession()
@@ -65,41 +73,42 @@ public final class GamePrepare extends GameAbstract {
 		gamers.clear();
 	}
 
+
 	// Оповещение участников о каком либо событии
-	// TODO поиграться с количеством потоков в forEachValue
-	private void notifyPlayers(PlayerWatcher player, GameSocketStatusCode code) {
-		gamers.forEachValue(1L, gamer -> this.sendMessageToPlayer(
-				gamer,
-				new StatusCode1xx(code, gameID, player)
+	private void notifyPlayers(PlayerGamer player, GameSocketStatusCode code) {
+		gamers.values().forEach(gamer -> this.sendMessageToPlayer(
+				gamer, new StatusCode1xx(code, gameID, player)
 		));
-		watchers.forEachValue(1L, watcher -> this.sendMessageToPlayer(
-				watcher,
-				new StatusCode1xx(code, gameID, player)
+		watchers.values().forEach(gamer -> this.sendMessageToPlayer(
+				gamer, new StatusCode1xx(code, gameID, player)
 		));
 	}
 
 	private void notifyPlayers(GameSocketStatusCode code) {
-		gamers.forEachValue(1L, gamer -> this.sendMessageToPlayer(
-				gamer,
-				new StatusCode1xx(code)
+		gamers.values().forEach(gamer -> this.sendMessageToPlayer(
+				gamer, new StatusCode1xx(code, gameID)
 		));
-		watchers.forEachValue(1L, watcher -> this.sendMessageToPlayer(
-				watcher,
-				new StatusCode1xx(code)
+		watchers.values().forEach(watcher -> this.sendMessageToPlayer(
+				watcher, new StatusCode1xx(code, gameID)
 		));
 	}
 
 
 
-	public Collection<PlayerWatcher> getGamers() {
+	public Collection<PlayerGamer> getGamers() {
 		return gamers.values();
+	}
+
+	public Integer getBots() {
+		return bots.size();
 	}
 
 	public synchronized Long getMasterID() {
 		return masterID;
 	}
 
+	@JsonIgnore
 	public synchronized Boolean isReady() {
-		return gamers.size() == numberOfPlayer;
+		return gamers.size() >= numberOfPlayer;
 	}
 }
