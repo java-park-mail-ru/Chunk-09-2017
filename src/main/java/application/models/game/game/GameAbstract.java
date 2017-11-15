@@ -15,12 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class GameAbstract {
 
-    protected final Long gameID;
-    protected final Field field;
-    protected final Integer numberOfPlayer;
-    protected final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;
+    private final Long gameID;
+    private final Field field;
+    private final Integer numberOfPlayer;
+    private final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;
     @JsonIgnore
-    protected final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
 
     protected GameAbstract(@NotNull Long gameID, @NotNull Field gameField,
@@ -69,6 +69,10 @@ public abstract class GameAbstract {
 
     public Integer getNumberOfPlayer() {
         return numberOfPlayer;
+    }
+
+    public Field getField() {
+        return field;
     }
 
     @JsonIgnore

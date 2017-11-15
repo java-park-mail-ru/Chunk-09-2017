@@ -5,21 +5,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Spot {
 
     @JsonProperty(value = "x")
-    Integer codestyleX;
+    private Integer cstX;
     @JsonProperty(value = "y")
-    Integer codestyleY;
+    private Integer cstY;
 
-    public Spot(Integer codestyleX, Integer codestyleY) {
-        this.codestyleX = codestyleX;
-        this.codestyleY = codestyleY;
+    public Spot(Integer cstX, Integer cstY) {
+        this.cstX = cstX;
+        this.cstY = cstY;
     }
 
-    public Integer getCodestyleX() {
-        return codestyleX;
+    public Integer getCstX() {
+        return cstX;
     }
 
-    public Integer getCodestyleY() {
-        return codestyleY;
+    public Integer getCstY() {
+        return cstY;
     }
 
     @Override
@@ -33,16 +33,16 @@ public class Spot {
 
         final Spot spot = (Spot) obj;
 
-        if (!codestyleX.equals(spot.codestyleX)) {
+        if (!cstX.equals(spot.cstX)) {
             return false;
         }
-        return codestyleY.equals(spot.codestyleY);
+        return cstY.equals(spot.cstY);
     }
 
     @Override
     public int hashCode() {
-        int result = codestyleX.hashCode();
-        result = HASH_NUMBER * result + codestyleY.hashCode();
+        int result = cstX.hashCode();
+        result = HASH_NUMBER * result + cstY.hashCode();
         return result;
     }
 

@@ -82,7 +82,7 @@ public final class GameSocketController2xx extends GameSocketController {
 
         // Совершить ход
         if (game.makeStep(step)) {
-            if (game.isGameOver()) {
+            if (game.getGameOver()) {
                 payload = this.toJSON(
                         mapper, new StatusCode3xx(GameSocketStatusCode.FALSE));
                 this.sendMessage(session, payload);

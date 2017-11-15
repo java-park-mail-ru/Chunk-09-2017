@@ -5,8 +5,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 public abstract class PlayerAbstractActive extends PlayerAbstract {
 
-    protected Integer playerID;
-    protected Boolean online;
+    private Integer playerID;
+    private Boolean online;
 
 
     public PlayerAbstractActive(UserSignUp user, WebSocketSession session) {

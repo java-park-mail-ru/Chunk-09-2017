@@ -16,20 +16,20 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class GamePrepare extends GameAbstract {
 
-    final ConcurrentHashMap<Long, PlayerGamer> gamers;
-    final CopyOnWriteArraySet<PlayerBot> bots;
+    private final ConcurrentHashMap<Long, PlayerGamer> gamers;
+    private final CopyOnWriteArraySet<PlayerBot> bots;
     @JsonIgnore
     private final Long masterID;
     @JsonIgnore
     private Boolean isReady;
 
     public GamePrepare(@NotNull Field gameField, @NotNull Long gameID,
-                       @NotNull Integer numberOfPlayer, @NotNull Long masterID) {
+                       @NotNull Integer numberOfPlayers, @NotNull Long masterID) {
 
-        super(gameID, gameField, numberOfPlayer);
+        super(gameID, gameField, numberOfPlayers);
         this.masterID = masterID;
         this.isReady = false;
-        this.gamers = new ConcurrentHashMap<>(this.numberOfPlayer);
+        this.gamers = new ConcurrentHashMap<>(this.getNumberOfPlayer());
         this.bots = new CopyOnWriteArraySet<>();
     }
 
@@ -39,7 +39,7 @@ public final class GamePrepare extends GameAbstract {
         }
         gamers.put(gamer.getUserID(), gamer);
         notifyPlayers(gamer, GameSocketStatusCode.CONNECT_ACTIVE);
-        if (gamers.size() == numberOfPlayer) {
+        if (gamers.size() == getNumberOfPlayer()) {
             isReady = true;
         }
     }
@@ -50,7 +50,7 @@ public final class GamePrepare extends GameAbstract {
         }
         bots.add(bot);
         notifyPlayers(GameSocketStatusCode.ADD_BOT);
-        if (gamers.size() == numberOfPlayer) {
+        if (gamers.size() == getNumberOfPlayer()) {
             isReady = true;
         }
     }
@@ -59,7 +59,7 @@ public final class GamePrepare extends GameAbstract {
     public void removeGamer(Long userID) {
         gamers.get(userID).getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
         notifyPlayers(gamers.remove(userID), GameSocketStatusCode.EXIT);
-        if (isReady && gamers.size() < numberOfPlayer) {
+        if (isReady && gamers.size() < getNumberOfPlayer()) {
             isReady = false;
         }
     }
@@ -76,19 +76,19 @@ public final class GamePrepare extends GameAbstract {
     // Оповещение участников о каком либо событии
     private void notifyPlayers(PlayerGamer player, GameSocketStatusCode code) {
         gamers.values().forEach(gamer -> this.sendMessageToPlayer(
-                gamer, new StatusCode1xx(code, gameID, player)
+                gamer, new StatusCode1xx(code, getGameID(), player)
        ));
-        watchers.values().forEach(gamer -> this.sendMessageToPlayer(
-                gamer, new StatusCode1xx(code, gameID, player)
+        getHashMapOfWatchers().values().forEach(gamer -> this.sendMessageToPlayer(
+                gamer, new StatusCode1xx(code, getGameID(), player)
        ));
     }
 
     private void notifyPlayers(GameSocketStatusCode code) {
         gamers.values().forEach(gamer -> this.sendMessageToPlayer(
-                gamer, new StatusCode1xx(code, gameID)
+                gamer, new StatusCode1xx(code, getGameID())
        ));
-        watchers.values().forEach(watcher -> this.sendMessageToPlayer(
-                watcher, new StatusCode1xx(code, gameID)
+        getHashMapOfWatchers().values().forEach(watcher -> this.sendMessageToPlayer(
+                watcher, new StatusCode1xx(code, getGameID())
        ));
     }
 
@@ -98,8 +98,8 @@ public final class GamePrepare extends GameAbstract {
         return gamers.values();
     }
 
-    public Integer getBots() {
-        return bots.size();
+    public Collection<PlayerBot> getBots() {
+        return bots;
     }
 
     public synchronized Long getMasterID() {
@@ -108,6 +108,6 @@ public final class GamePrepare extends GameAbstract {
 
     @JsonIgnore
     public synchronized Boolean isReady() {
-        return gamers.size() >= numberOfPlayer;
+        return gamers.size() >= getNumberOfPlayer();
     }
 }

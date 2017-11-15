@@ -2,8 +2,8 @@ package application.models.game.field;
 
 public class Step {
 
-    public Spot src;
-    public Spot dst;
+    private Spot src;
+    private Spot dst;
 
     public Step(Spot src, Spot dst) {
         this.src = src;

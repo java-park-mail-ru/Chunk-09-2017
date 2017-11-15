@@ -32,7 +32,7 @@ public final class PlayerBot extends PlayerAbstractActive {
 
         switch (level) {
             case GameTools.BOT_LEVEL_LOW:
-                sourceSpots = field.getPlayerSpots(playerID);
+                sourceSpots = field.getPlayerSpots(getPlayerID());
                 src = sourceSpots.get(random.nextInt(sourceSpots.size()));
 
                 destinationSpots = field.getPossiblePoints(src);
@@ -41,7 +41,7 @@ public final class PlayerBot extends PlayerAbstractActive {
                 return new Step(src, dst);
 
             case GameTools.BOT_LEVEL_MEDIUM:
-                sourceSpots = field.getPlayerSpots(playerID);
+                sourceSpots = field.getPlayerSpots(getPlayerID());
                 destinationSpots = new ArrayList<>();
 
                 for (Spot spot : sourceSpots) {
@@ -50,7 +50,7 @@ public final class PlayerBot extends PlayerAbstractActive {
 
                 final ArrayList<Integer> count = new ArrayList<>(destinationSpots.size());
                 for (Spot spot : destinationSpots) {
-                    count.add(field.getAssumedCount(spot, playerID));
+                    count.add(field.getAssumedCount(spot, getPlayerID()));
                 }
                 // TODO hashmap все дела
                 return null;

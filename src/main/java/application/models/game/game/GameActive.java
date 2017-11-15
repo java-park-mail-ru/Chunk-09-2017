@@ -17,54 +17,54 @@ public final class GameActive extends GameAbstract {
 
     private Integer currentPlayerID;
     private final ConcurrentHashMap<Integer /*playerID*/, PlayerAbstractActive> gamers;
-    Boolean gameOver;
+    private Boolean gameOver;
 
     public GameActive(GamePrepare prepared) {
-        super(prepared.gameID, prepared.field,
-                prepared.numberOfPlayer, prepared.watchers);
+        super(prepared.getGameID(), prepared.getField(),
+                prepared.getNumberOfPlayer(), prepared.getHashMapOfWatchers());
 
-        this.gamers = new ConcurrentHashMap<>(numberOfPlayer);
+        this.gamers = new ConcurrentHashMap<>(getNumberOfPlayer());
 
-        final Iterator<PlayerGamer> iteratorGamer = prepared.gamers.values().iterator();
+        final Iterator<PlayerGamer> iteratorGamer = prepared.getGamers().iterator();
         for (int i = 1; iteratorGamer.hasNext(); ++i) {
             final PlayerGamer gamer = iteratorGamer.next();
             gamer.setPlayerID(i);
             gamers.put(i, gamer);
         }
 
-        final Iterator<PlayerBot> iteratorBot = prepared.bots.iterator();
+        final Iterator<PlayerBot> iteratorBot = prepared.getBots().iterator();
         for (int i = 0; iteratorBot.hasNext(); ++i) {
             final PlayerBot bot = iteratorBot.next();
             bot.setPlayerID(i);
             gamers.put(i, bot);
         }
 
-        this.field.initialize(numberOfPlayer);
+        this.getField().initialize(getNumberOfPlayer());
         this.currentPlayerID = GameTools.PLAYER_1;
         this.gameOver = false;
     }
 
     public synchronized Boolean makeStep(Step step) {
 
-        if (field.getPlayerInPoint(step.src).equals(currentPlayerID)) {
+        if (getField().getPlayerInPoint(step.getSrc()).equals(currentPlayerID)) {
             return false;
         }
 
-        if (!field.makeStep(step)) {
+        if (!getField().makeStep(step)) {
             return false;
         }
 
         notifyPlayers(step);
 
-        if (field.isGameOver()) {
+        if (getField().isGameOver()) {
             end();
             this.gameOver = true;
             return false;
         }
 
         while (true) {
-            currentPlayerID = (currentPlayerID + 1) % numberOfPlayer;
-            if (!field.isBlocked(currentPlayerID)) {
+            currentPlayerID = (currentPlayerID + 1) % getNumberOfPlayer();
+            if (!getField().isBlocked(currentPlayerID)) {
                 break;
             }
 
@@ -85,7 +85,7 @@ public final class GameActive extends GameAbstract {
                 return false;
             }
             final PlayerBot bot = (PlayerBot) gamers.get(currentPlayerID);
-            this.makeStep(bot.generateStep(field));
+            this.makeStep(bot.generateStep(getField()));
         }
         return true;
     }
@@ -99,7 +99,7 @@ public final class GameActive extends GameAbstract {
                         new StatusCode201(step));
             }
         });
-        watchers.values().forEach(watcher -> {
+        getHashMapOfWatchers().values().forEach(watcher -> {
             this.sendMessageToPlayer(watcher,
                     new StatusCode201(step));
         });
@@ -113,7 +113,7 @@ public final class GameActive extends GameAbstract {
                         new StatusCode203(blockedPlayer));
             }
         });
-        watchers.values().forEach(watcher ->
+        getHashMapOfWatchers().values().forEach(watcher ->
                 this.sendMessageToPlayer(watcher, new StatusCode203(blockedPlayer)));
     }
 
@@ -121,11 +121,11 @@ public final class GameActive extends GameAbstract {
         // game end
         gamers.values().forEach(gamer -> {
             if (gamer.getUserID() != null) {
-                this.sendMessageToPlayer(gamer, new StatusCode204(field));
+                this.sendMessageToPlayer(gamer, new StatusCode204(getField()));
             }
         });
-        watchers.values().forEach(watcher ->
-                this.sendMessageToPlayer(watcher, new StatusCode204(field)));
+        getHashMapOfWatchers().values().forEach(watcher ->
+                this.sendMessageToPlayer(watcher, new StatusCode204(getField())));
     }
 
 
@@ -139,7 +139,7 @@ public final class GameActive extends GameAbstract {
         gamers.clear();
     }
 
-    public boolean isGameOver() {
+    public boolean getGameOver() {
         return gameOver;
     }
 

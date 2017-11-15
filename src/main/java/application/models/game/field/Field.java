@@ -80,40 +80,40 @@ public class Field {
     public synchronized boolean makeStep(Step step) {
 
         // Валидация
-        if (array[step.src.codestyleX][step.src.codestyleY].equals(GameTools.EMPTY_CELL)) {
+        if (array[step.getSrc().getCstX()][step.getSrc().getCstY()].equals(GameTools.EMPTY_CELL)) {
             return false;
         }
-        if (!array[step.dst.codestyleX][step.dst.codestyleY].equals(GameTools.EMPTY_CELL)) {
+        if (!array[step.getDst().getCstX()][step.getDst().getCstY()].equals(GameTools.EMPTY_CELL)) {
             return false;
         }
-        if (step.src.equals(step.dst)) {
+        if (step.getSrc().equals(step.getDst())) {
             return false;
         }
-        if (Math.abs(step.dst.codestyleX - step.src.codestyleX) > 2
-                || Math.abs(step.dst.codestyleY - step.src.codestyleY) > 2) {
+        if (Math.abs(step.getDst().getCstX() - step.getSrc().getCstX()) > 2
+                || Math.abs(step.getDst().getCstY() - step.getSrc().getCstY()) > 2) {
             return false;
         }
 
         // Ход
-        array[step.dst.codestyleX][step.dst.codestyleY] = array[step.src.codestyleX][step.src.codestyleY];
-        if (Math.abs(step.dst.codestyleX - step.src.codestyleX) == 2
-                || Math.abs(step.dst.codestyleY - step.src.codestyleY) == 2) {
-            array[step.src.codestyleX][step.src.codestyleY] = GameTools.EMPTY_CELL;
+        array[step.getDst().getCstX()][step.getDst().getCstY()] = array[step.getSrc().getCstX()][step.getSrc().getCstY()];
+        if (Math.abs(step.getDst().getCstX() - step.getSrc().getCstX()) == 2
+                || Math.abs(step.getDst().getCstY() - step.getSrc().getCstY()) == 2) {
+            array[step.getSrc().getCstX()][step.getSrc().getCstY()] = GameTools.EMPTY_CELL;
         }
 
-        this.assumedAround(step.dst);
+        this.assumedAround(step.getDst());
         return true;
     }
 
     public Integer getPlayerInPoint(Spot spot) {
-        return array[spot.codestyleX][spot.codestyleY];
+        return array[spot.getCstX()][spot.getCstY()];
     }
 
     private synchronized void assumedAround(Spot spot) {
 
-        final Integer playerID = array[spot.codestyleX][spot.codestyleY];
-        for (int x = spot.codestyleX - 1; x <= spot.codestyleX + 1; ++x) {
-            for (int y = spot.codestyleY - 1; y <= spot.codestyleY + 1; ++y) {
+        final Integer playerID = array[spot.getCstX()][spot.getCstY()];
+        for (int x = spot.getCstX() - 1; x <= spot.getCstX() + 1; ++x) {
+            for (int y = spot.getCstY() - 1; y <= spot.getCstY() + 1; ++y) {
 
                 if (!this.isValid(new Spot(x, y))) {
                     continue;
@@ -142,8 +142,8 @@ public class Field {
     public ArrayList<Spot> getPossiblePoints(Spot spot) {
 
         final ArrayList<Spot> possibleSpots = new ArrayList<>();
-        for (int x = spot.codestyleX - 2; x <= spot.codestyleX + 2; ++x) {
-            for (int y = spot.codestyleY - 2; y <= spot.codestyleY + 2; ++y) {
+        for (int x = spot.getCstX() - 2; x <= spot.getCstX() + 2; ++x) {
+            for (int y = spot.getCstY() - 2; y <= spot.getCstY() + 2; ++y) {
 
                 if (!this.isValid(new Spot(x, y))) {
                     continue;
@@ -159,8 +159,8 @@ public class Field {
     public Integer getAssumedCount(Spot spot, Integer playerID) {
 
         Integer count = 0;
-        for (int x = spot.codestyleX - 1; x <= spot.codestyleX + 1; ++x) {
-            for (int y = spot.codestyleY - 1; y <= spot.codestyleY + 1; ++y) {
+        for (int x = spot.getCstX() - 1; x <= spot.getCstX() + 1; ++x) {
+            for (int y = spot.getCstY() - 1; y <= spot.getCstY() + 1; ++y) {
 
                 if (!this.isValid(new Spot(x, y))) {
                     continue;
@@ -175,10 +175,10 @@ public class Field {
     }
 
     private Boolean isValid(Spot spot) {
-        if (spot.codestyleX < 0 || spot.codestyleY < 0) {
+        if (spot.getCstX() < 0 || spot.getCstY() < 0) {
             return false;
         }
-        if (spot.codestyleX >= maxX || spot.codestyleY >= maxY) {
+        if (spot.getCstX() >= maxX || spot.getCstY() >= maxY) {
             return false;
         }
         return true;

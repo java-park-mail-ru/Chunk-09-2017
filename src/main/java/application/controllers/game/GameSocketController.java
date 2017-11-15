@@ -1,7 +1,6 @@
 package application.controllers.game;
 
 import application.views.game.StatusCode;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.TextMessage;
@@ -43,7 +42,4 @@ public abstract class GameSocketController {
     }
 
     protected abstract void chooseAction(Integer code, JsonNode jsonNode, WebSocketSession session);
-
-    private final ObjectMapper mapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 }
