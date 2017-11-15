@@ -19,11 +19,11 @@ import javax.servlet.http.HttpSession;
 @RestController
 @RequestMapping(path = "/user")
 @CrossOrigin(origins = "*")
-public class UserController {
+public class UserHttpController {
 
     private final UserService service;
 
-    UserController(UserServiceJpa service) {
+    UserHttpController(UserServiceJpa service) {
         this.service = service;
     }
 

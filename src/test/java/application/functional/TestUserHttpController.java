@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
-public class TestUserController {
+public class TestUserHttpController {
 
     @Autowired
     private MockMvc mockMvc;

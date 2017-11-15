@@ -30,7 +30,7 @@ public class UserServiceJpa implements UserService {
     @Override
     public Long addUser(UserSignUp userSignUp) {
         try {
-            UserServiceTools.userValidation(userSignUp);
+            UserTools.userValidation(userSignUp);
             return userDao.addUser(userSignUp).getId();
 
         } catch (DataIntegrityViolationException e) {
@@ -58,7 +58,7 @@ public class UserServiceJpa implements UserService {
     @Override
     public UserSignUp updateUserProfile(UserUpdate newUser, @NotNull Long id) {
         try {
-            UserServiceTools.userValidationUpdate(newUser);
+            UserTools.userValidationUpdate(newUser);
             final UserSignUp oldUser = this.getUserById(id);
             if (!oldUser.getPassword().equals(newUser.getOldPassword())) {
                 throw new UserExceptionPasswordFail("Wrong password");

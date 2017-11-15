@@ -5,8 +5,7 @@ import application.models.user.UserUpdate;
 import application.models.user.UserSignUp;
 
 
-
-public class UserServiceTools {
+public class UserTools {
 
     // Constants
     private static final int MIN_USERNAME_LENGTH = 4;
@@ -15,6 +14,8 @@ public class UserServiceTools {
 
     private static final int MAX_USERNAME_LENGTH = 40;
     private static final int MAX_EMAIL_LENGTH = 50;
+
+    public static final String USER_ID_ATTR = "ID";
 
     // Validation
     public static void userValidationUpdate(UserUpdate user) throws UserExceptionIncorrectData {
