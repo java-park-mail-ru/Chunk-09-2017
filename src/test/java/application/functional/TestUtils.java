@@ -61,13 +61,14 @@ public class TestUtils {
     public static final Random RANDOM = new Random(new Date().getTime());
 
 
+    @Autowired
     public static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static UserSignUp getRandomUser() {
         return new UserSignUp(
-                "TestUsername_" + RANDOM.nextGaussian(),
-                "TestEmail_" + RANDOM.nextGaussian(),
-                "TestPassword_" + RANDOM.nextGaussian()
+                "TestUsername_" + RANDOM.nextInt(),
+                "TestEmail_" + RANDOM.nextInt(),
+                "TestPassword_" + RANDOM.nextInt()
         );
     }
 

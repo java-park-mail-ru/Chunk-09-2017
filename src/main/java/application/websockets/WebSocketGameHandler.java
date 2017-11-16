@@ -5,6 +5,7 @@ import application.controllers.game.GameSocketController2xx;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserTools;
+import application.views.game.statuscode1xx.StatusCode112;
 import application.views.game.statuscode3xx.StatusCode3xx;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,6 +48,10 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
                     )
             ));
             session.close(CloseStatus.NOT_ACCEPTABLE);
+        } else {
+            session.sendMessage(new TextMessage(
+                    mapper.writeValueAsString(new StatusCode112(userID))
+            ));
         }
     }
 

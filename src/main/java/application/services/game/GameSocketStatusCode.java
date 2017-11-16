@@ -17,6 +17,7 @@ public enum GameSocketStatusCode {
     REMOVE_BOT(109, "Removing bot-player from multiplayer game"),
     DESTROY(110, "Destroy exist preparing game"),
     FULL_STATUS(111, "Get information about all preparing games"),
+    WHOAMI(112, "Returns your userID"),
 
     /* Playing status code */
     BEGIN(200, "Start the game"),
