@@ -3,7 +3,6 @@ package application.models.game.game;
 import application.models.game.field.Field;
 import application.models.game.player.PlayerAbstract;
 import application.models.game.player.PlayerWatcher;
-import application.services.game.GameTools;
 import application.views.game.StatusCode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
