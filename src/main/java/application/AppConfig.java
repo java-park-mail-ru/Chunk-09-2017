@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import java.util.Date;
 import java.util.Random;
@@ -15,6 +16,7 @@ import java.util.Random;
 public class AppConfig {
 
     @Bean
+    @Scope("prototype")
     @Qualifier("mymapper")
     public ObjectMapper getObjectMapper() {
         return new ObjectMapper()

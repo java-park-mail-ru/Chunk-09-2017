@@ -19,7 +19,6 @@ public final class GamePrepare extends GameAbstract {
 
     private final ConcurrentHashMap<Long, PlayerGamer> gamers;
     private final CopyOnWriteArraySet<PlayerBot> bots;
-    @JsonIgnore
     private final Long masterID;
     @JsonIgnore
     private Boolean isReady;
@@ -69,7 +68,7 @@ public final class GamePrepare extends GameAbstract {
 
     public synchronized void destroy() {
         notifyPlayers(GameSocketStatusCode.DESTROY);
-        gamers.forEachValue(1L, gamer -> gamer.getSession()
+        gamers.values().forEach(gamer -> gamer.getSession()
                 .getAttributes().remove(GameTools.GAME_ID_ATTR));
         gamers.clear();
     }
