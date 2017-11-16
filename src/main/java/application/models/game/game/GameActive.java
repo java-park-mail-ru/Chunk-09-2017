@@ -4,10 +4,11 @@ import application.models.game.field.Step;
 import application.models.game.player.PlayerAbstractActive;
 import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
+import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.views.game.statuscode2xx.StatusCode201;
-import application.views.game.statuscode2xx.StatusCode203;
 import application.views.game.statuscode2xx.StatusCode204;
+import application.views.game.statuscode2xx.StatusCode2xx;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -67,72 +68,97 @@ public final class GameActive extends GameAbstract {
             if (!getField().isBlocked(currentPlayerID)) {
                 break;
             }
-
-            try {
-                Thread.sleep(GameTools.TIME_BETWEEN_BLOCKED);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return false;
-            }
-            notifyPlayers(gamers.get(currentPlayerID));
+            notifyPlayers(GameSocketStatusCode.BLOCKED, gamers.get(currentPlayerID));
         }
 
         if (gamers.get(currentPlayerID) instanceof PlayerBot) {
-            try {
-                Thread.sleep(GameTools.TIME_BEFORE_BOTS_STEP);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return false;
-            }
+
             final PlayerBot bot = (PlayerBot) gamers.get(currentPlayerID);
             this.makeStep(bot.generateStep(getField()));
         }
         return true;
     }
 
-//    public synchronized void playerOff()
-    // TODO check on session.isOpen();
+    public synchronized void playerOff(Long userID) {
+        gamers.values().forEach(gamer -> {
+            if (gamer.getUserID().equals(userID)) {
+                gamer.switchOff();
+                notifyPlayers(GameSocketStatusCode.PLAYER_OFF, gamer);
+            }
+        });
+    }
 
-    // Опопвестить пользователей о совершенном ходе
+    public synchronized void playerOff(PlayerGamer player) {
+        player.switchOff();
+        notifyPlayers(GameSocketStatusCode.PLAYER_OFF, player);
+    }
+
+    // Оповещения игроков и наблюдателей
+    private synchronized void notifyPlayers(GameSocketStatusCode code,
+                                            PlayerAbstractActive player) {
+        // player blocked
+        gamers.values().forEach(gamer -> {
+            if (gamer.getUserID() != null) {
+                if (gamer.getOnline() && gamer.getSession().isOpen()) {
+                    this.sendMessageToPlayer(gamer, new StatusCode2xx(code, player));
+                } else {
+                    this.playerOff((PlayerGamer) gamer);
+                }
+            }
+        });
+        getHashMapOfWatchers().values().forEach(watcher -> {
+            if (watcher.getSession().isOpen()) {
+                this.sendMessageToPlayer(watcher, new StatusCode2xx(code, player));
+            } else {
+                getHashMapOfWatchers().remove(watcher.getUserID());
+            }
+        });
+    }
+
     private synchronized void notifyPlayers(Step step) {
         // make step
         gamers.values().forEach(gamer -> {
             if (gamer.getUserID() != null) {
-                this.sendMessageToPlayer(gamer,
-                        new StatusCode201(step));
+                if (gamer.getOnline() && gamer.getSession().isOpen()) {
+                    this.sendMessageToPlayer(gamer, new StatusCode201(step));
+                } else {
+                    this.playerOff((PlayerGamer) gamer);
+
+                }
             }
         });
         getHashMapOfWatchers().values().forEach(watcher -> {
-            this.sendMessageToPlayer(watcher,
-                    new StatusCode201(step));
-        });
-    }
-
-    private synchronized void notifyPlayers(PlayerAbstractActive blockedPlayer) {
-        // player blocked
-        gamers.values().forEach(gamer -> {
-            if (gamer.getUserID() != null) {
-                this.sendMessageToPlayer(gamer,
-                        new StatusCode203(blockedPlayer));
+            if (watcher.getSession().isOpen()) {
+                this.sendMessageToPlayer(watcher, new StatusCode201(step));
+            } else {
+                getHashMapOfWatchers().remove(watcher.getUserID());
             }
         });
-        getHashMapOfWatchers().values().forEach(watcher ->
-                this.sendMessageToPlayer(watcher, new StatusCode203(blockedPlayer)));
     }
 
     private synchronized void notifyPlayers() {
         // game end
         gamers.values().forEach(gamer -> {
             if (gamer.getUserID() != null) {
-                this.sendMessageToPlayer(gamer, new StatusCode204(getField()));
+                if (gamer.getOnline() && gamer.getSession().isOpen()) {
+                    this.sendMessageToPlayer(gamer, new StatusCode204(getField()));
+                } else {
+                    this.playerOff((PlayerGamer) gamer);
+                }
             }
         });
-        getHashMapOfWatchers().values().forEach(watcher ->
-                this.sendMessageToPlayer(watcher, new StatusCode204(getField())));
+        getHashMapOfWatchers().values().forEach(watcher -> {
+            if (watcher.getSession().isOpen()) {
+                this.sendMessageToPlayer(watcher, new StatusCode204(getField()));
+            }
+        });
     }
 
     private void end() {
         notifyPlayers();
+
+        getHashMapOfWatchers().clear();
+
         gamers.values().forEach(gamer -> {
             if (gamer instanceof PlayerGamer) {
                 gamer.getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);

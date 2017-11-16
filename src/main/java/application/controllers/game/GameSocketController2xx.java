@@ -70,11 +70,11 @@ public final class GameSocketController2xx extends GameSocketController {
 
     @Override
     public void emergencyDiconnect(WebSocketSession session, Long userID, Long gameID) {
-//        final GameActive game = activeGames.get(gameID);
-//        if (game != null) {
-//            activeGames.
-//        }
-        // TODO gamerOff
+
+        final GameActive game = activeGames.get(gameID);
+        if (game != null) {
+            game.playerOff(userID);
+        }
     }
 
     void addGame(GamePrepare readyGame) {
@@ -136,6 +136,8 @@ public final class GameSocketController2xx extends GameSocketController {
     }
 
     private void watch(WebSocketSession session, JsonNode jsonNode) {
+
+        unsubscribe(session);
 
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         final Long prevGameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
