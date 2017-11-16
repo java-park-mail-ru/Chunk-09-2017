@@ -17,6 +17,7 @@ public enum GameSocketStatusCode {
     REMOVE_BOT(109, "Removing bot-player from multiplayer game"),
     DESTROY(110, "Destroy exist preparing game"),
     FULL_STATUS(111, "Get information about all preparing games"),
+    WHOAMI(112, "Returns your userID"),
 
     /* Playing status code */
     BEGIN(200, "Start the game"),
@@ -28,6 +29,8 @@ public enum GameSocketStatusCode {
     REWATCH(206, "Stop watching game"),
     SUBSCRIBE_A(207, "Subscribe to the update of the active game list"),
     UNSUBSCRIBE_A(208, "Unsubscribe from the updating of the active game list"),
+    PLAYER_OFF(209, "Player is offline"),
+    RECONNECT(210, "Reconnect to game"),
 
     /* Client Error status code */
     UNEXPECTED(300, "The requested code does not exist"),

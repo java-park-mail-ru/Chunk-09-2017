@@ -21,6 +21,13 @@ public abstract class PlayerAbstractActive extends PlayerAbstract {
         this.online = true;
     }
 
+    public void switchOn() {
+        this.online = true;
+    }
+
+    public void switchOff() {
+        this.online = false;
+    }
 
     public Integer getPlayerID() {
         return playerID;
