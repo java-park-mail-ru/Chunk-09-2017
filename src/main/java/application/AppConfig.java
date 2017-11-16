@@ -1,5 +1,6 @@
 package application;
 
+import application.services.game.GameTools;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import java.util.Date;
 import java.util.Random;
@@ -15,6 +17,7 @@ import java.util.Random;
 public class AppConfig {
 
     @Bean
+    @Scope("prototype")
     @Qualifier("mymapper")
     public ObjectMapper getObjectMapper() {
         return new ObjectMapper()
@@ -28,6 +31,6 @@ public class AppConfig {
 
     @Bean
     public Logger getLogger() {
-        return LoggerFactory.getLogger("TowerDefense");
+        return LoggerFactory.getLogger(GameTools.LOGGER_NAME);
     }
 }

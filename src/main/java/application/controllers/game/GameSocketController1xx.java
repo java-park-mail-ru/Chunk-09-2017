@@ -365,7 +365,7 @@ public final class GameSocketController1xx extends GameSocketController {
         game.destroy();
         preparingGames.remove(gameID);
         payload = this.toJSON(
-                mapper, new StatusCode3xx(GameSocketStatusCode.DESTROY)
+                mapper, new StatusCode3xx(GameSocketStatusCode.DESTROY, gameID)
         );
         notifySubscribers(payload);
     }
