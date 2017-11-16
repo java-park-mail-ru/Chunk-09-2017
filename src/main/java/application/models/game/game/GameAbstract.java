@@ -26,7 +26,7 @@ public abstract class GameAbstract {
     @JsonIgnore
     private final ObjectMapper mapper = new ObjectMapper();
     @JsonIgnore
-    private final Logger gameLogger = LoggerFactory.getLogger(GameTools.LOGGER_NAME);
+    private final Logger gameLogger = LoggerFactory.getLogger(GameAbstract.class);
 
 
     protected GameAbstract(@NotNull Long gameID, @NotNull Field gameField,

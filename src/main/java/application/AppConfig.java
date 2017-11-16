@@ -17,7 +17,6 @@ import java.util.Random;
 public class AppConfig {
 
     @Bean
-    @Scope("prototype")
     @Qualifier("mymapper")
     public ObjectMapper getObjectMapper() {
         return new ObjectMapper()
@@ -27,10 +26,5 @@ public class AppConfig {
     @Bean
     public Random getRandom() {
         return new Random(new Date().getTime());
-    }
-
-    @Bean
-    public Logger getLogger() {
-        return LoggerFactory.getLogger(GameTools.LOGGER_NAME);
     }
 }
