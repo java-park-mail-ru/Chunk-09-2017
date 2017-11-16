@@ -28,5 +28,7 @@ public class GameTools {
     public static final String STEP_ATTR = "step";
     public static final String MAX_X_ATTR = "maxX";
     public static final String MAX_Y_ATTR = "maxY";
-    
+
+
+    public static final String LOGGER_NAME = "WebSocketMessage";
 }

@@ -73,6 +73,10 @@ public enum GameSocketStatusCode {
         return NOT_AUTHORIZED.value <= code && code < MAX_CODE;
     }
 
+    @Override
+    public String toString() {
+        return "code=" + value + ", reason: " + reasonPhrase;
+    }
 
     public int getValue() {
         return value;

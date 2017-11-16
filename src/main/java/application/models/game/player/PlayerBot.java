@@ -18,7 +18,7 @@ public final class PlayerBot extends PlayerAbstractActive {
     private final Integer level;
 
     public PlayerBot(Integer level) {
-        // TODO какой-то конструтор надо удалить слишком много костылей
+        // TODO сделать осмысленные имена, добавить botID
         super("Bot_" + generatorBotName.getAndIncrement());
         this.level = level;
     }

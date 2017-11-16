@@ -7,14 +7,14 @@ import application.views.game.StatusCode;
 
 public final class StatusCode101 extends StatusCode {
 
-    final Long gameID;
-    final Integer gamersCount;
-    final Integer botsCount;
-    final Integer watchersCount;
-    final Integer numberOfPlayers;
-    final Integer maxX;
-    final Integer maxY;
-    final PlayerAbstractActive player;
+    private final Long gameID;
+    private final Integer gamersCount;
+    private final Integer botsCount;
+    private final Integer watchersCount;
+    private final Integer numberOfPlayers;
+    private final Integer maxX;
+    private final Integer maxY;
+    private final PlayerAbstractActive player;
 
     public StatusCode101(GameSocketStatusCode statusCode,
                          GamePrepare game, PlayerAbstractActive player) {

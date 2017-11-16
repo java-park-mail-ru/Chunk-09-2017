@@ -40,8 +40,4 @@ public abstract class PlayerAbstractActive extends PlayerAbstract {
     public void setPlayerID(Integer playerID) {
         this.playerID = playerID;
     }
-
-    public void setOnline(Boolean online) {
-        this.online = online;
-    }
 }

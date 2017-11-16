@@ -166,6 +166,8 @@ public final class GameSocketController1xx extends GameSocketController {
                 GameSocketStatusCode.SUBSCRIBE_P, newGame
        ));
         this.notifySubscribers(payload);
+
+        getGameLogger().info("Create prepare Game #" + newGameID);
     }
 
     private void connectActive(final WebSocketSession session, JsonNode jsonNode) {
@@ -363,7 +365,7 @@ public final class GameSocketController1xx extends GameSocketController {
         game.destroy();
         preparingGames.remove(gameID);
         payload = this.toJSON(
-                mapper, new StatusCode3xx(GameSocketStatusCode.DESTROY)
+                mapper, new StatusCode3xx(GameSocketStatusCode.DESTROY, gameID)
         );
         notifySubscribers(payload);
     }
