@@ -26,10 +26,8 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
     private final GameSocketController1xx gameSocketController1xx;
     private final GameSocketController2xx gameSocketController2xx;
     private final ObjectMapper mapper = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger("GameDefense");
-    //  почему не работает?
-    //  @Autowired
-    //  private Logger LOGGER;
+    private final Logger logger = LoggerFactory.getLogger(WebSocketGameHandler.class);
+
 
     WebSocketGameHandler(GameSocketController1xx controller1xx,
                          GameSocketController2xx controller2xx) {
@@ -50,12 +48,12 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
                     )
             ));
             session.close(CloseStatus.NOT_ACCEPTABLE);
-            LOGGER.warn(GameSocketStatusCode.NOT_AUTHORIZED.toString());
+            logger.warn(GameSocketStatusCode.NOT_AUTHORIZED.toString());
         } else {
             session.sendMessage(new TextMessage(
                     mapper.writeValueAsString(new StatusCode112(userID))
             ));
-            LOGGER.info("Succesfull connect: userID=" + userID + ", session=" + session);
+            logger.info("Succesfull connect: userID=" + userID + ", session=" + session);
         }
     }
 
@@ -78,7 +76,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 
-        LOGGER.info("Disconnect: " + session);
+        logger.info("Disconnect: " + session);
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
         if (userID == null || gameID == null) {

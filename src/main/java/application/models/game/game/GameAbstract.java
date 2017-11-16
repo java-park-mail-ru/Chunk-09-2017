@@ -3,7 +3,6 @@ package application.models.game.game;
 import application.models.game.field.Field;
 import application.models.game.player.PlayerAbstract;
 import application.models.game.player.PlayerWatcher;
-import application.services.game.GameTools;
 import application.views.game.StatusCode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +25,7 @@ public abstract class GameAbstract {
     @JsonIgnore
     private final ObjectMapper mapper = new ObjectMapper();
     @JsonIgnore
-    private final Logger gameLogger = LoggerFactory.getLogger(GameTools.LOGGER_NAME);
+    private final Logger gameLogger = LoggerFactory.getLogger(GameAbstract.class);
 
 
     protected GameAbstract(@NotNull Long gameID, @NotNull Field gameField,

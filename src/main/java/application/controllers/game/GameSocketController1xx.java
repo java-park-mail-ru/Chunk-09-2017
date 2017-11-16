@@ -106,12 +106,10 @@ public final class GameSocketController1xx extends GameSocketController {
     @Override
     public void emergencyDiconnect(WebSocketSession session, Long userID, Long gameID) {
         final GamePrepare game = preparingGames.get(gameID);
+        final ObjectMapper mapper = new ObjectMapper();
+        final String payload;
         if (game != null) {
-            if (game.getMasterID().equals(userID)) {
-                this.destroy(session);
-            } else {
-                game.removeGamer(userID);
-            }
+            this.exit(session);
         } else {
             this.unsubscribe(session);
         }
@@ -247,8 +245,27 @@ public final class GameSocketController1xx extends GameSocketController {
         if (gameID == null || userID == null) {
             return;
         }
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final String payload;
+
         final GamePrepare game = preparingGames.get(gameID);
+
+        if (game == null) {
+            payload = this.toJSON(mapper, new StatusCode3xx(GameSocketStatusCode.ATTR));
+            this.sendMessage(session, payload);
+            return;
+        }
+
+        if (userID.equals(game.getMasterID())) {
+            this.destroy(session);
+            return;
+        }
+
         game.removeGamer(userID);
+
+        payload = this.toJSON(mapper, new StatusCode1xx(GameSocketStatusCode.EXIT, game));
+        notifySubscribers(payload);
     }
 
     private void status(WebSocketSession session, JsonNode jsonNode) {
