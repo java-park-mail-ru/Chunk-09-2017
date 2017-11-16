@@ -5,6 +5,7 @@ import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
 import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
+import application.views.game.statuscode1xx.StatusCode101;
 import application.views.game.statuscode1xx.StatusCode1xx;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -78,14 +79,16 @@ public final class GamePrepare extends GameAbstract {
     private void notifyPlayers(PlayerGamer player, GameSocketStatusCode code) {
         gamers.values().forEach(gamer -> {
             if (gamer.getSession().isOpen()) {
-                this.sendMessageToPlayer(gamer, new StatusCode1xx(code, getGameID(), player));
+                this.sendMessageToPlayer(gamer,
+                        new StatusCode101(code, this, player));
             } else {
                 this.removeGamer(gamer.getUserID());
             }
         });
         getHashMapOfWatchers().values().forEach(watcher -> {
             if (watcher.getSession().isOpen()) {
-                this.sendMessageToPlayer(watcher, new StatusCode1xx(code, getGameID(), player));
+                this.sendMessageToPlayer(watcher,
+                        new StatusCode101(code, this, player));
             } else {
                 getHashMapOfWatchers().remove(watcher.getUserID());
             }
