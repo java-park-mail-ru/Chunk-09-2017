@@ -1,8 +1,11 @@
 package application.controllers.game;
 
+import application.services.game.GameTools;
 import application.views.game.StatusCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -17,7 +20,7 @@ public abstract class GameSocketController {
         try {
             return mapper.writeValueAsString(statusCode);
         } catch (IOException e) {
-            e.printStackTrace();
+            gameLogger.error(e.getMessage(), e.getCause());
             return null;
         }
     }
@@ -27,9 +30,11 @@ public abstract class GameSocketController {
         try {
             session.sendMessage(new TextMessage(payload));
         } catch (IOException e) {
-            e.printStackTrace();
+            gameLogger.error(e.getMessage(), e.getCause());
         }
     }
 
     public abstract void emergencyDiconnect(WebSocketSession session, Long userID, Long gameID);
+
+    protected final Logger gameLogger = LoggerFactory.getLogger(GameTools.LOGGER_NAME);
 }

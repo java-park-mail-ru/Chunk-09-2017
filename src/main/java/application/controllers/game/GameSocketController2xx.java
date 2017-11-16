@@ -79,9 +79,12 @@ public final class GameSocketController2xx extends GameSocketController {
 
     void addGame(GamePrepare readyGame) {
         activeGames.put(readyGame.getGameID(), new GameActive(readyGame));
+
         final String payload = this.toJSON(new ObjectMapper(),
                 new StatusCode204(readyGame.getGameID()));
         this.notifySubscribers(payload);
+
+        gameLogger.info("Game #" + readyGame.getGameID() + " is started");
     }
 
     private void step(WebSocketSession session, JsonNode jsonNode) {

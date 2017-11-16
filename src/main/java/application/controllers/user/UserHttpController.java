@@ -8,6 +8,8 @@ import application.services.user.UserService;
 import application.services.user.UserServiceJpa;
 import application.views.user.UserFail;
 import application.views.user.UserSuccess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpSession;
 public class UserHttpController {
 
     private final UserService service;
+    private final Logger httpLogger = LoggerFactory.getLogger(UserHttpController.class);
 
     UserHttpController(UserServiceJpa service) {
         this.service = service;
@@ -101,6 +104,7 @@ public class UserHttpController {
     @ExceptionHandler(UserException.class)
     public ResponseEntity<UserFail> handleUserServiceError(UserException exception) {
         exception.printStackTrace();
+        httpLogger.error(exception.getErrorMessage());
         return new ResponseEntity<>(
                 new UserFail(exception.getErrorMessage()),
                 exception.getErrorCode()
@@ -110,6 +114,7 @@ public class UserHttpController {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<UserFail> handleUnexpectedException(RuntimeException exception) {
         exception.printStackTrace();
+        httpLogger.error("Unexpected error:" + exception.getMessage());
         return new ResponseEntity<>(
                 new UserFail("Unexpected error"),
                 HttpStatus.I_AM_A_TEAPOT

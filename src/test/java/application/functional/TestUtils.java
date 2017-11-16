@@ -5,13 +5,34 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.Random;
 
 @Component
 public class TestUtils {
+
+    // Всего лишь добавляет цифры в конце username'a,
+    // тесты от этого неопределёнными не становятся
+    @Autowired
+    private final Random random = new Random();
+
+    @Autowired
+    @Qualifier("mymapper")
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    public String toJson(Object o) throws JsonProcessingException {
+        return mapper.writeValueAsString(o);
+    }
+
+    public UserSignUp getRandomUser() {
+        return new UserSignUp(
+                "TestUsername_" + random.nextInt(),
+                "TestEmail_" + random.nextInt(),
+                "TestPassword_" + random.nextInt()
+        );
+    }
 
     static class TestPlayer {
         @JsonProperty
@@ -58,39 +79,14 @@ public class TestUtils {
         }
     }
 
-    public static final Random RANDOM = new Random(new Date().getTime());
-
-
-    @Autowired
-    public static final ObjectMapper MAPPER = new ObjectMapper();
-
-    public static UserSignUp getRandomUser() {
-        return new UserSignUp(
-                "TestUsername_" + RANDOM.nextInt(),
-                "TestEmail_" + RANDOM.nextInt(),
-                "TestPassword_" + RANDOM.nextInt()
-        );
-    }
-
-    public static String toJson(Object o) throws JsonProcessingException {
-        return MAPPER.writeValueAsString(o);
-    }
-
     static class TestPlaystep {
 
-        @JsonProperty
         Integer x1;
-        @JsonProperty
         Integer x2;
-        @JsonProperty
         Integer y1;
-        @JsonProperty
         Integer y2;
-        @JsonProperty
         Long gameID;
-        @JsonProperty
         Integer playerID;
-        @JsonProperty
         Integer currentPlayerID;
 
         TestPlaystep(Integer x1, Integer y1, Integer x2, Integer y2,

@@ -37,6 +37,9 @@ public class UserHttpControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    
+    @Autowired
+    private TestUtils testUtils;
 
     @Rule
     public ExpectedException expected = ExpectedException.none();
@@ -49,7 +52,7 @@ public class UserHttpControllerTest {
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
@@ -101,7 +104,7 @@ public class UserHttpControllerTest {
         testUser.setUsername("veryLoooooooooooooooooooooooooooooooooooooooooooooooongTestName");
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -113,7 +116,7 @@ public class UserHttpControllerTest {
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andDo(print());
 
         mockMvc.perform(get(baseUrl + "/exit")
@@ -138,7 +141,7 @@ public class UserHttpControllerTest {
         final UserSignUp testUser = getRandomUser();
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
@@ -162,7 +165,7 @@ public class UserHttpControllerTest {
         final UserSignUp testUser = getRandomUser();
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
@@ -199,7 +202,7 @@ public class UserHttpControllerTest {
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(oldUser)))
+                .content(testUtils.toJson(oldUser)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(oldUser.getUsername()))
                 .andExpect(jsonPath("email").value(oldUser.getEmail()))
@@ -260,14 +263,14 @@ public class UserHttpControllerTest {
         final UserSignUp userTwo = getRandomUser();
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(userOne)))
+                .content(testUtils.toJson(userOne)))
                 .andExpect(status().isCreated());
 
         final MockHttpSession mockHttpSession = new MockHttpSession();
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(userTwo)))
+                .content(testUtils.toJson(userTwo)))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post(baseUrl + "/update")
@@ -302,7 +305,7 @@ public class UserHttpControllerTest {
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post(baseUrl + "/update")
@@ -332,7 +335,7 @@ public class UserHttpControllerTest {
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(get(baseUrl + "/whoisit")
@@ -366,7 +369,7 @@ public class UserHttpControllerTest {
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(get(baseUrl + "/exit")
