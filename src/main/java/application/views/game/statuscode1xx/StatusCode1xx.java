@@ -20,13 +20,6 @@ public final class StatusCode1xx extends StatusCode {
         this.gameID = gameID;
     }
 
-    public StatusCode1xx(GameSocketStatusCode statusCode,
-                         Long gameID, PlayerGamer player) {
-        super(statusCode);
-        this.gameID = gameID;
-        this.player = player;
-    }
-
     public StatusCode1xx(GameSocketStatusCode statusCode, GamePrepare game) {
         super(statusCode);
         this.game = game;
