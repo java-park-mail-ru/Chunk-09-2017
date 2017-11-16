@@ -6,12 +6,13 @@ import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
+import application.views.game.StatusCode;
+import application.views.game.statuscode2xx.StatusCode200;
 import application.views.game.statuscode2xx.StatusCode201;
 import application.views.game.statuscode2xx.StatusCode204;
 import application.views.game.statuscode2xx.StatusCode2xx;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class GameActive extends GameAbstract {
@@ -26,23 +27,21 @@ public final class GameActive extends GameAbstract {
 
         this.gamers = new ConcurrentHashMap<>(getNumberOfPlayers());
 
-        final Iterator<PlayerGamer> iteratorGamer = prepared.getGamers().iterator();
-        for (int i = 1; iteratorGamer.hasNext(); ++i) {
-            final PlayerGamer gamer = iteratorGamer.next();
-            gamer.setPlayerID(i);
-            gamers.put(i, gamer);
+        Integer playerIdIncrement = GameTools.PLAYER_1;
+        for (PlayerGamer gamer : prepared.getGamers()) {
+            gamer.setPlayerID(playerIdIncrement);
+            gamers.put(playerIdIncrement++, gamer);
         }
-
-        final Iterator<PlayerBot> iteratorBot = prepared.getBots().iterator();
-        for (int i = 0; iteratorBot.hasNext(); ++i) {
-            final PlayerBot bot = iteratorBot.next();
-            bot.setPlayerID(i);
-            gamers.put(i, bot);
+        for (PlayerBot bot : prepared.getBots()) {
+            bot.setPlayerID(playerIdIncrement);
+            gamers.put(playerIdIncrement++, bot);
         }
 
         this.getField().initialize(getNumberOfPlayers());
         this.currentPlayerID = GameTools.PLAYER_1;
         this.gameOver = false;
+
+        notifyPlayers(new StatusCode200(this));
     }
 
     public synchronized Boolean makeStep(Step step) {
@@ -150,6 +149,24 @@ public final class GameActive extends GameAbstract {
         getHashMapOfWatchers().values().forEach(watcher -> {
             if (watcher.getSession().isOpen()) {
                 this.sendMessageToPlayer(watcher, new StatusCode204(getField()));
+            }
+        });
+    }
+
+    private synchronized void notifyPlayers(StatusCode statusCode) {
+        // game end
+        gamers.values().forEach(gamer -> {
+            if (gamer.getUserID() != null) {
+                if (gamer.getOnline() && gamer.getSession().isOpen()) {
+                    this.sendMessageToPlayer(gamer, statusCode);
+                } else {
+                    this.playerOff((PlayerGamer) gamer);
+                }
+            }
+        });
+        getHashMapOfWatchers().values().forEach(watcher -> {
+            if (watcher.getSession().isOpen()) {
+                this.sendMessageToPlayer(watcher, statusCode);
             }
         });
     }
