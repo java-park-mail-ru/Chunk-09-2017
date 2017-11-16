@@ -29,4 +29,36 @@ public final class StatusCode101 extends StatusCode {
         this.player = player;
     }
 
+
+    public Long getGameID() {
+        return gameID;
+    }
+
+    public Integer getGamersCount() {
+        return gamersCount;
+    }
+
+    public Integer getBotsCount() {
+        return botsCount;
+    }
+
+    public Integer getWatchersCount() {
+        return watchersCount;
+    }
+
+    public Integer getNumberOfPlayers() {
+        return numberOfPlayers;
+    }
+
+    public Integer getMaxX() {
+        return maxX;
+    }
+
+    public Integer getMaxY() {
+        return maxY;
+    }
+
+    public PlayerAbstractActive getPlayer() {
+        return player;
+    }
 }
