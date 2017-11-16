@@ -78,6 +78,7 @@ public final class GameSocketController2xx extends GameSocketController {
     void addGame(GamePrepare readyGame) {
         activeGames.put(readyGame.getGameID(), new GameActive(readyGame));
 
+        // Оповещение подписчиков
         final String payload = this.toJSON(new ObjectMapper(),
                 new StatusCode204(readyGame.getGameID()));
         this.notifySubscribers(payload);
