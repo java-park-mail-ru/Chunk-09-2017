@@ -167,7 +167,7 @@ public final class GameSocketController1xx extends GameSocketController {
        ));
         this.notifySubscribers(payload);
 
-        gameLogger.info("Create prepare Game #" + newGameID);
+        getGameLogger().info("Create prepare Game #" + newGameID);
     }
 
     private void connectActive(final WebSocketSession session, JsonNode jsonNode) {

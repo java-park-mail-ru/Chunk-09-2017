@@ -7,13 +7,10 @@ import application.services.game.GameTools;
 import application.services.user.UserTools;
 import application.views.game.statuscode1xx.StatusCode112;
 import application.views.game.statuscode3xx.StatusCode3xx;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -28,14 +25,11 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
 
     private final GameSocketController1xx gameSocketController1xx;
     private final GameSocketController2xx gameSocketController2xx;
-    @Autowired
-    @Qualifier("mymapper")
     private final ObjectMapper mapper = new ObjectMapper();
-//    почему не работает?
-//    @Autowired
-//    private Logger LOGGER;
     private static final Logger LOGGER = LoggerFactory.getLogger("GameDefense");
-
+    //  почему не работает?
+    //  @Autowired
+    //  private Logger LOGGER;
 
     WebSocketGameHandler(GameSocketController1xx controller1xx,
                          GameSocketController2xx controller2xx) {

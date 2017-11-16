@@ -9,8 +9,6 @@ import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserService;
 import application.services.user.UserTools;
-import application.views.game.StatusCode;
-import application.views.game.statuscode1xx.StatusCode1xx;
 import application.views.game.statuscode2xx.StatusCode204;
 import application.views.game.statuscode3xx.StatusCode3xx;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,7 +27,7 @@ public final class GameSocketController2xx extends GameSocketController {
     private final ConcurrentHashMap<Long, GameActive> activeGames;
     private final CopyOnWriteArraySet<WebSocketSession> subscribers;
 
-    final UserService userService;
+    private final UserService userService;
 
     GameSocketController2xx(UserService userService) {
         this.activeGames = new ConcurrentHashMap<>();
@@ -84,7 +82,7 @@ public final class GameSocketController2xx extends GameSocketController {
                 new StatusCode204(readyGame.getGameID()));
         this.notifySubscribers(payload);
 
-        gameLogger.info("Game #" + readyGame.getGameID() + " is started");
+        getGameLogger().info("Game #" + readyGame.getGameID() + " is started");
     }
 
     private void step(WebSocketSession session, JsonNode jsonNode) {

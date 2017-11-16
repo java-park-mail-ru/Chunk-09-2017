@@ -36,5 +36,9 @@ public abstract class GameSocketController {
 
     public abstract void emergencyDiconnect(WebSocketSession session, Long userID, Long gameID);
 
-    protected final Logger gameLogger = LoggerFactory.getLogger(GameTools.LOGGER_NAME);
+    private final Logger gameLogger = LoggerFactory.getLogger(GameTools.LOGGER_NAME);
+
+    protected final Logger getGameLogger() {
+        return gameLogger;
+    }
 }
