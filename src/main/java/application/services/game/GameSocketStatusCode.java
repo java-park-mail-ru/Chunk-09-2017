@@ -11,8 +11,8 @@ public enum GameSocketStatusCode {
     EXIT(103, "Exit from preparing game"),
     STATUS(104, "Get full information about explicit game"),
     START(105, "Start preparing game"),
-    SUBSCRIBE(106, "Subscribe to the update of the playlist"),
-    UNSUBSCRIBE(107, "Unsubscribe from the updating of the playlist"),
+    SUBSCRIBE_P(106, "Subscribe to the update of the playlist"),
+    UNSUBSCRIBE_P(107, "Unsubscribe from the updating of the playlist"),
     ADD_BOT(108, "Adding bot-player to multiplayer game"),
     REMOVE_BOT(109, "Removing bot-player from multiplayer game"),
     DESTROY(110, "Destroy exist preparing game"),
@@ -24,6 +24,10 @@ public enum GameSocketStatusCode {
     TIMEOUT(202, "Timeout expired"),
     BLOCKED(203, "Player is blocked"),
     GAMEOVER(204, "Game had ended, check result"),
+    WATCH(205, "Watching the current game"),
+    REWATCH(206, "Stop watching game"),
+    SUBSCRIBE_A(207, "Subscribe to the update of the active game list"),
+    UNSUBSCRIBE_A(208, "Unsubscribe from the updating of the active game list"),
 
     /* Client Error status code */
     UNEXPECTED(300, "The requested code does not exist"),

@@ -74,11 +74,11 @@ public final class GameSocketController1xx extends GameSocketController {
         }
         // todo remove bot
 
-        if (code.equals(GameSocketStatusCode.SUBSCRIBE.getValue())) {
+        if (code.equals(GameSocketStatusCode.SUBSCRIBE_P.getValue())) {
             subscribe(session);
             return;
         }
-        if (code.equals(GameSocketStatusCode.UNSUBSCRIBE.getValue())) {
+        if (code.equals(GameSocketStatusCode.UNSUBSCRIBE_P.getValue())) {
             unsubscribe(session);
             return;
         }
@@ -163,7 +163,7 @@ public final class GameSocketController1xx extends GameSocketController {
 
         // Оповестить подписчиков
         payload = this.toJSON(mapper, new StatusCode1xx(
-                GameSocketStatusCode.SUBSCRIBE, newGame
+                GameSocketStatusCode.SUBSCRIBE_P, newGame
        ));
         this.notifySubscribers(payload);
     }
@@ -213,7 +213,7 @@ public final class GameSocketController1xx extends GameSocketController {
 
         // Оповестить подписчиков
         payload = this.toJSON(mapper, new StatusCode1xx(
-                GameSocketStatusCode.SUBSCRIBE, game
+                GameSocketStatusCode.SUBSCRIBE_P, game
        ));
         this.notifySubscribers(payload);
     }
@@ -235,7 +235,7 @@ public final class GameSocketController1xx extends GameSocketController {
 
         // Оповестить подписчиков
         payload = this.toJSON(mapper,
-                new StatusCode1xx(GameSocketStatusCode.SUBSCRIBE, game));
+                new StatusCode1xx(GameSocketStatusCode.SUBSCRIBE_P, game));
         this.notifySubscribers(payload);
     }
 
@@ -407,16 +407,16 @@ public final class GameSocketController1xx extends GameSocketController {
 
         // Оповестить подписчиков
         payload = this.toJSON(mapper, new StatusCode1xx(
-                GameSocketStatusCode.SUBSCRIBE, game
-       ));
+                GameSocketStatusCode.SUBSCRIBE_P, game
+        ));
         this.notifySubscribers(payload);
     }
 
-    private synchronized void subscribe(@NotNull WebSocketSession session) {
+    private void subscribe(@NotNull WebSocketSession session) {
         subscribers.add(session);
     }
 
-    private synchronized void unsubscribe(WebSocketSession session) {
+    private void unsubscribe(WebSocketSession session) {
         subscribers.remove(session);
     }
 
