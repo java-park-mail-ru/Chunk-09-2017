@@ -47,6 +47,10 @@ public class UserHttpControllerTest {
     // SignUp
     @Test
     public void testSignUpUserSuccess() throws Exception {
+
+        // test final @Autowired
+        testUtils.logger.info("testSignUpUserSuccess");
+
         final UserSignUp testUser = getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
         mockMvc.perform(post(baseUrl + "/sign_up")
