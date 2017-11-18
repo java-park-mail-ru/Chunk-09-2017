@@ -4,22 +4,19 @@ import application.models.game.field.Field;
 import application.models.game.field.Spot;
 import application.models.game.field.Step;
 import application.services.game.GameTools;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicLong;
-
 
 public final class PlayerBot extends PlayerAbstractActive {
 
-    private static AtomicLong generatorBotName = new AtomicLong();
     private final Random random = new Random(new Date().getTime());
     private final Integer level;
 
     public PlayerBot(Integer level) {
-        // TODO сделать осмысленные имена, добавить botID
-        super("Bot_" + generatorBotName.getAndIncrement());
+        super(GameTools.getBotName());
         this.level = level;
     }
 
@@ -52,7 +49,6 @@ public final class PlayerBot extends PlayerAbstractActive {
                 for (Spot spot : destinationSpots) {
                     count.add(field.getAssumedCount(spot, getPlayerID()));
                 }
-                // TODO hashmap все дела
                 return null;
 
 

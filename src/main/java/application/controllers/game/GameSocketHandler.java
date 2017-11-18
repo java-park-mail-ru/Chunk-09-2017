@@ -19,7 +19,6 @@ public abstract class GameSocketHandler {
 
     protected final String toJSON(StatusCode statusCode) {
         try {
-            this.gameLogger.info(statusCode.toString());
             return this.mapper.writeValueAsString(statusCode);
         } catch (IOException e) {
             gameLogger.error(e.getMessage(), e.getCause());
@@ -42,7 +41,6 @@ public abstract class GameSocketHandler {
         return gameLogger;
     }
 
-    //    @Autowired
     private final Logger gameLogger = LoggerFactory.getLogger(GameSocketHandler.class);
 
     @Autowired

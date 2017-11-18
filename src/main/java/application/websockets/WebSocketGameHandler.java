@@ -29,9 +29,9 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
     private final GameSocketHandlerLobby gameSocketHandlerLobby;
     private final GameSocketHandlerPlay gameSocketHandlerPlay;
     private final ObjectMapper mapper = new ObjectMapper();
-//    private final Logger logger = LoggerFactory.getLogger(WebSocketGameHandler.class);
-    @Autowired
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(WebSocketGameHandler.class);
+//    @Autowired
+//    private Logger logger;
 
 
     WebSocketGameHandler(GameSocketHandlerLobby lobby,

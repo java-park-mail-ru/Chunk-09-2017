@@ -377,7 +377,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
     private void addBot(WebSocketSession session, JsonNode jsonNode) {
 
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
-        final Long gameID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+        final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
         final String payload;
 
         // Проверка 300 (авторизация)
@@ -390,10 +390,23 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         final GamePrepare game = preparingGames.get(gameID);
 
+        if (game == null) {
+            payload = this.toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID));
+            this.sendMessage(session, payload);
+            return;
+        }
+
         // Проверка 303 (хозяин игры)
         if (!game.getMasterID().equals(userID)) {
             payload = this.toJSON(
                     new StatusCode3xx(GameSocketStatusCode.FORBIDDEN));
+            this.sendMessage(session, payload);
+            return;
+        }
+
+        if (!jsonNode.hasNonNull(GameTools.BOT_LEVEL_ATTR)) {
+            payload = this.toJSON(new StatusCode3xx(GameSocketStatusCode.ATTR));
             this.sendMessage(session, payload);
             return;
         }

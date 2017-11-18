@@ -1,6 +1,7 @@
 package application.models.game.game;
 
 import application.models.game.field.Field;
+import application.models.game.player.PlayerAbstractActive;
 import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
 import application.services.game.GameTools;
@@ -50,7 +51,7 @@ public final class GamePrepare extends GameAbstract {
             return;
         }
         bots.add(bot);
-        notifyPlayers(GameSocketStatusCode.ADD_BOT);
+        notifyPlayers(bot, GameSocketStatusCode.ADD_BOT);
         if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
         }
@@ -75,7 +76,7 @@ public final class GamePrepare extends GameAbstract {
 
 
     // Оповещение участников о каком либо событии
-    private void notifyPlayers(PlayerGamer player, GameSocketStatusCode code) {
+    private void notifyPlayers(PlayerAbstractActive player, GameSocketStatusCode code) {
         gamers.values().forEach(gamer -> {
             if (gamer.getSession().isOpen()) {
                 this.sendMessageToPlayer(gamer,
