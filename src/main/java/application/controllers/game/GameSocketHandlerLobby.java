@@ -218,8 +218,21 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         final String payload;
 
+        if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
+            payload = this.toJSON(new StatusCode3xx(GameSocketStatusCode.ATTR));
+            this.notifySubscribers(payload);
+            return;
+        }
+
         final Long gameID = jsonNode.get("gameID").asLong();
         final GamePrepare game = preparingGames.get(gameID);
+
+        if (game == null) {
+            payload = this.toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID));
+            this.notifySubscribers(payload);
+            return;
+        }
 
         final Long watcherID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         final PlayerWatcher watcher = new PlayerWatcher(userService.getUserById(watcherID), session);
@@ -297,9 +310,9 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
     private void start(WebSocketSession session) {
 
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
-        final Long gameID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+        final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
 
-        String payload;
+        final String payload;
 
         // Проверка 300 (авторизация)
         if (gameID == null || userID == null) {

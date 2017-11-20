@@ -6,6 +6,7 @@ import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
 import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
+import application.views.game.StatusCode;
 import application.views.game.statuscode1xx.StatusCode101;
 import application.views.game.statuscode1xx.StatusCode1xx;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -112,7 +113,10 @@ public final class GamePrepare extends GameAbstract {
         });
     }
 
-
+    @Override
+    void notifyPlayers(StatusCode code) {
+        
+    }
 
     public Collection<PlayerGamer> getGamers() {
         return gamers.values();

@@ -53,7 +53,7 @@ public abstract class GameAbstract {
         watchers.remove(userID);
     }
 
-    protected synchronized void sendMessageToPlayer(PlayerAbstract player,
+    protected final synchronized void sendMessageToPlayer(PlayerAbstract player,
                                                     StatusCode statusCode) {
         try {
             player.getSession().sendMessage(
@@ -63,6 +63,7 @@ public abstract class GameAbstract {
         }
     }
 
+    abstract void notifyPlayers(StatusCode code);
 
     public Long getGameID() {
         return gameID;

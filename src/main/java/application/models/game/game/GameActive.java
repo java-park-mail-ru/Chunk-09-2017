@@ -11,6 +11,7 @@ import application.views.game.statuscode2xx.StatusCode200;
 import application.views.game.statuscode2xx.StatusCode201;
 import application.views.game.statuscode2xx.StatusCode204;
 import application.views.game.statuscode2xx.StatusCode2xx;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,6 +20,7 @@ public final class GameActive extends GameAbstract {
 
     private Integer currentPlayerID;
     private final ConcurrentHashMap<Integer /*playerID*/, PlayerAbstractActive> gamers;
+    @JsonIgnore
     private Boolean gameOver;
 
     public GameActive(GamePrepare prepared) {
@@ -153,7 +155,8 @@ public final class GameActive extends GameAbstract {
         });
     }
 
-    private synchronized void notifyPlayers(StatusCode statusCode) {
+    @Override
+    synchronized void notifyPlayers(StatusCode statusCode) {
         // game end
         gamers.values().forEach(gamer -> {
             if (gamer.getUserID() != null) {
