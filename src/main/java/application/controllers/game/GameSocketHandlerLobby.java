@@ -13,6 +13,7 @@ import application.views.game.statuscode1xx.StatusCode1xx;
 import application.views.game.statuscode1xx.StatusCode111;
 import application.views.game.statuscode3xx.StatusCode3xx;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -34,8 +35,8 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
 
     public GameSocketHandlerLobby(GameSocketHandlerPlay playController,
-                                  UserService userService) {
-
+                                  UserService userService, ObjectMapper mapper) {
+        super(mapper);
         this.playController = playController;
         this.subscribers = new CopyOnWriteArraySet<>();
         this.preparingGames = new ConcurrentHashMap<>();

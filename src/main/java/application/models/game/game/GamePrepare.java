@@ -1,7 +1,6 @@
 package application.models.game.game;
 
 import application.models.game.field.Field;
-import application.models.game.player.PlayerAbstractActive;
 import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
 import application.services.game.GameTools;
@@ -40,7 +39,8 @@ public final class GamePrepare extends GameAbstract {
             return;
         }
         gamers.put(gamer.getUserID(), gamer);
-        notifyPlayers(gamer, GameSocketStatusCode.CONNECT_ACTIVE);
+        notifyPlayers(new StatusCode101(
+                GameSocketStatusCode.CONNECT_ACTIVE, this, gamer));
         if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
         }
@@ -52,70 +52,45 @@ public final class GamePrepare extends GameAbstract {
             return;
         }
         bots.add(bot);
-        notifyPlayers(bot, GameSocketStatusCode.ADD_BOT);
+        notifyPlayers(new StatusCode101(
+                GameSocketStatusCode.CONNECT_ACTIVE, this, bot));
         if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
         }
     }
 
-
     public void removeGamer(Long userID) {
         gamers.get(userID).getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
-        notifyPlayers(gamers.remove(userID), GameSocketStatusCode.EXIT);
+        notifyPlayers(new StatusCode101(
+                GameSocketStatusCode.EXIT, this, gamers.remove(userID)));
         if (isReady && gamers.size() < getNumberOfPlayers()) {
             isReady = false;
         }
     }
 
-
     public synchronized void destroy() {
-        notifyPlayers(GameSocketStatusCode.DESTROY);
+        notifyPlayers(new StatusCode1xx(GameSocketStatusCode.DESTROY, getGameID()));
         gamers.values().forEach(gamer -> gamer.getSession()
                 .getAttributes().remove(GameTools.GAME_ID_ATTR));
         gamers.clear();
     }
 
-
-    // Оповещение участников о каком либо событии
-    private void notifyPlayers(PlayerAbstractActive player, GameSocketStatusCode code) {
-        gamers.values().forEach(gamer -> {
-            if (gamer.getSession().isOpen()) {
-                this.sendMessageToPlayer(gamer,
-                        new StatusCode101(code, this, player));
-            } else {
-                this.removeGamer(gamer.getUserID());
-            }
-        });
-        getHashMapOfWatchers().values().forEach(watcher -> {
-            if (watcher.getSession().isOpen()) {
-                this.sendMessageToPlayer(watcher,
-                        new StatusCode101(code, this, player));
-            } else {
-                getHashMapOfWatchers().remove(watcher.getUserID());
-            }
-        });
-    }
-
-    private void notifyPlayers(GameSocketStatusCode code) {
-        gamers.values().forEach(gamer -> {
-            if (gamer.getSession().isOpen()) {
-                this.sendMessageToPlayer(gamer, new StatusCode1xx(code, getGameID()));
-            } else {
-                this.removeGamer(gamer.getUserID());
-            }
-        });
-        getHashMapOfWatchers().values().forEach(watcher -> {
-            if (watcher.getSession().isOpen()) {
-                this.sendMessageToPlayer(watcher, new StatusCode1xx(code, getGameID()));
-            } else {
-                getHashMapOfWatchers().remove(watcher.getUserID());
-            }
-        });
-    }
-
     @Override
-    void notifyPlayers(StatusCode code) {
-        
+    synchronized void notifyPlayers(StatusCode code) {
+        gamers.values().forEach(gamer -> {
+            if (gamer.getSession().isOpen()) {
+                this.sendMessageToPlayer(gamer, code);
+            } else {
+                this.removeGamer(gamer.getUserID());
+            }
+        });
+        getHashMapOfWatchers().values().forEach(watcher -> {
+            if (watcher.getSession().isOpen()) {
+                this.sendMessageToPlayer(watcher, code);
+            } else {
+                getHashMapOfWatchers().remove(watcher.getUserID());
+            }
+        });
     }
 
     public Collection<PlayerGamer> getGamers() {

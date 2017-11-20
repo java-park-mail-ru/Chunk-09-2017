@@ -1,6 +1,5 @@
 package application.websockets;
 
-import application.controllers.game.GameSocketHandler;
 import application.controllers.game.GameSocketHandlerLobby;
 import application.controllers.game.GameSocketHandlerPlay;
 import application.services.game.GameSocketStatusCode;
@@ -12,8 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -28,17 +25,17 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
 
     private final GameSocketHandlerLobby gameSocketHandlerLobby;
     private final GameSocketHandlerPlay gameSocketHandlerPlay;
-    private final ObjectMapper mapper = new ObjectMapper();
     private final Logger logger = LoggerFactory.getLogger(WebSocketGameHandler.class);
-//    @Autowired
-//    private Logger logger;
+    private final ObjectMapper mapper;
 
 
     WebSocketGameHandler(GameSocketHandlerLobby lobby,
-                         GameSocketHandlerPlay play) {
+                         GameSocketHandlerPlay play,
+                         ObjectMapper mapper) {
 
         this.gameSocketHandlerLobby = lobby;
         this.gameSocketHandlerPlay = play;
+        this.mapper = mapper;
     }
 
 

@@ -16,9 +16,6 @@ import java.util.Random;
 public class TestUtils {
 
     @Autowired
-    public final Logger logger = LoggerFactory.getLogger("test");
-
-    @Autowired
     private final Random random = new Random();
 
     @Autowired

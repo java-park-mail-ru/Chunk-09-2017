@@ -4,7 +4,6 @@ import application.models.game.field.Field;
 import application.models.game.field.Spot;
 import application.models.game.field.Step;
 import application.services.game.GameTools;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;

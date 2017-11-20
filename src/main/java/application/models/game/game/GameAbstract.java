@@ -63,6 +63,7 @@ public abstract class GameAbstract {
         }
     }
 
+    // Оповещение участников о каком-либо событии
     abstract void notifyPlayers(StatusCode code);
 
     public Long getGameID() {

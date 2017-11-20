@@ -1,7 +1,5 @@
 package application.websockets;
 
-import application.controllers.game.GameSocketHandlerLobby;
-import application.controllers.game.GameSocketHandlerPlay;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -13,20 +11,15 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 @EnableWebSocket
 public class WebSocketGameConfigurer implements WebSocketConfigurer {
 
-    private final GameSocketHandlerLobby gameSocketHandlerLobby;
-    private final GameSocketHandlerPlay gameSocketHandlerPlay;
+    private final WebSocketGameHandler gameHandler;
 
-    WebSocketGameConfigurer(GameSocketHandlerLobby gameSocketHandlerLobby,
-                            GameSocketHandlerPlay gameSocketHandlerPlay) {
-
-        this.gameSocketHandlerLobby = gameSocketHandlerLobby;
-        this.gameSocketHandlerPlay = gameSocketHandlerPlay;
+    public WebSocketGameConfigurer(WebSocketGameHandler gameHandler) {
+        this.gameHandler = gameHandler;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new WebSocketGameHandler(
-                gameSocketHandlerLobby, gameSocketHandlerPlay), "/play")
+        registry.addHandler(gameHandler, "/play")
                 .addInterceptors(new HttpSessionHandshakeInterceptor())
                 .setAllowedOrigins("*");
     }

@@ -13,6 +13,7 @@ import application.views.game.statuscode2xx.StatusCode204;
 import application.views.game.statuscode3xx.StatusCode3xx;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -28,7 +29,8 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
 
     private final UserService userService;
 
-    GameSocketHandlerPlay(UserService userService) {
+    GameSocketHandlerPlay(UserService userService, ObjectMapper mapper) {
+        super(mapper);
         this.activeGames = new ConcurrentHashMap<>();
         this.subscribers = new CopyOnWriteArraySet<>();
         this.userService = userService;
@@ -112,7 +114,7 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         // Вытащить аттрибуты
         final Step step;
         try {
-            step = mapper.treeToValue(jsonNode.get(GameTools.STEP_ATTR), Step.class);
+            step = getMapper().treeToValue(jsonNode.get(GameTools.STEP_ATTR), Step.class);
         } catch (JsonProcessingException e) {
             payload = this.toJSON(
                     new StatusCode3xx(GameSocketStatusCode.ATTR));
