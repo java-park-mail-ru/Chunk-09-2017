@@ -5,15 +5,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 
+@Component
 public abstract class GameSocketHandler {
+
+    private final Logger gameLogger = LoggerFactory.getLogger(GameSocketHandler.class);
+    private final ObjectMapper mapper;
+
+    public GameSocketHandler(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
 
     public abstract void controller(Integer code, JsonNode jsonNode, WebSocketSession session);
 
@@ -41,9 +47,7 @@ public abstract class GameSocketHandler {
         return gameLogger;
     }
 
-    private final Logger gameLogger = LoggerFactory.getLogger(GameSocketHandler.class);
-
-    @Autowired
-    @Qualifier("mymapper")
-    protected final ObjectMapper mapper = new ObjectMapper();
+    protected ObjectMapper getMapper() {
+        return mapper;
+    }
 }

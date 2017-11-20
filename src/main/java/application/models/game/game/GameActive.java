@@ -56,7 +56,7 @@ public final class GameActive extends GameAbstract {
             return false;
         }
 
-        notifyPlayers(step);
+        notifyPlayers(new StatusCode201(step));
 
         if (getField().isGameOver()) {
             end();
@@ -69,7 +69,8 @@ public final class GameActive extends GameAbstract {
             if (!getField().isBlocked(currentPlayerID)) {
                 break;
             }
-            notifyPlayers(GameSocketStatusCode.BLOCKED, gamers.get(currentPlayerID));
+            notifyPlayers(new StatusCode2xx(
+                    GameSocketStatusCode.BLOCKED, gamers.get(currentPlayerID)));
         }
 
         if (gamers.get(currentPlayerID) instanceof PlayerBot) {
@@ -84,80 +85,19 @@ public final class GameActive extends GameAbstract {
         gamers.values().forEach(gamer -> {
             if (gamer.getUserID().equals(userID)) {
                 gamer.switchOff();
-                notifyPlayers(GameSocketStatusCode.PLAYER_OFF, gamer);
+                notifyPlayers(new StatusCode2xx(
+                        GameSocketStatusCode.PLAYER_OFF, gamer));
             }
         });
     }
 
     public synchronized void playerOff(PlayerGamer player) {
         player.switchOff();
-        notifyPlayers(GameSocketStatusCode.PLAYER_OFF, player);
-    }
-
-    // Оповещения игроков и наблюдателей
-    private synchronized void notifyPlayers(GameSocketStatusCode code,
-                                            PlayerAbstractActive player) {
-        // player blocked
-        gamers.values().forEach(gamer -> {
-            if (gamer.getUserID() != null) {
-                if (gamer.getOnline() && gamer.getSession().isOpen()) {
-                    this.sendMessageToPlayer(gamer, new StatusCode2xx(code, player));
-                } else {
-                    this.playerOff((PlayerGamer) gamer);
-                }
-            }
-        });
-        getHashMapOfWatchers().values().forEach(watcher -> {
-            if (watcher.getSession().isOpen()) {
-                this.sendMessageToPlayer(watcher, new StatusCode2xx(code, player));
-            } else {
-                getHashMapOfWatchers().remove(watcher.getUserID());
-            }
-        });
-    }
-
-    private synchronized void notifyPlayers(Step step) {
-        // make step
-        gamers.values().forEach(gamer -> {
-            if (gamer.getUserID() != null) {
-                if (gamer.getOnline() && gamer.getSession().isOpen()) {
-                    this.sendMessageToPlayer(gamer, new StatusCode201(step));
-                } else {
-                    this.playerOff((PlayerGamer) gamer);
-
-                }
-            }
-        });
-        getHashMapOfWatchers().values().forEach(watcher -> {
-            if (watcher.getSession().isOpen()) {
-                this.sendMessageToPlayer(watcher, new StatusCode201(step));
-            } else {
-                getHashMapOfWatchers().remove(watcher.getUserID());
-            }
-        });
-    }
-
-    private synchronized void notifyPlayers() {
-        // game end
-        gamers.values().forEach(gamer -> {
-            if (gamer.getUserID() != null) {
-                if (gamer.getOnline() && gamer.getSession().isOpen()) {
-                    this.sendMessageToPlayer(gamer, new StatusCode204(getField()));
-                } else {
-                    this.playerOff((PlayerGamer) gamer);
-                }
-            }
-        });
-        getHashMapOfWatchers().values().forEach(watcher -> {
-            if (watcher.getSession().isOpen()) {
-                this.sendMessageToPlayer(watcher, new StatusCode204(getField()));
-            }
-        });
+        new StatusCode2xx(GameSocketStatusCode.PLAYER_OFF, player);
     }
 
     @Override
     synchronized void notifyPlayers(StatusCode statusCode) {
-        // game end
         gamers.values().forEach(gamer -> {
             if (gamer.getUserID() != null) {
                 if (gamer.getOnline() && gamer.getSession().isOpen()) {
@@ -170,12 +110,14 @@ public final class GameActive extends GameAbstract {
         getHashMapOfWatchers().values().forEach(watcher -> {
             if (watcher.getSession().isOpen()) {
                 this.sendMessageToPlayer(watcher, statusCode);
+            } else {
+                getHashMapOfWatchers().remove(watcher.getUserID());
             }
         });
     }
 
     private void end() {
-        notifyPlayers();
+        notifyPlayers(new StatusCode204(getField()));
 
         getHashMapOfWatchers().clear();
 

@@ -1,7 +1,7 @@
 
 # Chunk-09-2017 [![Build Status](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017.svg?branch=develop)](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017)
-## Halloween Defense
->***Выстраивай тактику, думай наперёд, поглащай врагов<br>***
+## It Is Not Defense
+>***Поглощай или будь поглощен<br>***
 
 ## [Frontend](https://chunk-frontend.herokuapp.com/)<=>[Backend](https://backend-java-spring.herokuapp.com/)
 
