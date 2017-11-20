@@ -119,6 +119,7 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
             step = getMapper().readValue(jsonNode.toString(), Step.class);
 
         } catch (IOException e) {
+            getGameLogger().error(e.toString());
             payload = this.toJSON(
                     new StatusCode3xx(GameSocketStatusCode.ATTR));
             this.sendMessage(session, payload);

@@ -1,8 +1,11 @@
 package application.functional.game;
 
 import application.models.game.field.Field;
+import application.models.game.field.Step;
 import application.models.game.game.GamePrepare;
 import application.models.game.player.PlayerBot;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -90,6 +93,17 @@ public class GameBusinessLogicTest {
         assertFalse(gamePrepare.isReady());
         gamePrepare.addBot(new PlayerBot(1));
         assertTrue(gamePrepare.isReady());
+    }
+
+
+    @Test
+    public void testRichter() throws Exception {
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        String str = "{\"code\":201,\"step\":{\"src\":{\"x\":0,\"y\":0},\"dst\":{\"x\":2,\"y\":2}}}";
+        System.out.println(mapper.readValue(str, Step.class));
+
     }
 
     private Long gameGeneratorID = 0L;
