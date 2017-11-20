@@ -1,6 +1,7 @@
 package application.controllers.game;
 
 import application.views.game.StatusCode;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -19,6 +20,8 @@ public abstract class GameSocketHandler {
 
     public GameSocketHandler(ObjectMapper mapper) {
         this.mapper = mapper;
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     }
 
     public abstract void controller(Integer code, JsonNode jsonNode, WebSocketSession session);
