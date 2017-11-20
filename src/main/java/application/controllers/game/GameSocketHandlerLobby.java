@@ -324,6 +324,13 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         }
 
         final GamePrepare game = preparingGames.get(gameID);
+        
+        if (game == null) {
+            payload = this.toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID));
+            this.sendMessage(session, payload);
+            return;
+        }
 
         // Проверка 303 (хозяин игры)
         if (!game.getMasterID().equals(userID)) {

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -114,8 +115,8 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         // Вытащить аттрибуты
         final Step step;
         try {
-            step = getMapper().treeToValue(jsonNode.get(GameTools.STEP_ATTR), Step.class);
-        } catch (JsonProcessingException e) {
+            step = getMapper().readValue(jsonNode.toString(), Step.class);
+        } catch (IOException e) {
             payload = this.toJSON(
                     new StatusCode3xx(GameSocketStatusCode.ATTR));
             this.sendMessage(session, payload);
