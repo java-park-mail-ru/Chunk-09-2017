@@ -5,6 +5,7 @@ import application.models.game.field.Step;
 import application.models.game.game.GamePrepare;
 import application.models.game.player.PlayerBot;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,6 +13,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.awt.*;
+
 import static org.junit.Assert.*;
 
 
@@ -102,7 +106,14 @@ public class GameBusinessLogicTest {
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         String str = "{\"code\":201,\"step\":{\"src\":{\"x\":0,\"y\":0},\"dst\":{\"x\":2,\"y\":2}}}";
-        System.out.println(mapper.readValue(str, Step.class));
+//        Step step = mapper.readValue(str, Step.class);
+
+        JsonNode jsonNode = mapper.readTree(str);
+        Step step = mapper.readValue(jsonNode.get("step").toString(), Step.class);
+        System.out.println(step.getSrc().getCstX());
+        System.out.println(step.getSrc().getCstY());
+        System.out.println(step.getDst().getCstX());
+        System.out.println(step.getDst().getCstY());
 
     }
 
