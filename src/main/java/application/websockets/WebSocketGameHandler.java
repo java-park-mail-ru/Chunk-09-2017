@@ -1,7 +1,8 @@
 package application.websockets;
 
-import application.controllers.game.GameSocketController1xx;
-import application.controllers.game.GameSocketController2xx;
+import application.controllers.game.GameSocketHandler;
+import application.controllers.game.GameSocketHandlerLobby;
+import application.controllers.game.GameSocketHandlerPlay;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserTools;
@@ -11,6 +12,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -23,17 +26,19 @@ import java.io.IOException;
 @Component
 public class WebSocketGameHandler extends AbstractWebSocketHandler {
 
-    private final GameSocketController1xx gameSocketController1xx;
-    private final GameSocketController2xx gameSocketController2xx;
+    private final GameSocketHandlerLobby gameSocketHandlerLobby;
+    private final GameSocketHandlerPlay gameSocketHandlerPlay;
     private final ObjectMapper mapper = new ObjectMapper();
     private final Logger logger = LoggerFactory.getLogger(WebSocketGameHandler.class);
+//    @Autowired
+//    private Logger logger;
 
 
-    WebSocketGameHandler(GameSocketController1xx controller1xx,
-                         GameSocketController2xx controller2xx) {
+    WebSocketGameHandler(GameSocketHandlerLobby lobby,
+                         GameSocketHandlerPlay play) {
 
-        this.gameSocketController1xx = controller1xx;
-        this.gameSocketController2xx = controller2xx;
+        this.gameSocketHandlerLobby = lobby;
+        this.gameSocketHandlerPlay = play;
     }
 
 
@@ -64,11 +69,11 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
         final Integer code = jsonNode.get("code").asInt();
 
         if (GameSocketStatusCode.isPreparing(code)) {
-            gameSocketController1xx.controller(code, jsonNode, session);
+            gameSocketHandlerLobby.controller(code, jsonNode, session);
             return;
         }
         if (GameSocketStatusCode.isPlaying(code)) {
-            gameSocketController2xx.controller(code, jsonNode, session);
+            gameSocketHandlerPlay.controller(code, jsonNode, session);
             return;
         }
     }
@@ -82,7 +87,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
         if (userID == null || gameID == null) {
             return;
         }
-        gameSocketController1xx.emergencyDiconnect(session, userID, gameID);
-        gameSocketController2xx.emergencyDiconnect(session, userID, gameID);
+        gameSocketHandlerLobby.emergencyDiconnect(session, userID, gameID);
+        gameSocketHandlerPlay.emergencyDiconnect(session, userID, gameID);
     }
 }

@@ -5,19 +5,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 
-
-public abstract class GameSocketController {
+public abstract class GameSocketHandler {
 
     public abstract void controller(Integer code, JsonNode jsonNode, WebSocketSession session);
 
-    protected final String toJSON(ObjectMapper mapper, StatusCode statusCode) {
+    protected final String toJSON(StatusCode statusCode) {
         try {
-            return mapper.writeValueAsString(statusCode);
+            return this.mapper.writeValueAsString(statusCode);
         } catch (IOException e) {
             gameLogger.error(e.getMessage(), e.getCause());
             return null;
@@ -35,9 +37,13 @@ public abstract class GameSocketController {
 
     public abstract void emergencyDiconnect(WebSocketSession session, Long userID, Long gameID);
 
-    private final Logger gameLogger = LoggerFactory.getLogger(GameSocketController.class);
-
     protected final Logger getGameLogger() {
         return gameLogger;
     }
+
+    private final Logger gameLogger = LoggerFactory.getLogger(GameSocketHandler.class);
+
+    @Autowired
+    @Qualifier("mymapper")
+    protected final ObjectMapper mapper = new ObjectMapper();
 }

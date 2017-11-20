@@ -4,6 +4,8 @@ import application.models.user.UserSignUp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -13,8 +15,9 @@ import java.util.Random;
 @Component
 public class TestUtils {
 
-    // Всего лишь добавляет цифры в конце username'a,
-    // тесты от этого неопределёнными не становятся
+    @Autowired
+    public final Logger logger = LoggerFactory.getLogger("test");
+
     @Autowired
     private final Random random = new Random();
 
