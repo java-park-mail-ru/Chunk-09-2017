@@ -125,7 +125,7 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         }
 
         // Совершить ход
-        if (game.makeStep(step)) {
+        if (!game.makeStep(step)) {
             if (!game.getGameOver()) {
                 payload = this.toJSON(new StatusCode3xx(
                         GameSocketStatusCode.FALSE));

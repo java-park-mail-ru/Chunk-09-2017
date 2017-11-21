@@ -20,7 +20,6 @@ public final class GameActive extends GameAbstract {
 
     private Integer currentPlayerID;
     private final ConcurrentHashMap<Integer /*playerID*/, PlayerAbstractActive> gamers;
-    @JsonIgnore
     private Boolean gameOver;
 
     public GameActive(GamePrepare prepared) {
@@ -48,7 +47,7 @@ public final class GameActive extends GameAbstract {
 
     public synchronized Boolean makeStep(Step step) {
 
-        if (getField().getPlayerInPoint(step.getSrc()).equals(currentPlayerID)) {
+        if (!getField().getPlayerInPoint(step.getSrc()).equals(currentPlayerID)) {
             return false;
         }
 
@@ -65,7 +64,10 @@ public final class GameActive extends GameAbstract {
         }
 
         while (true) {
-            currentPlayerID = (currentPlayerID + 1) % getNumberOfPlayers();
+            currentPlayerID = (currentPlayerID + 1) % (getNumberOfPlayers() + 1);
+            if (currentPlayerID == 0) {
+                currentPlayerID = GameTools.PLAYER_1;
+            }
             if (!getField().isBlocked(currentPlayerID)) {
                 break;
             }
@@ -129,11 +131,12 @@ public final class GameActive extends GameAbstract {
         gamers.clear();
     }
 
-
+    @JsonIgnore
     public boolean getGameOver() {
         return gameOver;
     }
 
+    @JsonIgnore
     public Long getCurrentUserID() {
         return gamers.get(currentPlayerID).getUserID();
     }
