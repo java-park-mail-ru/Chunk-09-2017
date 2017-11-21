@@ -30,7 +30,9 @@ public class Field {
         switch (numberOfPlayers) {
             case TWO_PLAYERS:
                 array[0][0] = GameTools.PLAYER_1;
-                array[maxX - 1][maxY - 1] = GameTools.PLAYER_2;
+                array[0][maxY - 1] = GameTools.PLAYER_2;
+                array[maxX - 1][0] = GameTools.PLAYER_2;
+                array[maxX - 1][maxY - 1] = GameTools.PLAYER_1;
                 return;
 
             case THREE_PLAYERS:
