@@ -11,6 +11,7 @@ import application.services.user.UserService;
 import application.services.user.UserTools;
 import application.views.game.statuscode1xx.StatusCode1xx;
 import application.views.game.statuscode1xx.StatusCode111;
+import application.views.game.statuscode1xx.StatusCode112;
 import application.views.game.statuscode3xx.StatusCode3xx;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -95,6 +96,10 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
             fullStatus(session);
             return;
         }
+        if (code.equals(GameSocketStatusCode.WHOAMI.getValue())) {
+            whoami(session);
+            return;
+        }
 
         // Запрашиваемый код не найден
         final String payload = toJSON(
@@ -166,9 +171,8 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
     private void connectActive(final WebSocketSession session, JsonNode jsonNode) {
 
-        final String payload;
-
         unsubscribe(session);
+        final String payload;
 
         // Проверка 301
         Long gameID = (Long) session.getAttributes().get("gameID");
@@ -306,6 +310,14 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
                 )
         );
         this.sendMessage(session, paylod);
+    }
+
+    private void whoami(WebSocketSession session) {
+
+        final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+        final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
+
+        this.sendMessage(session, this.toJSON(new StatusCode112(userID, gameID)));
     }
 
     private void start(WebSocketSession session) {
