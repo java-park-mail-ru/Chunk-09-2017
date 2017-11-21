@@ -53,7 +53,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
             logger.warn(GameSocketStatusCode.NOT_AUTHORIZED.toString());
         } else {
             session.sendMessage(new TextMessage(
-                    mapper.writeValueAsString(new StatusCode112(userID))
+                    mapper.writeValueAsString(new StatusCode112(userID, null))
             ));
             logger.info("Succesfull connect: userID=" + userID + ", session=" + session);
         }
