@@ -115,7 +115,8 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         // Вытащить аттрибуты
         final Step step;
         try {
-            step = getMapper().readValue(jsonNode.toString(), Step.class);
+            step = getMapper().readValue(
+                    jsonNode.get(GameTools.STEP_ATTR).toString(), Step.class);
         } catch (IOException e) {
             payload = this.toJSON(
                     new StatusCode3xx(GameSocketStatusCode.ATTR));
