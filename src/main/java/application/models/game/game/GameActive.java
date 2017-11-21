@@ -20,7 +20,6 @@ public final class GameActive extends GameAbstract {
 
     private Integer currentPlayerID;
     private final ConcurrentHashMap<Integer /*playerID*/, PlayerAbstractActive> gamers;
-    @JsonIgnore
     private Boolean gameOver;
 
     public GameActive(GamePrepare prepared) {
@@ -134,11 +133,12 @@ public final class GameActive extends GameAbstract {
         gamers.clear();
     }
 
-
+    @JsonIgnore
     public boolean getGameOver() {
         return gameOver;
     }
 
+    @JsonIgnore
     public Long getCurrentUserID() {
         return gamers.get(currentPlayerID).getUserID();
     }

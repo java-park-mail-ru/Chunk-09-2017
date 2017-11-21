@@ -17,4 +17,8 @@ public final class StatusCode112 extends StatusCode {
     public Long getUserID() {
         return userID;
     }
+
+    public Long getGameID() {
+        return gameID;
+    }
 }

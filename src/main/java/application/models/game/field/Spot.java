@@ -6,7 +6,7 @@ public class Spot {
 
     @JsonProperty(value = "x")
     private Integer cstX;
-    @JsonProperty(value = "y")
+    @JsonProperty(value = "z")
     private Integer cstY;
 
     public Spot() { }

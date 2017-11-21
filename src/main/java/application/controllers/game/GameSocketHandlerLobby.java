@@ -171,9 +171,8 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
     private void connectActive(final WebSocketSession session, JsonNode jsonNode) {
 
-        final String payload;
-
         unsubscribe(session);
+        final String payload;
 
         // Проверка 301
         Long gameID = (Long) session.getAttributes().get("gameID");
@@ -311,6 +310,14 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
                 )
         );
         this.sendMessage(session, paylod);
+    }
+
+    private void whoami(WebSocketSession session) {
+
+        final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+        final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
+
+        this.sendMessage(session, this.toJSON(new StatusCode112(userID, gameID)));
     }
 
     private void start(WebSocketSession session) {
