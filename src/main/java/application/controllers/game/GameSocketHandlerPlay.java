@@ -11,7 +11,6 @@ import application.services.user.UserService;
 import application.services.user.UserTools;
 import application.views.game.statuscode2xx.StatusCode204;
 import application.views.game.statuscode3xx.StatusCode3xx;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
