@@ -66,6 +66,9 @@ public final class GameActive extends GameAbstract {
 
         while (true) {
             currentPlayerID = (currentPlayerID + 1) % (getNumberOfPlayers() + 1);
+            if (currentPlayerID == 0) {
+                currentPlayerID = GameTools.PLAYER_1;
+            }
             if (!getField().isBlocked(currentPlayerID)) {
                 break;
             }
