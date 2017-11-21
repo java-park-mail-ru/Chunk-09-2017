@@ -48,7 +48,7 @@ public final class GameActive extends GameAbstract {
 
     public synchronized Boolean makeStep(Step step) {
 
-        if (getField().getPlayerInPoint(step.getSrc()).equals(currentPlayerID)) {
+        if (!getField().getPlayerInPoint(step.getSrc()).equals(currentPlayerID)) {
             return false;
         }
 
@@ -65,7 +65,7 @@ public final class GameActive extends GameAbstract {
         }
 
         while (true) {
-            currentPlayerID = (currentPlayerID + 1) % getNumberOfPlayers();
+            currentPlayerID = (currentPlayerID + 1) % (getNumberOfPlayers() + 1);
             if (!getField().isBlocked(currentPlayerID)) {
                 break;
             }
