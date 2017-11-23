@@ -4,6 +4,8 @@ import application.services.game.GameTools;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Field {
 
@@ -24,7 +26,8 @@ public class Field {
         }
     }
 
-
+    // Инициализирует поле начальной расстановкой фигур,
+    // в зависимости от количества игроков
     public void initialize(Integer numberOfPlayers) {
 
         switch (numberOfPlayers) {
@@ -53,18 +56,25 @@ public class Field {
         }
     }
 
+    // Проверяет условия конца игры
     public boolean isGameOver() {
-
+        final HashSet<Integer> players = new HashSet<>();
         for (int x = 0; x < maxX; ++x) {
             for (int y = 0; y < maxY; ++y) {
+                if (GameTools.isPlayer(array[x][y])) {
+                    players.add(array[x][y]);
+                }
                 if (array[x][y].equals(GameTools.EMPTY_CELL)) {
-                    return false;
+                    if (players.size() > 1) {
+                        return false;
+                    }
                 }
             }
         }
         return true;
     }
 
+    // Проверить имеет ли игрок с указанным playerID сделать ход
     public boolean isBlocked(Integer playerID) {
 
         for (int x = 0; x < maxX; ++x) {
@@ -79,6 +89,7 @@ public class Field {
         return true;
     }
 
+    // Совершить шаг, в случае невалидности возращает false
     public synchronized boolean makeStep(Step step) {
 
         // Валидация
@@ -107,13 +118,16 @@ public class Field {
         return true;
     }
 
+    // Получить playerID того, кто находится в указанной клетке
     public Integer getPlayerInPoint(Spot spot) {
         return array[spot.getCstX()][spot.getCstY()];
     }
 
+    // Все фигуры вокруг указанной клетки становятся фигурами хозяина клетки
     private synchronized void assumedAround(Spot spot) {
 
         final Integer playerID = array[spot.getCstX()][spot.getCstY()];
+        // todo check plyerID != emtptyCell or other
         for (int x = spot.getCstX() - 1; x <= spot.getCstX() + 1; ++x) {
             for (int y = spot.getCstY() - 1; y <= spot.getCstY() + 1; ++y) {
 
@@ -128,6 +142,7 @@ public class Field {
         }
     }
 
+    // Возвращает массив клеток, в которых находятся фигуры игрока с указанным playerID
     public ArrayList<Spot> getPlayerSpots(Integer playerID) {
 
         final ArrayList<Spot> spots = new ArrayList<>();
@@ -141,6 +156,7 @@ public class Field {
         return spots;
     }
 
+    // Возвращает массив клеток, в которые можно сходить из указанной точки
     public ArrayList<Spot> getPossiblePoints(Spot spot) {
 
         final ArrayList<Spot> possibleSpots = new ArrayList<>();
@@ -158,6 +174,8 @@ public class Field {
         return possibleSpots;
     }
 
+    // Возвращает количество фигур, которые поглотит игрок с указанным playerID,
+    // если встанет в указанную клетку spot
     public Integer getAssumedCount(Spot spot, Integer playerID) {
 
         Integer count = 0;
@@ -176,6 +194,7 @@ public class Field {
         return count;
     }
 
+    // Проверяет находится ли клетка в пределах поля
     private Boolean isValid(Spot spot) {
         if (spot.getCstX() < 0 || spot.getCstY() < 0) {
             return false;

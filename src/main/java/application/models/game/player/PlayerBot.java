@@ -11,12 +11,13 @@ import java.util.Random;
 
 public final class PlayerBot extends PlayerAbstractActive {
 
-    private final Random random = new Random(new Date().getTime());
+    private final Random random;
     private final Integer level;
 
     public PlayerBot(Integer level) {
         super(GameTools.getBotName());
         this.level = level;
+        this.random = new Random(new Date().getTime());
     }
 
     public synchronized Step generateStep(final Field field) {
@@ -32,7 +33,7 @@ public final class PlayerBot extends PlayerAbstractActive {
                 src = sourceSpots.get(random.nextInt(sourceSpots.size()));
 
                 destinationSpots = field.getPossiblePoints(src);
-                dst = destinationSpots.get(random.nextInt(sourceSpots.size()));
+                dst = destinationSpots.get(random.nextInt(destinationSpots.size()));
 
                 return new Step(src, dst);
 
@@ -53,9 +54,8 @@ public final class PlayerBot extends PlayerAbstractActive {
 
             // TODO generateStep in bot;
             default:
-                System.err.println("Level of the bot is nor recognized");
+                System.err.println("Level of the bot is not recognized");
                 return null;
-
         }
     }
 }
