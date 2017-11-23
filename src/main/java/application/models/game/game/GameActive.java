@@ -58,7 +58,7 @@ public final class GameActive extends GameAbstract {
         notifyPlayers(new StatusCode201(step));
 
         if (getField().isGameOver()) {
-            end();
+            this.end();
             this.gameOver = true;
             return false;
         }
@@ -99,7 +99,8 @@ public final class GameActive extends GameAbstract {
     }
 
     @Override
-    synchronized void notifyPlayers(StatusCode statusCode) {
+    // Нужно ли делать synchronized?
+    void notifyPlayers(StatusCode statusCode) {
         gamers.values().forEach(gamer -> {
             if (gamer.getUserID() != null) {
                 if (gamer.getOnline() && gamer.getSession().isOpen()) {

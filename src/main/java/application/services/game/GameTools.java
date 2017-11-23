@@ -14,6 +14,10 @@ public class GameTools {
     public static final int PLAYER_3 = 3;
     public static final int PLAYER_4 = 4;
 
+    public static boolean isPlayer(int cellID) {
+        return PLAYER_1 <= cellID && cellID <= PLAYER_4;
+    }
+
     public static final int SPOT_OF_PLAYER_1 = 10;
     public static final int SPOT_OF_PLAYER_2 = 11;
     public static final int SPOT_OF_PLAYER_3 = 12;

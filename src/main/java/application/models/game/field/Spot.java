@@ -9,6 +9,8 @@ public class Spot {
     @JsonProperty(value = "z")
     private Integer cstY;
 
+    public Spot() { }
+
     public Spot(Integer cstX, Integer cstY) {
         this.cstX = cstX;
         this.cstY = cstY;
