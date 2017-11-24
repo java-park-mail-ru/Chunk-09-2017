@@ -2,7 +2,8 @@ package application.exceptions.user;
 
 import org.springframework.http.HttpStatus;
 
-public class UserExceptionDuplicateUser extends UserException {
+
+public final class UserExceptionDuplicateUser extends UserException {
 
     public UserExceptionDuplicateUser(String username, String email, Throwable cause) {
         this(cause);

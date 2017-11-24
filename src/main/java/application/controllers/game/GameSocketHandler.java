@@ -21,10 +21,9 @@ public abstract class GameSocketHandler {
     public GameSocketHandler(ObjectMapper mapper) {
         this.mapper = mapper;
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
     }
 
-    public abstract void controller(Integer code, JsonNode jsonNode, WebSocketSession session);
+    public abstract void handler(Integer code, JsonNode jsonNode, WebSocketSession session);
 
     protected final String toJSON(StatusCode statusCode) {
         try {

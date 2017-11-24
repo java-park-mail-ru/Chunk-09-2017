@@ -2,7 +2,8 @@ package application.exceptions.user;
 
 import org.springframework.http.HttpStatus;
 
-public class UserExceptionPasswordFail extends UserException {
+
+public final class UserExceptionPasswordFail extends UserException {
 
     public UserExceptionPasswordFail() {
         super("Incorrect password or login", HttpStatus.FORBIDDEN);

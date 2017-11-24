@@ -1,5 +1,6 @@
 package application.controllers.game;
 
+import application.exceptions.game.GameException;
 import application.models.game.field.Step;
 import application.models.game.game.GameActive;
 import application.models.game.game.GamePrepare;
@@ -37,8 +38,8 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
     }
 
     @Override
-    public void controller(Integer code, JsonNode jsonNode,
-                                WebSocketSession session) {
+    public void handler(Integer code, JsonNode jsonNode,
+                        WebSocketSession session) {
 
         if (code.equals(GameSocketStatusCode.STEP.getValue())) {
             step(session, jsonNode);
@@ -49,7 +50,7 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
             return;
         }
         if (code.equals(GameSocketStatusCode.REWATCH.getValue())) {
-            rewatch(session, jsonNode);
+            dewatch(session, jsonNode);
             return;
         }
         if (code.equals(GameSocketStatusCode.SUBSCRIBE_A.getValue())) {
@@ -115,22 +116,19 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         final Step step;
 
         try {
-
             step = getMapper().readValue(
                     jsonNode.get(GameTools.STEP_ATTR).toString(), Step.class);
-        } catch (IOException e) {
-            getGameLogger().error(e.getMessage(), e.getCause());
-            payload = this.toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.ATTR));
-            this.sendMessage(session, payload);
-            return;
+
+        } catch (IOException ignore) {
+            throw new GameException(session, toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.ATTR)
+            ));
         }
 
         // Совершить ход
         if (!game.makeStep(step)) {
             if (!game.getGameOver()) {
-                payload = this.toJSON(new StatusCode3xx(
-                        GameSocketStatusCode.FALSE));
+                payload = this.toJSON(new StatusCode3xx(GameSocketStatusCode.FALSE));
                 this.sendMessage(session, payload);
             } else {
                 payload = this.toJSON(new StatusCode204(game.getGameID()));
@@ -150,34 +148,30 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         final String payload;
 
         if (userID == null) {
-            payload = this.toJSON(new StatusCode3xx(
-                    GameSocketStatusCode.NOT_AUTHORIZED));
-            this.sendMessage(session, payload);
-            return;
+            throw new GameException(session, toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED)
+            ));
         }
 
         if (prevGameID != null) {
-            payload = this.toJSON(new StatusCode3xx(
-                    GameSocketStatusCode.ALREADY_PLAY, prevGameID));
-            this.sendMessage(session, payload);
-            return;
+            throw new GameException(session, toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.ALREADY_PLAY, prevGameID)
+            ));
         }
 
         if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
-            payload = this.toJSON(new StatusCode3xx(
-                    GameSocketStatusCode.ATTR));
-            this.sendMessage(session, payload);
-            return;
+            throw new GameException(session, toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.ATTR)
+            ));
         }
 
         final Long gameID = jsonNode.get(GameTools.GAME_ID_ATTR).asLong();
         final GameActive game = activeGames.get(gameID);
 
         if (game == null) {
-            payload = this.toJSON(new StatusCode3xx(
-                    GameSocketStatusCode.NOT_EXIST, gameID));
-            this.sendMessage(session, payload);
-            return;
+            throw new GameException(session, toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID)
+            ));
         }
 
         final UserSignUp user = userService.getUserById(userID);
@@ -186,35 +180,25 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         game.addWatcher(watcher);
     }
 
-    private void rewatch(WebSocketSession session, JsonNode jsonNode) {
+    private void dewatch(WebSocketSession session, JsonNode jsonNode) {
 
-        final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
-        final String payload;
-
-        if (userID == null) {
-            payload = this.toJSON(new StatusCode3xx(
-                    GameSocketStatusCode.NOT_AUTHORIZED));
-            this.sendMessage(session, payload);
-            return;
-        }
 
         if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
-            payload = this.toJSON(new StatusCode3xx(
-                    GameSocketStatusCode.ATTR));
-            this.sendMessage(session, payload);
-            return;
+            throw new GameException(session, toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.ATTR)
+            ));
         }
 
         final Long gameID = jsonNode.get(GameTools.GAME_ID_ATTR).asLong();
         final GameActive game = activeGames.get(gameID);
 
         if (game == null) {
-            payload = this.toJSON(new StatusCode3xx(
-                    GameSocketStatusCode.NOT_EXIST, gameID));
-            this.sendMessage(session, payload);
-            return;
+            throw new GameException(session, toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID)
+            ));
         }
 
+        final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         game.removeWatcher(userID);
     }
 

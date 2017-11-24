@@ -2,6 +2,7 @@ package application.websockets;
 
 import application.controllers.game.GameSocketHandlerLobby;
 import application.controllers.game.GameSocketHandlerPlay;
+import application.exceptions.game.GameException;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserTools;
@@ -44,11 +45,8 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
 
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         if (userID == null) {
-            session.sendMessage(new TextMessage(
-                    mapper.writeValueAsString(
-                            new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED)
-                    )
-            ));
+            session.sendMessage(new TextMessage(mapper.writeValueAsString(
+                            new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED))));
             session.close(CloseStatus.NOT_ACCEPTABLE);
             logger.warn(GameSocketStatusCode.NOT_AUTHORIZED.toString());
         } else {
@@ -60,18 +58,24 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
     }
 
     @Override
-    public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
 
         final JsonNode jsonNode = mapper.readTree(message.getPayload());
         final Integer code = jsonNode.get("code").asInt();
 
-        if (GameSocketStatusCode.isPreparing(code)) {
-            gameSocketHandlerLobby.controller(code, jsonNode, session);
-            return;
-        }
-        if (GameSocketStatusCode.isPlaying(code)) {
-            gameSocketHandlerPlay.controller(code, jsonNode, session);
-            return;
+        try {
+            if (GameSocketStatusCode.isPreparing(code)) {
+                gameSocketHandlerLobby.handler(code, jsonNode, session);
+                return;
+            }
+            if (GameSocketStatusCode.isPlaying(code)) {
+                gameSocketHandlerPlay.handler(code, jsonNode, session);
+                return;
+            }
+        } catch (GameException e) {
+            synchronized (e.getSession()) {
+                e.getSession().sendMessage(new TextMessage(e.getPayload()));
+            }
         }
     }
 
