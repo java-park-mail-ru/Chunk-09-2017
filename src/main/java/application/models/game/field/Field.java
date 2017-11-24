@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
 
 public class Field {
 
@@ -127,7 +126,9 @@ public class Field {
     private synchronized void assumedAround(Spot spot) {
 
         final Integer playerID = array[spot.getCstX()][spot.getCstY()];
-        // todo check plyerID != emtptyCell or other
+        if (!GameTools.isPlayer(playerID)) {
+            return;
+        }
         for (int x = spot.getCstX() - 1; x <= spot.getCstX() + 1; ++x) {
             for (int y = spot.getCstY() - 1; y <= spot.getCstY() + 1; ++y) {
 
