@@ -23,18 +23,21 @@ public final class PlayerBot extends PlayerAbstractActive {
     public synchronized Step generateStep(final Field field) {
 
         final ArrayList<Spot> sourceSpots;
-        final ArrayList<Spot> destinationSpots;
-        final Spot src;
+        ArrayList<Spot> destinationSpots;
+        Spot src;
         final Spot dst;
 
         switch (level) {
             case GameTools.BOT_LEVEL_LOW:
                 sourceSpots = field.getPlayerSpots(getPlayerID());
-                src = sourceSpots.get(random.nextInt(sourceSpots.size()));
 
-                destinationSpots = field.getPossiblePoints(src);
+                do {
+                    src = sourceSpots.get(random.nextInt(sourceSpots.size()));
+                    destinationSpots = field.getPossiblePoints(src);
+                }
+                while (!destinationSpots.isEmpty());
+
                 dst = destinationSpots.get(random.nextInt(destinationSpots.size()));
-
                 return new Step(src, dst);
 
             case GameTools.BOT_LEVEL_MEDIUM:
