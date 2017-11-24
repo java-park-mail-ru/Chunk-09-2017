@@ -35,7 +35,7 @@ public final class PlayerBot extends PlayerAbstractActive {
                     src = sourceSpots.get(random.nextInt(sourceSpots.size()));
                     destinationSpots = field.getPossiblePoints(src);
                 }
-                while (!destinationSpots.isEmpty());
+                while (destinationSpots.isEmpty());
 
                 dst = destinationSpots.get(random.nextInt(destinationSpots.size()));
                 return new Step(src, dst);
