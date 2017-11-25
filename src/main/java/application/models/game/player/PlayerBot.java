@@ -4,15 +4,16 @@ import application.models.game.field.Field;
 import application.models.game.field.Spot;
 import application.models.game.field.Step;
 import application.services.game.GameTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Random;
+import java.util.*;
 
 public final class PlayerBot extends PlayerAbstractActive {
 
     private final Random random;
     private final Integer level;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlayerBot.class);
 
     public PlayerBot(Integer level) {
         super(GameTools.getBotName());
@@ -22,43 +23,76 @@ public final class PlayerBot extends PlayerAbstractActive {
 
     public synchronized Step generateStep(final Field field) {
 
-        final ArrayList<Spot> sourceSpots;
-        ArrayList<Spot> destinationSpots;
-        Spot src;
-        final Spot dst;
-
         switch (level) {
             case GameTools.BOT_LEVEL_LOW:
-                sourceSpots = field.getPlayerSpots(getPlayerID());
-
-                do {
-                    src = sourceSpots.get(random.nextInt(sourceSpots.size()));
-                    destinationSpots = field.getPossiblePoints(src);
-                }
-                while (destinationSpots.isEmpty());
-
-                dst = destinationSpots.get(random.nextInt(destinationSpots.size()));
-                return new Step(src, dst);
-
+                return low(field);
             case GameTools.BOT_LEVEL_MEDIUM:
-                sourceSpots = field.getPlayerSpots(getPlayerID());
-                destinationSpots = new ArrayList<>();
-
-                for (Spot spot : sourceSpots) {
-                    destinationSpots.addAll(field.getPossiblePoints(spot));
-                }
-
-                final ArrayList<Integer> count = new ArrayList<>(destinationSpots.size());
-                for (Spot spot : destinationSpots) {
-                    count.add(field.getAssumedCount(spot, getPlayerID()));
-                }
-                return null;
-
-
-            // TODO generateStep in bot;
+                return medium(field);
+            case GameTools.BOT_LEVEL_HIGH:
+                return high(field);
             default:
-                System.err.println("Level of the bot is not recognized");
+                LOGGER.error("Level " + level + " of the bot is not recognized");
                 return null;
         }
+    }
+
+    private Step low(final Field field) {
+
+        final ArrayList<Spot> sourceSpots = field.getPlayerSpots(getPlayerID());
+
+        Spot src;
+        ArrayList<Spot> destinationSpots;
+        do {
+            src = sourceSpots.get(random.nextInt(sourceSpots.size()));
+            destinationSpots = field.getPossiblePoints(src);
+        }
+        while (destinationSpots.isEmpty());
+
+        final Spot dst = destinationSpots.get(random.nextInt(destinationSpots.size()));
+        return new Step(src, dst);
+    }
+
+    private Step medium(final Field field) {
+
+        class StepAnalyze {
+
+            StepAnalyze(Spot src, Spot dst) {
+                this.src = src;
+                this.dst = dst;
+                this.assumed = field.getAssumedCount(dst, getPlayerID());
+                if (Math.abs(src.getCstX() - dst.getCstX()) < 2
+                        && Math.abs(src.getCstY() - dst.getCstY()) < 2) {
+                    ++this.assumed;
+                }
+            }
+
+            private Spot src;
+            private Spot dst;
+            // Кол-во захваченных фигур
+            private Integer assumed;
+
+            public Integer getAssumed() {
+                return assumed;
+            }
+        }
+
+        final ArrayList<Spot> sourceSpots = field.getPlayerSpots(getPlayerID());
+        final ArrayList<StepAnalyze> steps = new ArrayList<>();
+
+        for (Spot src : sourceSpots) {
+            for (Spot dst : field.getPossiblePoints(src)) {
+                steps.add(new StepAnalyze(src, dst));
+            }
+        }
+
+        Collections.shuffle(steps, GameTools.RANDOM);
+        final StepAnalyze max = steps.stream()
+                .max(Comparator.comparing(StepAnalyze::getAssumed)).get();
+
+        return new Step(max.src, max.dst);
+    }
+
+    private Step high(final Field field) {
+        return null;
     }
 }

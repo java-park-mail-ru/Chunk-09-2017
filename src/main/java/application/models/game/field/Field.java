@@ -25,6 +25,12 @@ public class Field {
         }
     }
 
+    public Field(Field field) {
+        this.array = field.array.clone();
+        this.maxX = field.maxX;
+        this.maxY = field.maxY;
+    }
+
     // Инициализирует поле начальной расстановкой фигур,
     // в зависимости от количества игроков
     public void initialize(Integer numberOfPlayers) {
@@ -187,6 +193,9 @@ public class Field {
                     continue;
                 }
                 if (array[x][y] == GameTools.EMPTY_CELL) {
+                    continue;
+                }
+                if (array[x][y].equals(playerID)) {
                     continue;
                 }
                 ++count;
