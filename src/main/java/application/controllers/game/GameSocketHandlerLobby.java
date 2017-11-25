@@ -119,16 +119,6 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
     public void create(final WebSocketSession session, JsonNode jsonNode) {
 
-        // Проверка 308 (наличие необходимых атрибутов)
-        if (!jsonNode.hasNonNull(GameTools.NUMBER_OF_PLAYERS)
-                || !jsonNode.hasNonNull(GameTools.MAX_X_ATTR)
-                || !jsonNode.hasNonNull(GameTools.MAX_Y_ATTR)) {
-
-            throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.ATTR)
-            ));
-        }
-
         unsubscribe(session);
 
         // Проверка 301
@@ -136,6 +126,16 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         if (newGameID != null) {
             throw new GameException(session, toJSON(
                     new StatusCode3xx(GameSocketStatusCode.ALREADY_PLAY, newGameID)
+            ));
+        }
+
+        // Проверка 308 (наличие необходимых атрибутов)
+        if (!jsonNode.hasNonNull(GameTools.NUMBER_OF_PLAYERS)
+                || !jsonNode.hasNonNull(GameTools.MAX_X_ATTR)
+                || !jsonNode.hasNonNull(GameTools.MAX_Y_ATTR)) {
+
+            throw new GameException(session, toJSON(
+                    new StatusCode3xx(GameSocketStatusCode.ATTR)
             ));
         }
 
