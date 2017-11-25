@@ -21,7 +21,7 @@ public abstract class GameSocketHandler {
         this.mapper = mapper;
     }
 
-    public abstract void controller(Integer code, JsonNode jsonNode, WebSocketSession session);
+    public abstract void handler(Integer code, JsonNode jsonNode, WebSocketSession session);
 
     protected final String toJSON(StatusCode statusCode) {
         try {
