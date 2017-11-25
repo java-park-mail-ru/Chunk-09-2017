@@ -15,15 +15,24 @@ import java.util.Random;
 @Component
 public class TestUtils {
 
-    @Autowired
-    private final Random random = new Random();
+    private final Random random;
+    private final ObjectMapper mapper;
 
-    @Autowired
-    @Qualifier("mymapper")
-    private final ObjectMapper mapper = new ObjectMapper();
+    public TestUtils(Random random, ObjectMapper mapper) {
+        this.random = random;
+        this.mapper = mapper;
+    }
 
     public String toJson(Object o) throws JsonProcessingException {
         return mapper.writeValueAsString(o);
+    }
+
+    public double nextGaussian() {
+        return random.nextGaussian();
+    }
+
+    public ObjectMapper getMapper() {
+        return mapper;
     }
 
     public UserSignUp getRandomUser() {

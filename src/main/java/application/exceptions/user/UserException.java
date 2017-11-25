@@ -1,10 +1,8 @@
 package application.exceptions.user;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 
 
-@Component
 public abstract class UserException extends RuntimeException {
 
     private String errorMessage;

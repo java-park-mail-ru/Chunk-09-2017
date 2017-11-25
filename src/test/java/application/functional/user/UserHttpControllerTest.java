@@ -378,22 +378,17 @@ public class UserHttpControllerTest {
                 .andExpect(status().isOk());
     }
 
-
-    private final Random random = new Random(new Date().getTime());
-
-    private final ObjectMapper mapper = new ObjectMapper();
-
     private String baseUrl = "/user";
 
     private UserSignUp getRandomUser() {
         return new UserSignUp(
-                "TestUsername_" + random.nextGaussian(),
-                "TestEmail_" + random.nextGaussian(),
-                "TestPassword_" + random.nextGaussian()
+                "TestUsername_" + testUtils.nextGaussian(),
+                "TestEmail_" + testUtils.nextGaussian(),
+                "TestPassword_" + testUtils.nextGaussian()
         );
     }
 
     private String toJson(Object o) throws JsonProcessingException {
-        return mapper.writeValueAsString(o);
+        return testUtils.getMapper().writeValueAsString(o);
     }
 }

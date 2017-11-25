@@ -11,13 +11,13 @@ import application.views.game.ScoreTable;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 
 
-@Service
+@Component
 @Transactional
 public class UserServiceJpa implements UserService {
 
