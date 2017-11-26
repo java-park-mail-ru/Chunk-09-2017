@@ -25,18 +25,18 @@ public final class PlayerBot extends PlayerAbstractActive {
 
         switch (level) {
             case GameTools.BOT_LEVEL_LOW:
-                return low(field);
+                return lowLogic(field);
             case GameTools.BOT_LEVEL_MEDIUM:
-                return medium(field);
+                return mediumLogic(field, getPlayerID());
             case GameTools.BOT_LEVEL_HIGH:
-                return high(field);
+                return highLogic(field);
             default:
                 LOGGER.error("Level " + level + " of the bot is not recognized");
                 return null;
         }
     }
 
-    private Step low(final Field field) {
+    private Step lowLogic(final Field field) {
 
         final ArrayList<Spot> sourceSpots = field.getPlayerSpots(getPlayerID());
 
@@ -52,14 +52,14 @@ public final class PlayerBot extends PlayerAbstractActive {
         return new Step(src, dst);
     }
 
-    private Step medium(final Field field) {
+    private Step mediumLogic(final Field field, Integer playerID) {
 
         class StepAnalyze {
 
             StepAnalyze(Spot src, Spot dst) {
                 this.src = src;
                 this.dst = dst;
-                this.assumed = field.getAssumedCount(dst, getPlayerID());
+                this.assumed = field.getAssumedCount(dst, playerID);
                 if (Math.abs(src.getCstX() - dst.getCstX()) < 2
                         && Math.abs(src.getCstY() - dst.getCstY()) < 2) {
                     ++this.assumed;
@@ -76,7 +76,8 @@ public final class PlayerBot extends PlayerAbstractActive {
             }
         }
 
-        final ArrayList<Spot> sourceSpots = field.getPlayerSpots(getPlayerID());
+        // Жадный алгоритм
+        final ArrayList<Spot> sourceSpots = field.getPlayerSpots(playerID);
         final ArrayList<StepAnalyze> steps = new ArrayList<>();
 
         for (Spot src : sourceSpots) {
@@ -86,13 +87,81 @@ public final class PlayerBot extends PlayerAbstractActive {
         }
 
         Collections.shuffle(steps, GameTools.RANDOM);
+
         final StepAnalyze max = steps.stream()
                 .max(Comparator.comparing(StepAnalyze::getAssumed)).get();
 
         return new Step(max.src, max.dst);
     }
 
-    private Step high(final Field field) {
-        return null;
+    private Step highLogic(final Field field) {
+
+        class StepDeepAnalyze {
+
+            StepDeepAnalyze(Spot src, Spot dst) {
+                this.src = src;
+                this.dst = dst;
+                this.yourAssumed = field.getAssumedCount(dst, getPlayerID());
+                if (Math.abs(src.getCstX() - dst.getCstX()) < 2
+                        && Math.abs(src.getCstY() - dst.getCstY()) < 2) {
+                    ++this.yourAssumed;
+                }
+            }
+
+            private Spot src;
+            private Spot dst;
+            // Кол-во захваченных фигур
+            private Integer yourAssumed;
+            private Integer enemyAssumed;
+
+            public Integer getBenefit() {
+                return yourAssumed - enemyAssumed;
+            }
+
+            public Step getStep() {
+                return new Step(src, dst);
+            }
+        }
+
+        final ArrayList<Spot> sourceSpots = field.getPlayerSpots(getPlayerID());
+        final ArrayList<StepDeepAnalyze> steps = new ArrayList<>();
+
+        // Получаем все возможные ходы
+        for (Spot src : sourceSpots) {
+            for (Spot dst : field.getPossiblePoints(src)) {
+                steps.add(new StepDeepAnalyze(src, dst));
+            }
+        }
+
+        // Поросчитываем, сколько фигур в наилучшем случае захватит
+        // слеующий игрок для каждого из наших шагов
+        for (StepDeepAnalyze stepAnalyze : steps) {
+
+            // Создаем эксперементальное поле и делаем на нем шаг
+            final Field possbileField = new Field(field);
+            possbileField.makeStep(stepAnalyze.getStep());
+
+            // Получаем ID след игрока
+            final Integer nextEnemyID = possbileField.getNextID(getPlayerID());
+            if (possbileField.isBlocked(nextEnemyID)) {
+                stepAnalyze.enemyAssumed = 0;
+                continue;
+            }
+            // Просчитываем его ход по "жадному алгоритму"
+            final Step enemyStep = this.mediumLogic(possbileField, nextEnemyID);
+
+            // Считаем сколько фигур он съест при таком варианте разивитя событий
+            stepAnalyze.enemyAssumed = possbileField.getAssumedCount(
+                    enemyStep.getDst(), nextEnemyID);
+        }
+
+        // Перемешиваем массив, чтобы одинаковые результаты выпадали по разному
+        Collections.shuffle(steps, GameTools.RANDOM);
+        // Высчитываем наилучший для нас вариант
+        final StepDeepAnalyze max = steps.stream()
+                .max(Comparator.comparing(StepDeepAnalyze::getBenefit))
+                .get();
+
+        return max.getStep();
     }
 }

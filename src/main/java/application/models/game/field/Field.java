@@ -3,8 +3,11 @@ package application.models.game.field;
 import application.services.game.GameTools;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 public class Field {
 
@@ -16,7 +19,7 @@ public class Field {
     public Field(Integer maxX, Integer maxY) {
         this.maxX = maxX;
         this.maxY = maxY;
-        array = new Integer[maxX][maxY];
+        this.array = new Integer[maxX][maxY];
 
         for (int x = 0; x < maxX; ++x) {
             for (int y = 0; y < maxY; ++y) {
@@ -26,9 +29,15 @@ public class Field {
     }
 
     public Field(Field field) {
-        this.array = field.array.clone();
         this.maxX = field.maxX;
         this.maxY = field.maxY;
+        this.array = new Integer[maxX][maxY];
+        for (int x = 0; x < maxX; ++x) {
+            this.array[x] = field.array[x].clone();
+//            for (int y = 0; y < maxY; ++y) {
+//                array[x][y] = field.array[x][y];
+//            }
+        }
     }
 
     // Инициализирует поле начальной расстановкой фигур,
@@ -215,6 +224,22 @@ public class Field {
         return true;
     }
 
+    public Integer getNextID(Integer currentPlayerID) {
+
+        final ArrayList<Integer> players = new ArrayList<>();
+        for (int x = 0; x < maxX; ++x) {
+            for (int y = 0; y < maxY; ++y) {
+                if (GameTools.isPlayer(array[x][y])) {
+                    if (!players.contains(array[x][y])) {
+                        players.add(array[x][y]);
+                    }
+                }
+            }
+        }
+        Collections.sort(players);
+        final Integer index = players.indexOf(currentPlayerID);
+        return index == players.size() - 1 ? players.get(0) : players.get(index + 1);
+    }
 
     public Integer getMaxX() {
         return maxX;
