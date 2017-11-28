@@ -18,9 +18,4 @@ public class AppConfig {
         return new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
-
-    @Bean
-    public Random getRandom() {
-        return new Random(new Date().getTime());
-    }
 }

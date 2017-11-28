@@ -11,35 +11,30 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Component
 public class TestUtils {
 
-    private final Random random;
     private final ObjectMapper mapper;
+    private Long generatorID;
 
-    public TestUtils(Random random, ObjectMapper mapper) {
-        this.random = random;
+    public TestUtils(ObjectMapper mapper) {
         this.mapper = mapper;
+        this.generatorID = 0L;
     }
+
 
     public String toJson(Object o) throws JsonProcessingException {
         return mapper.writeValueAsString(o);
     }
 
-    public double nextGaussian() {
-        return random.nextGaussian();
-    }
-
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
     public UserSignUp getRandomUser() {
+        ++generatorID;
         return new UserSignUp(
-                "TestUsername_" + random.nextInt(),
-                "TestEmail_" + random.nextInt(),
-                "TestPassword_" + random.nextInt()
+                "TestUsername_" + generatorID,
+                "TestEmail_" + generatorID,
+                "TestPassword_" + generatorID
         );
     }
 
