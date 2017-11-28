@@ -6,8 +6,8 @@ import application.models.game.player.PlayerGamer;
 import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
 import application.views.game.StatusCode;
-import application.views.game.statuscodeLobby.StatusCodeUpdate;
-import application.views.game.statuscodeLobby.StatusCodeLobby;
+import application.views.game.statuscodelobby.StatusCodeUpdate;
+import application.views.game.statuscodelobby.StatusCodeLobby;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.NotNull;

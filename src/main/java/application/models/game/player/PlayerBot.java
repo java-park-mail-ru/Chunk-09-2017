@@ -149,7 +149,8 @@ public final class PlayerBot extends PlayerAbstractActive {
                     stepAnalyze.enemyAssumed = 0;
                     continue out;
                 }
-            } while (possbileField.isBlocked(nextEnemyID));
+            }
+            while (possbileField.isBlocked(nextEnemyID));
 
             // Просчитываем его ход по "жадному алгоритму"
             final Step enemyStep = this.mediumLogic(possbileField, nextEnemyID);

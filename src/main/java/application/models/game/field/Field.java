@@ -3,7 +3,6 @@ package application.models.game.field;
 import application.services.game.GameTools;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Field {
@@ -77,7 +76,6 @@ public class Field {
         }
         players.removeIf(playerID -> isBlocked(playerID));
         return players.size() < 2;
-//        return true;
     }
 
     // Проверить имеет ли игрок с указанным playerID возможность сделать ход

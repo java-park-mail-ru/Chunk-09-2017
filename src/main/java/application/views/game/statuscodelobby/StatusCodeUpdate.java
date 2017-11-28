@@ -1,4 +1,4 @@
-package application.views.game.statuscodeLobby;
+package application.views.game.statuscodelobby;
 
 import application.models.game.game.GamePrepare;
 import application.models.game.player.PlayerAbstractActive;
