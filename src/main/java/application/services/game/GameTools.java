@@ -26,15 +26,12 @@ public class GameTools {
 
     public static final List<String> BOTS_NAMES = Arrays.asList(
             "Bob", "John", "Doctor", "Master", "Tony Stark",
-            "Loki", "Thor", "Batman", "Gandalf", "Dahaka", "TARDIS",
+            "Loki", "Thor", "Batman", "Gandalf", "Dahaka", "Foo",
             "Java-Man", "Spider-Man", "Pennywise", "The Dancing clown",
-            "Джевгенец", "Лапища", "Spring", "п/п-к Пряхин", "Foo", "Bar",
-            "Титаевский", "Арсюка", "Grandmaster", "Lucky", "Bauman"
+            "Джевгенец", "Лапища", "п/п-к Пряхин", "Bar", "Lucky",
+            "Титаевский", "Арсюка", "Grandmaster", "Bauman"
     );
 
-
-    public static final long TIME_BETWEEN_BLOCKED = 5000L;
-    public static final long TIME_BEFORE_BOTS_STEP = 2000L;
     public static final int BOT_LEVEL_LOW = 1;
     public static final int BOT_LEVEL_MEDIUM = 2;
     public static final int BOT_LEVEL_HIGH = 3;

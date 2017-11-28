@@ -2,6 +2,7 @@ package application.views.game;
 
 import application.services.game.GameSocketStatusCode;
 
+@SuppressWarnings("unused")
 public abstract class StatusCode {
 
     private final Integer code;

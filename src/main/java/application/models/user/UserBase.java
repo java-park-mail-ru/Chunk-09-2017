@@ -1,12 +1,9 @@
 package application.models.user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class UserBase {
 
-    @JsonProperty("password")
     private String password;
-
     private Long id;
 
     @Override

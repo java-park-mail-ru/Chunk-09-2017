@@ -99,7 +99,6 @@ public final class GameActive extends GameAbstract {
     }
 
     @Override
-    // Нужно ли делать synchronized?
     void notifyPlayers(StatusCode statusCode) {
         gamers.values().forEach(gamer -> {
             if (gamer.getUserID() != null) {
