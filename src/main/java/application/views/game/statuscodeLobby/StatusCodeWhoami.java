@@ -1,14 +1,14 @@
-package application.views.game.statuscode1xx;
+package application.views.game.statuscodeLobby;
 
 import application.services.game.GameSocketStatusCode;
 import application.views.game.StatusCode;
 
-public final class StatusCode112 extends StatusCode {
+public final class StatusCodeWhoami extends StatusCode {
 
     private final Long userID;
     private final Long gameID;
 
-    public StatusCode112(Long userID, Long gameID) {
+    public StatusCodeWhoami(Long userID, Long gameID) {
         super(GameSocketStatusCode.WHOAMI);
         this.userID = userID;
         this.gameID = gameID;

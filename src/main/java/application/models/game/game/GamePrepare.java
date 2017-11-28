@@ -6,8 +6,8 @@ import application.models.game.player.PlayerGamer;
 import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
 import application.views.game.StatusCode;
-import application.views.game.statuscode1xx.StatusCode101;
-import application.views.game.statuscode1xx.StatusCode1xx;
+import application.views.game.statuscodeLobby.StatusCodeUpdate;
+import application.views.game.statuscodeLobby.StatusCodeLobby;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.NotNull;
@@ -39,7 +39,7 @@ public final class GamePrepare extends GameAbstract {
             return;
         }
         gamers.put(gamer.getUserID(), gamer);
-        notifyPlayers(new StatusCode101(
+        notifyPlayers(new StatusCodeUpdate(
                 GameSocketStatusCode.CONNECT_ACTIVE, this, gamer));
         if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
@@ -52,7 +52,7 @@ public final class GamePrepare extends GameAbstract {
             return;
         }
         bots.add(bot);
-        notifyPlayers(new StatusCode101(
+        notifyPlayers(new StatusCodeUpdate(
                 GameSocketStatusCode.CONNECT_ACTIVE, this, bot));
         if (gamers.size() + bots.size() == getNumberOfPlayers()) {
             isReady = true;
@@ -61,7 +61,7 @@ public final class GamePrepare extends GameAbstract {
 
     public void removeGamer(Long userID) {
         gamers.get(userID).getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
-        notifyPlayers(new StatusCode101(
+        notifyPlayers(new StatusCodeUpdate(
                 GameSocketStatusCode.EXIT, this, gamers.remove(userID)));
         if (isReady && gamers.size() < getNumberOfPlayers()) {
             isReady = false;
@@ -69,7 +69,7 @@ public final class GamePrepare extends GameAbstract {
     }
 
     public synchronized void destroy() {
-        notifyPlayers(new StatusCode1xx(GameSocketStatusCode.DESTROY, getGameID()));
+        notifyPlayers(new StatusCodeLobby(GameSocketStatusCode.DESTROY, getGameID()));
         gamers.values().forEach(gamer -> gamer.getSession()
                 .getAttributes().remove(GameTools.GAME_ID_ATTR));
         gamers.clear();

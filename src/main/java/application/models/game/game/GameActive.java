@@ -7,10 +7,10 @@ import application.models.game.player.PlayerGamer;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.views.game.StatusCode;
-import application.views.game.statuscode2xx.StatusCode200;
-import application.views.game.statuscode2xx.StatusCode201;
-import application.views.game.statuscode2xx.StatusCode204;
-import application.views.game.statuscode2xx.StatusCode2xx;
+import application.views.game.statuscodeGame.StatusCodeBegin;
+import application.views.game.statuscodeGame.StatusCodeStep;
+import application.views.game.statuscodeGame.StatusCodeGameover;
+import application.views.game.statuscodeGame.StatusCodeGame;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Collection;
@@ -42,7 +42,7 @@ public final class GameActive extends GameAbstract {
         this.currentPlayerID = GameTools.PLAYER_1;
         this.gameOver = false;
 
-        notifyPlayers(new StatusCode200(this));
+        notifyPlayers(new StatusCodeBegin(this));
     }
 
     public synchronized Boolean makeStep(Step step) {
@@ -55,7 +55,7 @@ public final class GameActive extends GameAbstract {
             return false;
         }
 
-        notifyPlayers(new StatusCode201(step));
+        notifyPlayers(new StatusCodeStep(step));
 
         if (getField().isGameOver()) {
             this.end();
@@ -71,7 +71,7 @@ public final class GameActive extends GameAbstract {
             if (!getField().isBlocked(currentPlayerID)) {
                 break;
             }
-            notifyPlayers(new StatusCode2xx(
+            notifyPlayers(new StatusCodeGame(
                     GameSocketStatusCode.BLOCKED, gamers.get(currentPlayerID)));
         }
 
@@ -87,7 +87,7 @@ public final class GameActive extends GameAbstract {
         gamers.values().forEach(gamer -> {
             if (gamer.getUserID().equals(userID)) {
                 gamer.switchOff();
-                notifyPlayers(new StatusCode2xx(
+                notifyPlayers(new StatusCodeGame(
                         GameSocketStatusCode.PLAYER_OFF, gamer));
             }
         });
@@ -95,7 +95,7 @@ public final class GameActive extends GameAbstract {
 
     public synchronized void playerOff(PlayerGamer player) {
         player.switchOff();
-        new StatusCode2xx(GameSocketStatusCode.PLAYER_OFF, player);
+        new StatusCodeGame(GameSocketStatusCode.PLAYER_OFF, player);
     }
 
     @Override
@@ -120,7 +120,7 @@ public final class GameActive extends GameAbstract {
     }
 
     private void end() {
-        notifyPlayers(new StatusCode204(getField()));
+        notifyPlayers(new StatusCodeGameover(getField()));
 
         getHashMapOfWatchers().clear();
 

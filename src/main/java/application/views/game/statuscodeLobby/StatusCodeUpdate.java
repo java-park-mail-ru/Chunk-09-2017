@@ -1,11 +1,11 @@
-package application.views.game.statuscode1xx;
+package application.views.game.statuscodeLobby;
 
 import application.models.game.game.GamePrepare;
 import application.models.game.player.PlayerAbstractActive;
 import application.services.game.GameSocketStatusCode;
 import application.views.game.StatusCode;
 
-public final class StatusCode101 extends StatusCode {
+public final class StatusCodeUpdate extends StatusCode {
 
     private final Long gameID;
     private final Integer gamersCount;
@@ -16,8 +16,8 @@ public final class StatusCode101 extends StatusCode {
     private final Integer maxY;
     private final PlayerAbstractActive player;
 
-    public StatusCode101(GameSocketStatusCode statusCode,
-                         GamePrepare game, PlayerAbstractActive player) {
+    public StatusCodeUpdate(GameSocketStatusCode statusCode,
+                            GamePrepare game, PlayerAbstractActive player) {
         super(statusCode);
         this.gameID = game.getGameID();
         this.gamersCount = game.getGamers().size();

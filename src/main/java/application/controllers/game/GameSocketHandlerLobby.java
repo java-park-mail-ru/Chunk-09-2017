@@ -10,10 +10,10 @@ import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
 import application.services.user.UserService;
 import application.services.user.UserTools;
-import application.views.game.statuscode1xx.StatusCode1xx;
-import application.views.game.statuscode1xx.StatusCode111;
-import application.views.game.statuscode1xx.StatusCode112;
-import application.views.game.statuscode3xx.StatusCode3xx;
+import application.views.game.statuscodeLobby.StatusCodeLobby;
+import application.views.game.statuscodeLobby.StatusCodeFullStatus;
+import application.views.game.statuscodeLobby.StatusCodeWhoami;
+import application.views.game.statuscodeError.StatusCodeError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
@@ -104,7 +104,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         // Запрашиваемый код не найден
         throw new GameException(session, toJSON(
-                new StatusCode3xx(GameSocketStatusCode.UNEXPECTED)));
+                new StatusCodeError(GameSocketStatusCode.UNEXPECTED)));
     }
 
     @Override
@@ -125,7 +125,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         Long newGameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
         if (newGameID != null) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.ALREADY_PLAY, newGameID)
+                    new StatusCodeError(GameSocketStatusCode.ALREADY_PLAY, newGameID)
             ));
         }
 
@@ -135,7 +135,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
                 || !jsonNode.hasNonNull(GameTools.MAX_Y_ATTR)) {
 
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.ATTR)
+                    new StatusCodeError(GameSocketStatusCode.ATTR)
             ));
         }
 
@@ -157,7 +157,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         // Оповестить подписчиков
         final String payload = this.toJSON(
-                new StatusCode1xx(GameSocketStatusCode.SUBSCRIBE_P, newGame));
+                new StatusCodeLobby(GameSocketStatusCode.SUBSCRIBE_P, newGame));
         this.notifySubscribers(payload);
 
         getGameLogger().info("Create prepare Game #" + newGameID);
@@ -171,13 +171,13 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         Long gameID = (Long) session.getAttributes().get("gameID");
         if (gameID != null) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.ALREADY_PLAY, gameID)
+                    new StatusCodeError(GameSocketStatusCode.ALREADY_PLAY, gameID)
             ));
         }
 
         if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.ATTR)
+                    new StatusCodeError(GameSocketStatusCode.ATTR)
             ));
         }
 
@@ -186,7 +186,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         if (game == null) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID)
+                    new StatusCodeError(GameSocketStatusCode.NOT_EXIST, gameID)
             ));
         }
 
@@ -196,14 +196,14 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         // Проверка 309 (мест нет)
         if (game.isReady()) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.FULL)
+                    new StatusCodeError(GameSocketStatusCode.FULL)
             ));
         }
         game.addGamer(gamer);
 
         // Оповестить подписчиков
         final String payload = this.toJSON(
-                new StatusCode1xx(GameSocketStatusCode.SUBSCRIBE_P, game));
+                new StatusCodeLobby(GameSocketStatusCode.SUBSCRIBE_P, game));
         this.notifySubscribers(payload);
     }
 
@@ -213,7 +213,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.ATTR)
+                    new StatusCodeError(GameSocketStatusCode.ATTR)
             ));
         }
 
@@ -222,7 +222,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         if (game == null) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID)
+                    new StatusCodeError(GameSocketStatusCode.NOT_EXIST, gameID)
             ));
         }
 
@@ -234,7 +234,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         // Оповестить подписчиков
         final String payload = this.toJSON(
-                new StatusCode1xx(GameSocketStatusCode.SUBSCRIBE_P, game));
+                new StatusCodeLobby(GameSocketStatusCode.SUBSCRIBE_P, game));
         this.notifySubscribers(payload);
     }
 
@@ -250,7 +250,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         game.removeGamer(userID);
 
-        final String payload = toJSON(new StatusCode1xx(GameSocketStatusCode.EXIT, game));
+        final String payload = toJSON(new StatusCodeLobby(GameSocketStatusCode.EXIT, game));
         notifySubscribers(payload);
     }
 
@@ -258,7 +258,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.ATTR)
+                    new StatusCodeError(GameSocketStatusCode.ATTR)
             ));
         }
 
@@ -267,18 +267,18 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         if (game == null) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID)
+                    new StatusCodeError(GameSocketStatusCode.NOT_EXIST, gameID)
             ));
         }
 
         final String payload = this.toJSON(
-                new StatusCode1xx(GameSocketStatusCode.STATUS, game));
+                new StatusCodeLobby(GameSocketStatusCode.STATUS, game));
         this.sendMessage(session, payload);
     }
 
     private void fullStatus(WebSocketSession session) {
 
-        final String paylod = toJSON(new StatusCode111(
+        final String paylod = toJSON(new StatusCodeFullStatus(
                 GameSocketStatusCode.FULL_STATUS, preparingGames.values()));
         this.sendMessage(session, paylod);
     }
@@ -291,21 +291,21 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         // Проверка 303 (хозяин игры)
         if (!game.getMasterID().equals(userID)) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.FORBIDDEN)
+                    new StatusCodeError(GameSocketStatusCode.FORBIDDEN)
             ));
         }
 
         // Проверка 304 (хватает ли игроков)
         if (!game.isReady()) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.NOT_ENOUGH)
+                    new StatusCodeError(GameSocketStatusCode.NOT_ENOUGH)
             ));
         }
 
         playController.addGame(preparingGames.remove(game.getGameID()));
 
         final String payload = toJSON(
-                new StatusCode1xx(GameSocketStatusCode.START, game.getGameID()));
+                new StatusCodeLobby(GameSocketStatusCode.START, game.getGameID()));
         notifySubscribers(payload);
     }
 
@@ -317,14 +317,14 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         // Проверка (хозяин игры)
         if (!game.getMasterID().equals(userID)) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.FORBIDDEN, game.getGameID())
+                    new StatusCodeError(GameSocketStatusCode.FORBIDDEN, game.getGameID())
             ));
         }
 
         game.destroy();
         preparingGames.remove(game.getGameID());
         final String payload = this.toJSON(
-                new StatusCode3xx(GameSocketStatusCode.DESTROY, game.getGameID())
+                new StatusCodeError(GameSocketStatusCode.DESTROY, game.getGameID())
         );
         notifySubscribers(payload);
     }
@@ -337,21 +337,21 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         // Проверка (хозяин игры)
         if (!game.getMasterID().equals(userID)) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.FORBIDDEN, game.getGameID())
+                    new StatusCodeError(GameSocketStatusCode.FORBIDDEN, game.getGameID())
             ));
         }
 
         // Проверка (наличие аттрибутов)
         if (!jsonNode.hasNonNull(GameTools.BOT_LEVEL_ATTR)) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.ATTR)
+                    new StatusCodeError(GameSocketStatusCode.ATTR)
             ));
         }
 
         // Проверка (свободные места)
         if (game.isReady()) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.FULL)
+                    new StatusCodeError(GameSocketStatusCode.FULL)
             ));
         }
 
@@ -361,7 +361,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         // Оповестить подписчиков
         final String payload = toJSON(
-                new StatusCode1xx(GameSocketStatusCode.SUBSCRIBE_P, game));
+                new StatusCodeLobby(GameSocketStatusCode.SUBSCRIBE_P, game));
         this.notifySubscribers(payload);
     }
 
@@ -370,7 +370,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
 
-        this.sendMessage(session, this.toJSON(new StatusCode112(userID, gameID)));
+        this.sendMessage(session, this.toJSON(new StatusCodeWhoami(userID, gameID)));
     }
 
     private void subscribe(@NotNull WebSocketSession session) {
@@ -396,13 +396,13 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
         if (gameID == null) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED)));
+                    new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED)));
         }
 
         final GamePrepare game = preparingGames.get(gameID);
         if (game == null) {
             throw new GameException(session, toJSON(
-                    new StatusCode3xx(GameSocketStatusCode.NOT_EXIST, gameID)));
+                    new StatusCodeError(GameSocketStatusCode.NOT_EXIST, gameID)));
         }
 
         return game;

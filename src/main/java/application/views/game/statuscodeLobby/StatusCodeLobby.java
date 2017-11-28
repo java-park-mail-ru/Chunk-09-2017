@@ -1,26 +1,26 @@
-package application.views.game.statuscode1xx;
+package application.views.game.statuscodeLobby;
 
 import application.models.game.game.GamePrepare;
 import application.models.game.player.PlayerGamer;
 import application.services.game.GameSocketStatusCode;
 import application.views.game.StatusCode;
 
-public final class StatusCode1xx extends StatusCode {
+public final class StatusCodeLobby extends StatusCode {
 
     private Long gameID = null;
     private PlayerGamer player = null;
     private GamePrepare game = null;
 
-    public StatusCode1xx(GameSocketStatusCode statusCode) {
+    public StatusCodeLobby(GameSocketStatusCode statusCode) {
         super(statusCode);
     }
 
-    public StatusCode1xx(GameSocketStatusCode statusCode, Long gameID) {
+    public StatusCodeLobby(GameSocketStatusCode statusCode, Long gameID) {
         super(statusCode);
         this.gameID = gameID;
     }
 
-    public StatusCode1xx(GameSocketStatusCode statusCode, GamePrepare game) {
+    public StatusCodeLobby(GameSocketStatusCode statusCode, GamePrepare game) {
         super(statusCode);
         this.game = game;
         this.gameID = game.getGameID();

@@ -6,8 +6,8 @@ import application.exceptions.game.GameException;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserTools;
-import application.views.game.statuscode1xx.StatusCode112;
-import application.views.game.statuscode3xx.StatusCode3xx;
+import application.views.game.statuscodeLobby.StatusCodeWhoami;
+import application.views.game.statuscodeError.StatusCodeError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -46,12 +46,12 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         if (userID == null) {
             session.sendMessage(new TextMessage(mapper.writeValueAsString(
-                    new StatusCode3xx(GameSocketStatusCode.NOT_AUTHORIZED))));
+                    new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED))));
             session.close(CloseStatus.NOT_ACCEPTABLE);
             logger.warn(GameSocketStatusCode.NOT_AUTHORIZED.toString());
         } else {
             session.sendMessage(new TextMessage(
-                    mapper.writeValueAsString(new StatusCode112(userID, null))
+                    mapper.writeValueAsString(new StatusCodeWhoami(userID, null))
             ));
             logger.info("Succesfull connect: userID=" + userID + ", session=" + session);
         }

@@ -1,14 +1,14 @@
-package application.views.game.statuscode2xx;
+package application.views.game.statuscodeGame;
 
 import application.models.game.game.GameActive;
 import application.services.game.GameSocketStatusCode;
 import application.views.game.StatusCode;
 
-public final class StatusCode200 extends StatusCode {
+public final class StatusCodeBegin extends StatusCode {
 
     private final GameActive game;
 
-    public StatusCode200(GameActive game) {
+    public StatusCodeBegin(GameActive game) {
         super(GameSocketStatusCode.BEGIN);
         this.game = game;
     }

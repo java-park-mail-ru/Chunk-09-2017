@@ -1,18 +1,18 @@
-package application.views.game.statuscode3xx;
+package application.views.game.statuscodeError;
 
 import application.services.game.GameSocketStatusCode;
 import application.views.game.StatusCode;
 
-public final class StatusCode3xx extends StatusCode {
+public final class StatusCodeError extends StatusCode {
 
     private final Long gameID;
 
-    public StatusCode3xx(GameSocketStatusCode statusCode) {
+    public StatusCodeError(GameSocketStatusCode statusCode) {
         super(statusCode);
         this.gameID = null;
     }
 
-    public StatusCode3xx(GameSocketStatusCode statusCode, Long gameID) {
+    public StatusCodeError(GameSocketStatusCode statusCode, Long gameID) {
         super(statusCode);
         this.gameID = gameID;
     }
