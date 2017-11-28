@@ -135,18 +135,22 @@ public final class PlayerBot extends PlayerAbstractActive {
 
         // Поросчитываем, сколько фигур в наилучшем случае захватит
         // слеующий игрок для каждого из наших шагов
-        for (StepDeepAnalyze stepAnalyze : steps) {
+        out: for (StepDeepAnalyze stepAnalyze : steps) {
 
             // Создаем эксперементальное поле и делаем на нем шаг
             final Field possbileField = new Field(field);
             possbileField.makeStep(stepAnalyze.getStep());
 
-            // Получаем ID след игрока
-            final Integer nextEnemyID = possbileField.getNextID(getPlayerID());
-            if (possbileField.isBlocked(nextEnemyID)) {
-                stepAnalyze.enemyAssumed = 0;
-                continue;
-            }
+            // Получаем ID след незаблокированного игрока
+            Integer nextEnemyID = getPlayerID();
+            do {
+                nextEnemyID = possbileField.getNextID(nextEnemyID);
+                if (nextEnemyID.equals(getPlayerID())) {
+                    stepAnalyze.enemyAssumed = 0;
+                    continue out;
+                }
+            } while (possbileField.isBlocked(nextEnemyID));
+
             // Просчитываем его ход по "жадному алгоритму"
             final Step enemyStep = this.mediumLogic(possbileField, nextEnemyID);
 

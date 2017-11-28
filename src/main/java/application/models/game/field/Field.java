@@ -4,10 +4,7 @@ import application.services.game.GameTools;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Field {
 
@@ -32,11 +29,9 @@ public class Field {
         this.maxX = field.maxX;
         this.maxY = field.maxY;
         this.array = new Integer[maxX][maxY];
+
         for (int x = 0; x < maxX; ++x) {
             this.array[x] = field.array[x].clone();
-//            for (int y = 0; y < maxY; ++y) {
-//                array[x][y] = field.array[x][y];
-//            }
         }
     }
 
@@ -78,17 +73,14 @@ public class Field {
                 if (GameTools.isPlayer(array[x][y])) {
                     players.add(array[x][y]);
                 }
-                if (array[x][y].equals(GameTools.EMPTY_CELL)) {
-                    if (players.size() > 1) {
-                        return false;
-                    }
-                }
             }
         }
-        return true;
+        players.removeIf(playerID -> isBlocked(playerID));
+        return players.size() < 2;
+//        return true;
     }
 
-    // Проверить имеет ли игрок с указанным playerID сделать ход
+    // Проверить имеет ли игрок с указанным playerID возможность сделать ход
     public boolean isBlocked(Integer playerID) {
 
         for (int x = 0; x < maxX; ++x) {

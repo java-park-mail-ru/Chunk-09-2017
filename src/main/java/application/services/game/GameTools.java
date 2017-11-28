@@ -18,11 +18,10 @@ public class GameTools {
         return PLAYER_1 <= cellID && cellID <= PLAYER_4;
     }
 
-    public static final int SPOT_OF_PLAYER_1 = 10;
-    public static final int SPOT_OF_PLAYER_2 = 11;
-    public static final int SPOT_OF_PLAYER_3 = 12;
-    public static final int SPOT_OF_PLAYER_4 = 13;
-    public static final int SPOT_OF_PLAYER_5 = 14;
+    public static final int SPOT_OF_PLAYER_1 = 11;
+    public static final int SPOT_OF_PLAYER_2 = 12;
+    public static final int SPOT_OF_PLAYER_3 = 13;
+    public static final int SPOT_OF_PLAYER_4 = 14;
 
 
     public static final List<String> BOTS_NAMES = Arrays.asList(
