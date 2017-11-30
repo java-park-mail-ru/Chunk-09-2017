@@ -10,6 +10,7 @@ import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserService;
 import application.services.user.UserTools;
+import application.views.game.statuscodegame.StatusCodeGame;
 import application.views.game.statuscodegame.StatusCodeGameover;
 import application.views.game.statuscodeerror.StatusCodeError;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -59,6 +60,10 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         }
         if (code.equals(GameSocketStatusCode.UNSUBSCRIBE_A.getValue())) {
             unsubscribe(session);
+            return;
+        }
+        if (code.equals(GameSocketStatusCode.LEAVE.getValue())) {
+            leave(session);
             return;
         }
 
@@ -145,8 +150,6 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         final Long prevGameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
 
-        final String payload;
-
         if (userID == null) {
             throw new GameException(session, toJSON(
                     new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED)
@@ -200,6 +203,32 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
 
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         game.removeWatcher(userID);
+    }
+
+    private void leave(WebSocketSession session) {
+
+        final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
+        final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
+
+        final String payload;
+
+        if (gameID == null || userID == null) {
+            payload = this.toJSON(
+                    new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED));
+            this.sendMessage(session, payload);
+            return;
+        }
+
+        final GameActive game = activeGames.get(gameID);
+
+        if (game == null) {
+            payload = this.toJSON(
+                    new StatusCodeError(GameSocketStatusCode.NOT_EXIST));
+            this.sendMessage(session, payload);
+            return;
+        }
+
+        game.playerOff(userID);
     }
 
     private void subscribe(@NotNull WebSocketSession session) {
