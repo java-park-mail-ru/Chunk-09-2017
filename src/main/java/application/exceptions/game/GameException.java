@@ -1,23 +1,15 @@
 package application.exceptions.game;
 
-import org.springframework.web.socket.WebSocketSession;
-
 
 public final class GameException extends RuntimeException {
 
-    private final WebSocketSession session;
-    private final String payload;
+    private final String error;
 
-    public GameException(WebSocketSession session, String payload) {
-        this.payload = payload;
-        this.session = session;
+    public GameException(String error) {
+        this.error = error;
     }
 
-    public WebSocketSession getSession() {
-        return session;
-    }
-
-    public String getPayload() {
-        return payload;
+    public String getError() {
+        return error;
     }
 }

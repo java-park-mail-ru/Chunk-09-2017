@@ -1,4 +1,4 @@
-package application.views.game.statuscodeerror;
+package application.views.game.error;
 
 import application.services.game.GameSocketStatusCode;
 import application.views.game.StatusCode;

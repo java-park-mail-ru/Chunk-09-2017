@@ -7,7 +7,6 @@ import application.exceptions.user.UserExceptionPasswordFail;
 import application.exceptions.user.UserExceptionUserIsNotExist;
 import application.models.user.UserUpdate;
 import application.models.user.UserSignUp;
-import application.views.game.ScoreTable;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -77,13 +76,5 @@ public class UserServiceJpa implements UserService {
             throw new UserExceptionUserIsNotExist("Your session expired");
         }
         return user;
-    }
-
-    @Override
-    public ScoreTable getScoreTable(Integer offset, Integer pageSize) {
-        return new ScoreTable(
-                userDao.getScore(offset, pageSize),
-                userDao.getNumberOfUsers()
-        );
     }
 }

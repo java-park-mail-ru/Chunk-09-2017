@@ -13,6 +13,7 @@ public final class PlayerBot extends PlayerAbstractActive {
 
     private final Random random;
     private final Integer level;
+    private Long botID;
     private static final Logger LOGGER = LoggerFactory.getLogger(PlayerBot.class);
 
     public PlayerBot(Integer level) {
@@ -168,5 +169,17 @@ public final class PlayerBot extends PlayerAbstractActive {
                 .get();
 
         return max.getStep();
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public Long getBotID() {
+        return botID;
+    }
+
+    public void setBotID(Long botID) {
+        this.botID = botID;
     }
 }

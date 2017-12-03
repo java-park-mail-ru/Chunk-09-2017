@@ -25,11 +25,11 @@ public class GameTools {
 
 
     public static final List<String> BOTS_NAMES = Arrays.asList(
-            "Bob", "John", "Doctor", "Master", "Tony Stark",
-            "Loki", "Thor", "Batman", "Gandalf", "Dahaka", "Foo",
-            "Java-Man", "Spider-Man", "Pennywise", "The Dancing clown",
-            "Джевгенец", "Лапища", "п/п-к Пряхин", "Bar", "Lucky",
-            "Титаевский", "Арсюка", "Grandmaster", "Bauman"
+            "Bob", "John", "Foo", "Bar", "Doctor", "Master",
+            "Loki", "Thor", "Batman", "Gandalf", "Dahaka",
+            "Java-Man", "Spider-Man", "Tony Stark", "Pennywise",
+            "Джевгенец", "Лапища", "п/п-к Пряхин", "Lucky",
+            "Титаевский", "Арсека", "Grandmaster", "Эрнестович"
     );
 
     public static final int BOT_LEVEL_LOW = 1;
@@ -38,6 +38,8 @@ public class GameTools {
 
     public static final String NUMBER_OF_PLAYERS = "numberOfPlayers";
     public static final String GAME_ID_ATTR = "gameID";
+    public static final String KICK_USER_ATTR = "userID";
+    public static final String KICK_BOT_ATTR = "botID";
     public static final String BOT_LEVEL_ATTR = "lvlbot";
     public static final String STEP_ATTR = "step";
     public static final String MAX_X_ATTR = "maxX";

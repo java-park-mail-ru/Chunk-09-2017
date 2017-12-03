@@ -1,4 +1,4 @@
-package application.views.game.statuscodegame;
+package application.views.game.active;
 
 import application.models.game.player.PlayerAbstractActive;
 import application.services.game.GameSocketStatusCode;

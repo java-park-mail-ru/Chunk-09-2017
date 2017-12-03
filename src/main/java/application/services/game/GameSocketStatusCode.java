@@ -5,48 +5,48 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public enum GameSocketStatusCode {
 
     /* Prepare status code */
-    CREATE(100, "Create new game"),
-    CONNECT_ACTIVE(101, "Connect to preparing game as a player"),
-    CONNECT_WATCHER(102, "Connect to preparing game as a watcher"),
-    EXIT(103, "Exit from preparing game"),
-    STATUS(104, "Get full information about explicit game"),
-    START(105, "Start preparing game"),
-    SUBSCRIBE_P(106, "Subscribe to the update of the playlist"),
-    UNSUBSCRIBE_P(107, "Unsubscribe from the updating of the playlist"),
-    ADD_BOT(108, "Adding bot-player to multiplayer game"),
-    REMOVE_BOT(109, "Removing bot-player from multiplayer game"),
-    DESTROY(110, "Destroy exist preparing game"),
-    FULL_STATUS(111, "Get information about all preparing games"),
-    WHOAMI(112, "Returns your userID, gameID"),
+    SUBSCRIBE(100, "Subscribe to the update of the lobby"),
+    UNSUBSCRIBE(101, "Unsubscribe from the updating of the lobby"),
+    FULL_STATUS(102, "Get full information about all preparing games"),
+    WHOAMI(103, "Returns your userID, gameID"),
+    CREATE_GAME(110, "You have created a new active"),
+    CONNECT_GAME(111, "Information about the active which is connected"),
+    UPDATE_GAME(120, "Changes in lobby active"),
+    NEW_GAME(121, "New active in lobby was created"),
+    DELETE_GAME(122, "Remove active from lobby"),
+    ADD_PLAYER(130, "A new real player joined"),
+    ADD_BOT(131, "A new bot player joined"),
+    REMOVE_PLAYER(132, "The player left active"),
+    KICK_BOT(133, "The bot player was kicked out from the active"),
+    KICK_PLAYER(134, "The real player was kicked out from the active"),
+    START_GAME(135, "The preparing active was started"),
+    CHANGE_MASTER(136, "The master of the game have changed"),
 
     /* Playing status code */
-    BEGIN(200, "Start the game"),
+    BEGIN(200, "Start the active"),
     STEP(201, "Game step"),
     TIMEOUT(202, "Timeout expired"),
     BLOCKED(203, "Player is blocked"),
     GAMEOVER(204, "Game had ended, check result"),
-    WATCH(205, "Watching the current game"),
-    REWATCH(206, "Stop watching game"),
-    SUBSCRIBE_A(207, "Subscribe to the update of the active game list"),
-    UNSUBSCRIBE_A(208, "Unsubscribe from the updating of the active game list"),
+    WATCH(205, "Watching the current active"),
+    REWATCH(206, "Stop watching active"),
+    SUBSCRIBE_A(207, "Subscribe to the update of the active active list"),
+    UNSUBSCRIBE_A(208, "Unsubscribe from the updating of the active active list"),
     PLAYER_OFF(209, "Player is offline"),
-    RECONNECT(210, "Reconnect to game"),
-    LEAVE(210, "Leave from active game"),
+    RECONNECT(210, "Reconnect to active"),
+    LEAVE(210, "Leave from active active"),
 
     /* Client Error status code */
     UNEXPECTED(300, "The requested code does not exist"),
-    ALREADY_PLAY(301, "First, quite out of the previous game"),
-    NOT_EXIST(302, "The requested game does not exist"),
-    FORBIDDEN(303, "To perfom this action you must be a master of the game"),
-    NOT_ENOUGH(304, "Not enought players (the game master is able to add bots"),
+    ALREADY_PLAY(301, "First, quite out of the previous active"),
+    NOT_EXIST(302, "The requested active does not exist"),
+    FORBIDDEN(303, "To perfom this action you must be a master of the active"),
+    NOT_ENOUGH(304, "Not enought players (the active master is able to add bots"),
     NOT_AUTHORIZED(305, "You must be sign in"),
-    FALSE(306, "Invalid game step"),
+    FALSE(306, "Invalid active step"),
     TURN(307, "It is not your turn"),
     ATTR(308, "Missing required attributes"),
-    FULL(309, "All places in the game are already occupied");
-
-
-
+    FULL(309, "All places in the active are already occupied");
 
 
     GameSocketStatusCode(int value, String reasonPhrase) {
@@ -63,7 +63,7 @@ public enum GameSocketStatusCode {
 
 
     public static boolean isPreparing(final Integer code) {
-        return CREATE.value <= code && code < BEGIN.value;
+        return SUBSCRIBE.value <= code && code < BEGIN.value;
     }
 
     public static boolean isPlaying(final Integer code) {

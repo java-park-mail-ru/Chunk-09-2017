@@ -4,36 +4,39 @@ import application.models.game.field.Step;
 import application.models.game.player.PlayerAbstractActive;
 import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
+import application.models.game.player.PlayerWatcher;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.views.game.StatusCode;
-import application.views.game.statuscodegame.StatusCodeBegin;
-import application.views.game.statuscodegame.StatusCodeStep;
-import application.views.game.statuscodegame.StatusCodeGameover;
-import application.views.game.statuscodegame.StatusCodeGame;
+import application.views.game.active.StatusCodeBegin;
+import application.views.game.active.StatusCodeStep;
+import application.views.game.active.StatusCodeGameover;
+import application.views.game.active.StatusCodeGame;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public final class GameActive extends GameAbstract {
 
     private Integer currentPlayerID;
     private final ConcurrentHashMap<Integer /*playerID*/, PlayerAbstractActive> gamers;
+    private final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;
+
     private Boolean gameOver;
 
     public GameActive(GamePrepare prepared) {
-        super(prepared.getGameID(), prepared.getField(),
-                prepared.getNumberOfPlayers(), prepared.getHashMapOfWatchers());
+        super(prepared.getGameID(), prepared.getField(), prepared.getNumberOfPlayers());
 
+        this.watchers = new ConcurrentHashMap<>();
         this.gamers = new ConcurrentHashMap<>(getNumberOfPlayers());
 
         Integer playerIdIncrement = GameTools.PLAYER_1;
-        for (PlayerGamer gamer : prepared.getGamers()) {
+        for (PlayerGamer gamer : prepared.getGamers().values()) {
             gamer.setPlayerID(playerIdIncrement);
             gamers.put(playerIdIncrement++, gamer);
         }
-        for (PlayerBot bot : prepared.getBots()) {
+        for (PlayerBot bot : prepared.getBots().values()) {
             bot.setPlayerID(playerIdIncrement);
             gamers.put(playerIdIncrement++, bot);
         }
@@ -98,6 +101,14 @@ public final class GameActive extends GameAbstract {
         new StatusCodeGame(GameSocketStatusCode.PLAYER_OFF, player);
     }
 
+    public void addWatcher(PlayerWatcher watcher) {
+        watchers.put(watcher.getUserID(), watcher);
+    }
+
+    public void removeWatcher(Long userID) {
+        watchers.remove(userID);
+    }
+
     @Override
     void notifyPlayers(StatusCode statusCode) {
         gamers.values().forEach(gamer -> {
@@ -109,19 +120,19 @@ public final class GameActive extends GameAbstract {
                 }
             }
         });
-        getHashMapOfWatchers().values().forEach(watcher -> {
+        watchers.values().forEach(watcher -> {
             if (watcher.getSession().isOpen()) {
                 this.sendMessageToPlayer(watcher, statusCode);
             } else {
-                getHashMapOfWatchers().remove(watcher.getUserID());
+                watchers.remove(watcher.getUserID());
             }
         });
     }
 
     private void end() {
-        notifyPlayers(new StatusCodeGameover(getField()));
 
-        getHashMapOfWatchers().clear();
+        notifyPlayers(new StatusCodeGameover(getField()));
+        watchers.clear();
 
         gamers.values().forEach(gamer -> {
             if (gamer instanceof PlayerGamer) {
@@ -145,7 +156,11 @@ public final class GameActive extends GameAbstract {
         return currentPlayerID;
     }
 
-    public Collection<PlayerAbstractActive> getGamers() {
-        return gamers.values();
+    public ConcurrentHashMap<Integer, PlayerAbstractActive> getGamers() {
+        return gamers;
+    }
+
+    public ConcurrentHashMap<Long, PlayerWatcher> getWatchers() {
+        return watchers;
     }
 }

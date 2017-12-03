@@ -10,8 +10,9 @@ import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserService;
 import application.services.user.UserTools;
-import application.views.game.statuscodegame.StatusCodeGameover;
-import application.views.game.statuscodeerror.StatusCodeError;
+import application.views.game.active.StatusCodeGameover;
+import application.views.game.error.StatusCodeError;
+import application.views.game.error.StatusCodeErrorAttr;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
@@ -124,9 +125,8 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
                     jsonNode.get(GameTools.STEP_ATTR).toString(), Step.class);
 
         } catch (IOException ignore) {
-            throw new GameException(session, toJSON(
-                    new StatusCodeError(GameSocketStatusCode.ATTR)
-            ));
+            sendMessage(session, toJSON(new StatusCodeErrorAttr(GameTools.STEP_ATTR)));
+            return;
         }
 
         // Совершить ход
@@ -150,30 +150,30 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         final Long prevGameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
 
         if (userID == null) {
-            throw new GameException(session, toJSON(
-                    new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED)
-            ));
+            sendMessage(session, toJSON(
+                    new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED)));
+            return;
         }
 
         if (prevGameID != null) {
-            throw new GameException(session, toJSON(
-                    new StatusCodeError(GameSocketStatusCode.ALREADY_PLAY, prevGameID)
-            ));
+            sendMessage(session, toJSON(
+                    new StatusCodeError(GameSocketStatusCode.ALREADY_PLAY, prevGameID)));
+            return;
         }
 
         if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
-            throw new GameException(session, toJSON(
-                    new StatusCodeError(GameSocketStatusCode.ATTR)
-            ));
+            sendMessage(session, toJSON(
+                    new StatusCodeErrorAttr(GameTools.GAME_ID_ATTR)));
+            return;
         }
 
         final Long gameID = jsonNode.get(GameTools.GAME_ID_ATTR).asLong();
         final GameActive game = activeGames.get(gameID);
 
         if (game == null) {
-            throw new GameException(session, toJSON(
-                    new StatusCodeError(GameSocketStatusCode.NOT_EXIST, gameID)
-            ));
+            sendMessage(session, toJSON(
+                    new StatusCodeError(GameSocketStatusCode.NOT_EXIST, gameID)));
+            return;
         }
 
         final UserSignUp user = userService.getUserById(userID);
@@ -184,20 +184,21 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
 
     private void dewatch(WebSocketSession session, JsonNode jsonNode) {
 
+        final String payload;
 
         if (!jsonNode.hasNonNull(GameTools.GAME_ID_ATTR)) {
-            throw new GameException(session, toJSON(
-                    new StatusCodeError(GameSocketStatusCode.ATTR)
-            ));
+            payload = toJSON(new StatusCodeErrorAttr(GameTools.GAME_ID_ATTR));
+            sendMessage(session, payload);
+            throw new GameException(payload);
         }
 
         final Long gameID = jsonNode.get(GameTools.GAME_ID_ATTR).asLong();
         final GameActive game = activeGames.get(gameID);
 
         if (game == null) {
-            throw new GameException(session, toJSON(
-                    new StatusCodeError(GameSocketStatusCode.NOT_EXIST, gameID)
-            ));
+            payload = toJSON(new StatusCodeError(GameSocketStatusCode.NOT_EXIST, gameID));
+            sendMessage(session, payload);
+            throw new GameException(payload);
         }
 
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);

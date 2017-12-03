@@ -1,78 +1,87 @@
 package application.models.game.game;
 
+import application.exceptions.game.GameExceptionDestroy;
 import application.models.game.field.Field;
 import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
 import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
 import application.views.game.StatusCode;
-import application.views.game.statuscodelobby.StatusCodeUpdate;
-import application.views.game.statuscodelobby.StatusCodeLobby;
+import application.views.game.lobby.StatusCodePrepareAddBot;
+import application.views.game.lobby.StatusCodePrepareAddPlayer;
+import application.views.game.StatusCodeSendID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 public final class GamePrepare extends GameAbstract {
 
-    private final ConcurrentHashMap<Long, PlayerGamer> gamers;
-    private final CopyOnWriteArraySet<PlayerBot> bots;
-    private final Long masterID;
+    private final ConcurrentHashMap<Long /*userID*/, PlayerGamer> gamers;
+    private final ConcurrentHashMap<Long /*botID*/, PlayerBot> bots;
+    private Long masterID;
     @JsonIgnore
-    private Boolean isReady;
+    private final AtomicLong generatorBotID = new AtomicLong();
 
     public GamePrepare(@NotNull Field gameField, @NotNull Long gameID,
                        @NotNull Integer numberOfPlayers, @NotNull Long masterID) {
 
         super(gameID, gameField, numberOfPlayers);
         this.masterID = masterID;
-        this.isReady = false;
         this.gamers = new ConcurrentHashMap<>(this.getNumberOfPlayers());
-        this.bots = new CopyOnWriteArraySet<>();
+        this.bots = new ConcurrentHashMap<>();
     }
 
     public synchronized void addGamer(PlayerGamer gamer) {
-        if (isReady) {
+
+        notifyPlayers(new StatusCodePrepareAddPlayer(gamer, gamers.size() + 1));
+        if (isReady()) {
             return;
         }
         gamers.put(gamer.getUserID(), gamer);
-        notifyPlayers(new StatusCodeUpdate(
-                GameSocketStatusCode.CONNECT_ACTIVE, this, gamer));
-        if (gamers.size() + bots.size() == getNumberOfPlayers()) {
-            isReady = true;
-        }
         gamer.getSession().getAttributes().put(GameTools.GAME_ID_ATTR, getGameID());
     }
 
-    public synchronized void addBot(PlayerBot bot) {
-        if (isReady) {
+    public void addBot(PlayerBot bot) {
+
+        bot.setBotID(generatorBotID.incrementAndGet());
+        if (isReady()) {
             return;
         }
-        bots.add(bot);
-        notifyPlayers(new StatusCodeUpdate(
-                GameSocketStatusCode.CONNECT_ACTIVE, this, bot));
-        if (gamers.size() + bots.size() == getNumberOfPlayers()) {
-            isReady = true;
-        }
+        bots.put(bot.getBotID(), bot);
+        notifyPlayers(new StatusCodePrepareAddBot(bot, bots.size()));
     }
 
     public void removeGamer(Long userID) {
-        gamers.get(userID).getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
-        notifyPlayers(new StatusCodeUpdate(
-                GameSocketStatusCode.EXIT, this, gamers.remove(userID)));
-        if (isReady && gamers.size() < getNumberOfPlayers()) {
-            isReady = false;
+        final PlayerGamer removeGamer = gamers.remove(userID);
+        if (removeGamer == null) {
+            return;
+        }
+        removeGamer.getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
+        notifyPlayers(new StatusCodeSendID(GameSocketStatusCode.REMOVE_PLAYER, userID));
+
+        // Если удаленный игрок оказался master'ом
+        synchronized (this) {
+            if (userID.equals(masterID)) {
+                final Optional<PlayerGamer> newMaster = gamers.values().stream().findFirst();
+                if (!newMaster.isPresent()) {
+                    throw new GameExceptionDestroy(getGameID());
+                }
+                masterID = newMaster.get().getUserID();
+                notifyPlayers(new StatusCodeSendID(
+                        GameSocketStatusCode.CHANGE_MASTER, masterID));
+            }
         }
     }
 
-    public synchronized void destroy() {
-        notifyPlayers(new StatusCodeLobby(GameSocketStatusCode.DESTROY, getGameID()));
-        gamers.values().forEach(gamer -> gamer.getSession()
-                .getAttributes().remove(GameTools.GAME_ID_ATTR));
-        gamers.clear();
+    public void removeBot(Long botID) {
+        if (bots.remove(botID) == null) {
+            return;
+        }
+        notifyPlayers(new StatusCodeSendID(GameSocketStatusCode.KICK_BOT, botID));
     }
 
     @Override
@@ -84,20 +93,13 @@ public final class GamePrepare extends GameAbstract {
                 this.removeGamer(gamer.getUserID());
             }
         });
-        getHashMapOfWatchers().values().forEach(watcher -> {
-            if (watcher.getSession().isOpen()) {
-                this.sendMessageToPlayer(watcher, code);
-            } else {
-                getHashMapOfWatchers().remove(watcher.getUserID());
-            }
-        });
     }
 
-    public Collection<PlayerGamer> getGamers() {
-        return gamers.values();
+    public ConcurrentHashMap<Long, PlayerGamer> getGamers() {
+        return gamers;
     }
 
-    public Collection<PlayerBot> getBots() {
+    public ConcurrentHashMap<Long, PlayerBot> getBots() {
         return bots;
     }
 
@@ -105,8 +107,12 @@ public final class GamePrepare extends GameAbstract {
         return masterID;
     }
 
-    @JsonIgnore
     public synchronized Boolean isReady() {
         return gamers.size() + bots.size() >= getNumberOfPlayers();
     }
+
+    public boolean isEmpty() {
+        return gamers.isEmpty();
+    }
+
 }
