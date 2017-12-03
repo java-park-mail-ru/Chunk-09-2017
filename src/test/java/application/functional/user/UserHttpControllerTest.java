@@ -4,11 +4,7 @@ import application.functional.TestUtils;
 import application.models.user.UserSignIn;
 import application.models.user.UserUpdate;
 import application.models.user.UserSignUp;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,9 +15,6 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Date;
-import java.util.Random;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,8 +23,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import static org.junit.Assert.*;
 
+
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 public class UserHttpControllerTest {
 
@@ -40,9 +34,6 @@ public class UserHttpControllerTest {
     
     @Autowired
     private TestUtils testUtils;
-
-    @Rule
-    public ExpectedException expected = ExpectedException.none();
 
     // SignUp
     @Test
@@ -54,12 +45,10 @@ public class UserHttpControllerTest {
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testUtils.toJson(testUser)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
                 .andExpect(jsonPath("email").value(testUser.getEmail()))
-                .andExpect(jsonPath("password").doesNotExist())
-                .andDo(print());
+                .andExpect(jsonPath("password").doesNotExist());
         assertNotNull(mockHttpSession.getAttribute("ID"));
     }
 
@@ -117,8 +106,7 @@ public class UserHttpControllerTest {
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(testUtils.toJson(testUser)))
-                .andDo(print());
+                .content(testUtils.toJson(testUser)));
 
         mockMvc.perform(get(baseUrl + "/exit")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID")))
@@ -133,8 +121,7 @@ public class UserHttpControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
                 .andExpect(jsonPath("email").value(testUser.getEmail()))
-                .andExpect(jsonPath("password").doesNotExist())
-                .andDo(print());
+                .andExpect(jsonPath("password").doesNotExist());
     }
 
     @Test
@@ -143,11 +130,10 @@ public class UserHttpControllerTest {
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testUtils.toJson(testUser)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
                 .andExpect(jsonPath("email").value(testUser.getEmail()))
-                .andExpect(jsonPath("password").doesNotExist()).andDo(print());
+                .andExpect(jsonPath("password").doesNotExist());
 
         mockMvc.perform(post(baseUrl + "/sign_in")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -167,11 +153,10 @@ public class UserHttpControllerTest {
         mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testUtils.toJson(testUser)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
                 .andExpect(jsonPath("email").value(testUser.getEmail()))
-                .andExpect(jsonPath("password").doesNotExist()).andDo(print());
+                .andExpect(jsonPath("password").doesNotExist());
 
 
         mockMvc.perform(post(baseUrl + "/sign_in")
