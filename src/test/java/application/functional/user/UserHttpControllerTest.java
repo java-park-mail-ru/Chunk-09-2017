@@ -1,13 +1,10 @@
-package application.functional;
+package application.functional.user;
 
-import application.models.UserSignIn;
-import application.models.UserUpdate;
-import application.models.UserSignUp;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Rule;
+import application.functional.TestUtils;
+import application.models.user.UserSignIn;
+import application.models.user.UserUpdate;
+import application.models.user.UserSignUp;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,90 +15,85 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Date;
-import java.util.Random;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import static org.junit.Assert.*;
 
+
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
-public class UserControllerTest {
+public class UserHttpControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Rule
-    public ExpectedException expected = ExpectedException.none();
-
+    
+    @Autowired
+    private TestUtils testUtils;
 
     // SignUp
     @Test
     public void testSignUpUserSuccess() throws Exception {
-        final UserSignUp testUser = getRandomUser();
+
+        final UserSignUp testUser = testUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(testUser)))
-                .andDo(print())
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
                 .andExpect(jsonPath("email").value(testUser.getEmail()))
-                .andExpect(jsonPath("password").doesNotExist()).andDo(print());
+                .andExpect(jsonPath("password").doesNotExist());
         assertNotNull(mockHttpSession.getAttribute("ID"));
     }
 
     @Test
     public void testSignUpUserNotEnouthFields() throws Exception {
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserSignUp())))
+                .content(testUtils.toJson(new UserSignUp())))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void testSignUpUserIncorrectFields() throws Exception {
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserSignUp("", "", ""))))
+                .content(testUtils.toJson(new UserSignUp("", "", ""))))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void testSignUpUserWrongMediaType() throws Exception {
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_PDF))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
     public void testSignUpUserDuplicate() throws Exception {
-        final UserSignUp userSignUp = new UserSignUp("testName", "testEmail", "pass");
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        final UserSignUp userSignUp = testUtils.getRandomUser();
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(userSignUp)))
+                .content(testUtils.toJson(userSignUp)))
                 .andExpect(status().isCreated());
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(userSignUp)))
+                .content(testUtils.toJson(userSignUp)))
                 .andExpect(status().isConflict());
-
     }
 
     @Test
     public void testSignUpUserTooLongFields() throws Exception {
-        final UserSignUp testUser = getRandomUser();
+        final UserSignUp testUser = testUtils.getRandomUser();
         testUser.setUsername("veryLoooooooooooooooooooooooooooooooooooooooooooooooongTestName");
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -109,45 +101,42 @@ public class UserControllerTest {
     @Test
     public void testSignInEmailUserSuccess() throws Exception {
         final MockHttpSession mockHttpSession = new MockHttpSession();
-        final UserSignUp testUser = getRandomUser();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        final UserSignUp testUser = testUtils.getRandomUser();
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(testUser)))
-                .andDo(print());
+                .content(testUtils.toJson(testUser)));
 
-        mockMvc.perform(get(getBaseUrl() + "/exit")
+        mockMvc.perform(get(baseUrl + "/exit")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID")))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(post(getBaseUrl() + "/sign_in")
+        mockMvc.perform(post(baseUrl + "/sign_in")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserSignIn(
+                .content(testUtils.toJson(new UserSignIn(
                         testUser.getEmail(),
                         testUser.getPassword()
                 ))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
                 .andExpect(jsonPath("email").value(testUser.getEmail()))
-                .andExpect(jsonPath("password").doesNotExist())
-                .andDo(print());
+                .andExpect(jsonPath("password").doesNotExist());
     }
 
     @Test
     public void testSignInUsernameUserSuccess() throws Exception {
-        final UserSignUp testUser = getRandomUser();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        final UserSignUp testUser = testUtils.getRandomUser();
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(testUser)))
-                .andDo(print())
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
                 .andExpect(jsonPath("email").value(testUser.getEmail()))
-                .andExpect(jsonPath("password").doesNotExist()).andDo(print());
+                .andExpect(jsonPath("password").doesNotExist());
 
-        mockMvc.perform(post(getBaseUrl() + "/sign_in")
+        mockMvc.perform(post(baseUrl + "/sign_in")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserSignIn(
+                .content(testUtils.toJson(new UserSignIn(
                         testUser.getUsername(),
                         testUser.getPassword())
                 )))
@@ -159,20 +148,19 @@ public class UserControllerTest {
 
     @Test
     public void testSignInWrongPassword() throws Exception {
-        final UserSignUp testUser = getRandomUser();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        final UserSignUp testUser = testUtils.getRandomUser();
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(testUser)))
-                .andDo(print())
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
                 .andExpect(jsonPath("email").value(testUser.getEmail()))
-                .andExpect(jsonPath("password").doesNotExist()).andDo(print());
+                .andExpect(jsonPath("password").doesNotExist());
 
 
-        mockMvc.perform(post(getBaseUrl() + "/sign_in")
+        mockMvc.perform(post(baseUrl + "/sign_in")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserSignIn(
+                .content(testUtils.toJson(new UserSignIn(
                         testUser.getUsername(),
                         "wrongPassword")
                 )))
@@ -181,9 +169,9 @@ public class UserControllerTest {
 
     @Test
     public void testSignInDoesNotExist() throws Exception {
-        mockMvc.perform(post(getBaseUrl() + "/sign_in")
+        mockMvc.perform(post(baseUrl + "/sign_in")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserSignIn(
+                .content(testUtils.toJson(new UserSignIn(
                         "isNotExist",
                         "pass")
                 )))
@@ -193,22 +181,22 @@ public class UserControllerTest {
     // Update
     @Test
     public void testUpdateSuccess() throws Exception {
-        final UserSignUp oldUser = getRandomUser();
-        final UserSignUp newUser = getRandomUser();
+        final UserSignUp oldUser = testUtils.getRandomUser();
+        final UserSignUp newUser = testUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(oldUser)))
+                .content(testUtils.toJson(oldUser)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value(oldUser.getUsername()))
                 .andExpect(jsonPath("email").value(oldUser.getEmail()))
                 .andExpect(jsonPath("password").doesNotExist());
 
-        mockMvc.perform(post(getBaseUrl() + "/update")
+        mockMvc.perform(post(baseUrl + "/update")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserUpdate(
+                .content(testUtils.toJson(new UserUpdate(
                         newUser.getUsername(),
                         newUser.getEmail(),
                         newUser.getPassword(),
@@ -222,10 +210,10 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateWrongSessionId() throws Exception {
-        mockMvc.perform(post(getBaseUrl() + "/update")
+        mockMvc.perform(post(baseUrl + "/update")
                 .sessionAttr("ID", -1L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserUpdate(
+                .content(testUtils.toJson(new UserUpdate(
                         null, null, null, "pass"
                 ))))
                 .andExpect(status().isNotFound());
@@ -233,10 +221,10 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateIncorrectFieldsTooLong() throws Exception {
-        mockMvc.perform(post(getBaseUrl() + "/update")
+        mockMvc.perform(post(baseUrl + "/update")
                 .sessionAttr("ID", -1L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserUpdate(
+                .content(testUtils.toJson(new UserUpdate(
                         "LooooooooooooooooooooooooooooooooooooooooooooooongName",
                         "pass", null, "pass")
                 )))
@@ -245,10 +233,10 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateNullParametrs() throws Exception {
-        mockMvc.perform(post(getBaseUrl() + "/update")
+        mockMvc.perform(post(baseUrl + "/update")
                 .sessionAttr("ID", -1L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserUpdate(
+                .content(testUtils.toJson(new UserUpdate(
                         null, null, null, null
                 ))))
                 .andExpect(status().isBadRequest());
@@ -256,24 +244,24 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateConflict() throws Exception {
-        final UserSignUp userOne = getRandomUser();
-        final UserSignUp userTwo = getRandomUser();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        final UserSignUp userOne = testUtils.getRandomUser();
+        final UserSignUp userTwo = testUtils.getRandomUser();
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(userOne)))
+                .content(testUtils.toJson(userOne)))
                 .andExpect(status().isCreated());
 
         final MockHttpSession mockHttpSession = new MockHttpSession();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(userTwo)))
+                .content(testUtils.toJson(userTwo)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post(getBaseUrl() + "/update")
+        mockMvc.perform(post(baseUrl + "/update")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserUpdate(
+                .content(testUtils.toJson(new UserUpdate(
                         userOne.getUsername(),
                         userOne.getEmail(),
                         userTwo.getPassword(),
@@ -284,9 +272,9 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateUnauthorized() throws Exception {
-        mockMvc.perform(post(getBaseUrl() + "/update")
+        mockMvc.perform(post(baseUrl + "/update")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserUpdate(
+                .content(testUtils.toJson(new UserUpdate(
                         "testName",
                         "testEmail",
                         "pass",
@@ -297,18 +285,18 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateWrongPasswordForbidden() throws Exception {
-        final UserSignUp testUser = getRandomUser();
+        final UserSignUp testUser = testUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post(getBaseUrl() + "/update")
+        mockMvc.perform(post(baseUrl + "/update")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(new UserUpdate(
+                .content(testUtils.toJson(new UserUpdate(
                         testUser.getUsername(),
                         testUser.getEmail(),
                         testUser.getPassword(),
@@ -320,22 +308,22 @@ public class UserControllerTest {
     // Session
     @Test
     public void testSessionWrongSessionId() throws Exception {
-        mockMvc.perform(get(getBaseUrl() + "/whoisit")
+        mockMvc.perform(get(baseUrl + "/whoisit")
                 .sessionAttr("ID", -1L))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void testSessionRightSessionId() throws Exception {
-        final UserSignUp testUser = getRandomUser();
+        final UserSignUp testUser = testUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get(getBaseUrl() + "/whoisit")
+        mockMvc.perform(get(baseUrl + "/whoisit")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("username").value(testUser.getUsername()))
@@ -345,7 +333,7 @@ public class UserControllerTest {
 
     @Test
     public void testSessionEmptySessionId() throws Exception {
-                mockMvc.perform(get(getBaseUrl() + "/whoisit"))
+                mockMvc.perform(get(baseUrl + "/whoisit"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -354,44 +342,25 @@ public class UserControllerTest {
     // Exit
     @Test
     public void testExitWrongSessionId() throws Exception {
-        mockMvc.perform(get(getBaseUrl() + "/exit")
+        mockMvc.perform(get(baseUrl + "/exit")
                 .sessionAttr("ID", -1L))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void testExitRightSessionId() throws Exception {
-        final UserSignUp testUser = getRandomUser();
+        final UserSignUp testUser = testUtils.getRandomUser();
         final MockHttpSession mockHttpSession = new MockHttpSession();
-        mockMvc.perform(post(getBaseUrl() + "/sign_up")
+        mockMvc.perform(post(baseUrl + "/sign_up")
                 .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJson(testUser)))
+                .content(testUtils.toJson(testUser)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get(getBaseUrl() + "/exit")
+        mockMvc.perform(get(baseUrl + "/exit")
                 .sessionAttr("ID", mockHttpSession.getAttribute("ID")))
                 .andExpect(status().isOk());
     }
 
-
-    private final Random random = new Random(new Date().getTime());
-
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    private String getBaseUrl() {
-        return "/user";
-    }
-
-    private UserSignUp getRandomUser() {
-        return new UserSignUp(
-                "TestUsername_" + random.nextGaussian(),
-                "TestEmail_" + random.nextGaussian(),
-                "TestPassword_" + random.nextGaussian()
-        );
-    }
-
-    private String toJson(Object o) throws JsonProcessingException {
-        return mapper.writeValueAsString(o);
-    }
+    private String baseUrl = "/user";
 }

@@ -1,14 +1,12 @@
 package application.dao.user;
 
-import application.models.UserSignUp;
-import application.models.UserUpdate;
-import org.springframework.stereotype.Component;
+import application.models.user.UserSignUp;
+import application.models.user.UserUpdate;
+import application.views.user.UserScore;
 
 import java.util.List;
 
 
-@Component
-@SuppressWarnings("unused")
 public interface UserDao {
 
     UserSignUp addUser(UserSignUp userSignUp);
@@ -23,9 +21,7 @@ public interface UserDao {
 
     UserSignUp getUserByUsernameOrEmail(String login);
 
-    List<UserSignUp> getUsers(int limit, boolean asc);
+    List<UserScore> getScore(Integer offset, Integer pageSize);
 
-    List<UserSignUp> getUsers(Integer limit);
-
-    List<UserSignUp> getUsers();
+    Long getNumberOfUsers();
 }

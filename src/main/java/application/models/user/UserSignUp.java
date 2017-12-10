@@ -1,14 +1,11 @@
-package application.models;
+package application.models.user;
 
 import application.entities.UserEntity;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 public final class UserSignUp extends UserBase {
 
-    @JsonProperty("username")
     private String username;
-
-    @JsonProperty("email")
     private String email;
 
     public UserSignUp() { }

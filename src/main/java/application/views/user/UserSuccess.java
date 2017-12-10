@@ -1,6 +1,6 @@
-package application.views;
+package application.views.user;
 
-import application.models.UserSignUp;
+import application.models.user.UserSignUp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @SuppressWarnings("unused")

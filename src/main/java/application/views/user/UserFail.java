@@ -1,5 +1,4 @@
-package application.views;
-
+package application.views.user;
 
 @SuppressWarnings("unused")
 public final class UserFail {

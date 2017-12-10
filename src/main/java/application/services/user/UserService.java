@@ -1,7 +1,8 @@
 package application.services.user;
 
-import application.models.UserUpdate;
-import application.models.UserSignUp;
+import application.models.user.UserSignUp;
+import application.models.user.UserUpdate;
+
 
 import javax.validation.constraints.NotNull;
 

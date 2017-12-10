@@ -1,10 +1,9 @@
-# Chunk-09-2017 [![Build Status](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017.svg?branch=develop)](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017)
-## Tower Defense
->***Строй башни, уничтожай врагов, оберегай ядро<br>
->(пока только авторизируйся)***
-***
 
-## [Frontend](https://tower-defense.herokuapp.com)<=>[Backend](https://backend-java-spring.herokuapp.com/)
+# Chunk-09-2017 [![Build Status](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017.svg?branch=develop)](https://travis-ci.org/java-park-mail-ru/Chunk-09-2017)
+## It Is Not Defense
+>***Поглощай или будь поглощен<br>***
+
+## [Frontend](https://chunk-frontend.herokuapp.com/)<=>[Backend](https://backend-java-spring.herokuapp.com/)
 
 ## Members
 * Андрей Савосин

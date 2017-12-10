@@ -1,17 +1,13 @@
-package application.models;
+package application.models.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
 public final class UserUpdate extends UserBase {
 
-
-    @JsonProperty("username")
     private String username;
-
-    @JsonProperty("email")
     private String email;
-
-    @JsonProperty(value = "old_password", required = true)
+    @JsonProperty(required = true)
     private String oldPassword;
 
     public UserUpdate() { }

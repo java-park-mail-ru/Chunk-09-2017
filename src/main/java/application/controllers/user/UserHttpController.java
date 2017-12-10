@@ -1,13 +1,16 @@
-package application.controllers;
+package application.controllers.user;
 
 import application.exceptions.user.UserException;
-import application.models.UserSignIn;
-import application.models.UserUpdate;
-import application.models.UserSignUp;
+import application.models.user.UserSignIn;
+import application.models.user.UserSignUp;
+import application.models.user.UserUpdate;
 import application.services.user.UserService;
 import application.services.user.UserServiceJpa;
-import application.views.UserFail;
-import application.views.UserSuccess;
+import application.views.user.UserFail;
+import application.views.user.UserSuccess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +21,12 @@ import javax.servlet.http.HttpSession;
 @RestController
 @RequestMapping(path = "/user")
 @CrossOrigin(origins = "*")
-public class UserController {
+public class UserHttpController {
 
     private final UserService service;
+    private final Logger httpLogger = LoggerFactory.getLogger(UserHttpController.class);
 
-    UserController(UserServiceJpa service) {
+    UserHttpController(UserServiceJpa service) {
         this.service = service;
     }
 
@@ -44,7 +48,9 @@ public class UserController {
     @GetMapping(path = "/exit")
     public ResponseEntity exit(HttpSession httpSession) {
         httpSession.invalidate();
-        return new ResponseEntity(HttpStatus.OK);
+        final HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Content-Type", "application/json");
+        return new ResponseEntity(httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(path = "/update", consumes = "application/json")
@@ -98,6 +104,7 @@ public class UserController {
     @ExceptionHandler(UserException.class)
     public ResponseEntity<UserFail> handleUserServiceError(UserException exception) {
         exception.printStackTrace();
+        httpLogger.error(exception.getErrorMessage());
         return new ResponseEntity<>(
                 new UserFail(exception.getErrorMessage()),
                 exception.getErrorCode()
@@ -107,6 +114,7 @@ public class UserController {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<UserFail> handleUnexpectedException(RuntimeException exception) {
         exception.printStackTrace();
+        httpLogger.error("Unexpected error:" + exception.getMessage());
         return new ResponseEntity<>(
                 new UserFail("Unexpected error"),
                 HttpStatus.I_AM_A_TEAPOT

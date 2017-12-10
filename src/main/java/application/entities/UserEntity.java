@@ -1,14 +1,13 @@
 package application.entities;
 
-import application.models.UserSignUp;
-import application.models.UserUpdate;
+import application.models.user.UserSignUp;
+import application.models.user.UserUpdate;
 
 import javax.persistence.*;
 
 
 @Entity
 @Table(name = "users")
-@SuppressWarnings("unused")
 public class UserEntity {
 
     @Id

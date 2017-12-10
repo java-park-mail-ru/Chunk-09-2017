@@ -1,10 +1,11 @@
-package application.models;
+package application.models.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
 public final class UserSignIn extends UserBase {
 
-    @JsonProperty(value = "login", required = true)
+    @JsonProperty(required = true)
     private String login;
 
     public UserSignIn() { }
