@@ -1,6 +1,7 @@
 package application.controllers.game;
 
 import application.exceptions.game.GameException;
+import application.exceptions.game.GameExceptionDestroy;
 import application.models.game.field.Field;
 import application.models.game.game.GamePrepare;
 import application.models.game.player.PlayerBot;
@@ -140,9 +141,9 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         );
 
         final GamePrepare newGame = new GamePrepare(field, newGameID, numberOfPlayers, masterID);
+        newGame.addGamer(master);
         sendMessage(session, toJSON(
                 new StatusCodeLobbyInfoVerbose(GameSocketStatusCode.CREATE_GAME, newGame)));
-        newGame.addGamer(master);
         preparingGames.put(newGameID, newGame);
 
 
@@ -200,7 +201,11 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         final GamePrepare game = getGameBySession(session);
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
 
-        game.removeGamer(userID);
+        try {
+            game.removeGamer(userID);
+        } catch (GameExceptionDestroy destroy) {
+            destroy(destroy.getGameID());
+        }
         notifySubscribers(toJSON(
                 new StatusCodeLobbyInfoCompact(GameSocketStatusCode.UPDATE_GAME, game)));
     }
@@ -216,8 +221,11 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
             sendMessage(session, toJSON(new StatusCodeError(GameSocketStatusCode.FORBIDDEN)));
             return;
         }
-
-        game.removeGamer(kickID);
+        try {
+            game.removeGamer(kickID);
+        } catch (GameExceptionDestroy destroy) {
+            destroy(destroy.getGameID());
+        }
         notifySubscribers(toJSON(
                 new StatusCodeLobbyInfoCompact(GameSocketStatusCode.UPDATE_GAME, game)));
     }

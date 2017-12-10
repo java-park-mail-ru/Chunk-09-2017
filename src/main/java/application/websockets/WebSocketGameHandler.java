@@ -3,11 +3,9 @@ package application.websockets;
 import application.controllers.game.GameSocketHandlerLobby;
 import application.controllers.game.GameSocketHandlerPlay;
 import application.exceptions.game.GameException;
-import application.exceptions.game.GameExceptionDestroy;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserTools;
-import application.views.game.active.StatusCodeWhoami;
 import application.views.game.error.StatusCodeError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,8 +68,6 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
                 gameSocketHandlerPlay.handler(code, jsonNode, session);
                 return;
             }
-        } catch (GameExceptionDestroy destroy) {
-            gameSocketHandlerLobby.destroy(destroy.getGameID());
         } catch (GameException clientError) {
             logger.info(clientError.getError());
         }
