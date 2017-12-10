@@ -51,9 +51,6 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
             session.close(CloseStatus.NOT_ACCEPTABLE);
             logger.warn(GameSocketStatusCode.NOT_AUTHORIZED.toString());
         } else {
-            session.sendMessage(new TextMessage(
-                    mapper.writeValueAsString(new StatusCodeWhoami(userID, null))
-            ));
             logger.info("Succesfull connect: userID=" + userID + ", session=" + session);
         }
     }
