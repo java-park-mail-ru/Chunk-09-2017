@@ -56,12 +56,13 @@ public final class GamePrepare extends GameAbstract {
     }
 
     public void removeGamer(Long userID) {
+        notifyPlayers(new StatusCodeSendID(GameSocketStatusCode.REMOVE_PLAYER, userID));
+        
         final PlayerGamer removeGamer = gamers.remove(userID);
         if (removeGamer == null) {
             return;
         }
         removeGamer.getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
-        notifyPlayers(new StatusCodeSendID(GameSocketStatusCode.REMOVE_PLAYER, userID));
 
         // Если удаленный игрок оказался master'ом
         synchronized (this) {

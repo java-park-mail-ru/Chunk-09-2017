@@ -345,7 +345,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
         if (gameID == null) {
-            payload = toJSON(new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED));
+            payload = toJSON(new StatusCodeError(GameSocketStatusCode.NOT_MEMBER));
             sendMessage(session, payload);
             throw new GameException(payload);
         }
