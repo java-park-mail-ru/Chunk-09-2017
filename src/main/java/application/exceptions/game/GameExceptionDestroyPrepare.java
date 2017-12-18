@@ -1,11 +1,11 @@
 package application.exceptions.game;
 
 
-public final class GameExceptionDestroy extends RuntimeException {
+public final class GameExceptionDestroyPrepare extends RuntimeException {
 
     private final Long gameID;
 
-    public GameExceptionDestroy(Long gameID) {
+    public GameExceptionDestroyPrepare(Long gameID) {
         this.gameID = gameID;
     }
 

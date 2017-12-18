@@ -33,10 +33,12 @@ public abstract class GameSocketHandler {
 
     protected final synchronized void sendMessage(final WebSocketSession session,
                                                   String payload) {
-        try {
-            session.sendMessage(new TextMessage(payload));
-        } catch (IOException e) {
-            gameLogger.error(e.getMessage(), e.getCause());
+        if (session.isOpen()) {
+            try {
+                session.sendMessage(new TextMessage(payload));
+            } catch (IOException e) {
+                gameLogger.error(e.getMessage(), e.getCause());
+            }
         }
     }
 
