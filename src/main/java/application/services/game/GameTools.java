@@ -28,7 +28,7 @@ public class GameTools {
             "Bob", "John", "Foo", "Bar", "Doctor", "Master",
             "Loki", "Thor", "Batman", "Gandalf", "Dahaka",
             "Java-Man", "Spider-Man", "Tony Stark", "Pennywise",
-             "Lucky", "Grandmaster", "Dr.Strange", "I am Groot",
+            "Lucky", "Grandmaster", "Dr.Strange", "I am Groot",
             "Star Lord", "Rocket", "Thanos", "Ostapenko"
     );
 
@@ -45,7 +45,8 @@ public class GameTools {
     public static final String MAX_X_ATTR = "maxX";
     public static final String MAX_Y_ATTR = "maxY";
 
-    public static final int ROUND_TIME = 30;
+    public static final int ROUND_TIME_SEC = 30;
+    public static final int FIRST_ROUND_TIME_SEC = 45;
 
     public static final Random RANDOM = new Random(new Date().getTime());
 

@@ -15,12 +15,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 
 public final class GameActive extends GameAbstract {
 
     private Integer currentPlayerID;
     private final ScheduledExecutorService executor;
+    private ScheduledFuture future;
+
     private final ConcurrentHashMap<Integer /*playerID*/, PlayerAbstractActive> gamers;
     private final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;
 
@@ -48,9 +52,13 @@ public final class GameActive extends GameAbstract {
         this.gameOver = false;
 
         notifyPlayers(new StatusCodeBegin(this));
+
+        future = executor.schedule(task, GameTools.FIRST_ROUND_TIME_SEC, TimeUnit.SECONDS);
     }
 
     public synchronized Boolean makeStep(Step step) throws GameExceptionDestroyActive {
+
+        future.cancel(false);
 
         if (!getField().getPlayerInPoint(step.getSrc()).equals(currentPlayerID)) {
             return false;
@@ -83,14 +91,18 @@ public final class GameActive extends GameAbstract {
         if (gamers.get(currentPlayerID) instanceof PlayerBot) {
 
             final PlayerBot bot = (PlayerBot) gamers.get(currentPlayerID);
-            this.makeStep(bot.generateStep(getField()));
+            makeStep(bot.generateStep(getField()));
+            future.cancel(false);
         }
 
         // Если игрок оффлайн, то делаем за него рандомный ход
         if (!gamers.get(currentPlayerID).getOnline()) {
             makeStep(BotLogic.lowLogic(getField(), currentPlayerID));
+            future.cancel(false);
         }
 
+        // Ставим таймер на ход
+        future = executor.schedule(task, GameTools.ROUND_TIME_SEC, TimeUnit.SECONDS);
         return true;
     }
 

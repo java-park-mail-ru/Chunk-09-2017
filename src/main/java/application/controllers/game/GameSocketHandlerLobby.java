@@ -9,7 +9,6 @@ import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
 import application.services.user.UserService;
 import application.services.user.UserTools;
-import application.views.game.StatusCodeSendID;
 import application.views.game.lobby.*;
 import application.views.game.error.StatusCodeErrorAttr;
 import application.views.game.active.StatusCodeWhoami;
@@ -265,8 +264,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         }
 
         playController.addGame(preparingGames.remove(game.getGameID()));
-        notifySubscribers(toJSON(
-                new StatusCodeSendID(GameSocketStatusCode.DELETE_GAME, game.getGameID())));
+        notifySubscribers(toJSON(new StatusCodeLobbyDelete(game.getGameID())));
     }
 
     public void destroy(Long gameID) {
