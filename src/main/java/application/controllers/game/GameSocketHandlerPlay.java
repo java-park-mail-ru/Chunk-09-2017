@@ -20,10 +20,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 
 @Component
 public final class GameSocketHandlerPlay extends GameSocketHandler {
@@ -40,6 +37,13 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         this.subscribers = new CopyOnWriteArraySet<>();
         this.executor = Executors.newScheduledThreadPool(2);
         this.userService = userService;
+
+        executor.scheduleWithFixedDelay(
+                this::destroyFinishedGames,
+                GameTools.TIME_BETWEEN_CHECKS_MIN,
+                GameTools.TIME_BETWEEN_CHECKS_MIN,
+                TimeUnit.MINUTES
+        );
     }
 
     @Override
@@ -253,11 +257,24 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         }
 
         if (destroyingGame.getGameOver()) {
-
             this.notifySubscribers(this.toJSON(
                     new StatusCodeGameover(destroyingGame.getGameID())));
             activeGames.remove(gameID);
             getGameLogger().info("Game #" + gameID + " is ended");
+        }
+    }
+
+
+    private void destroyFinishedGames() {
+
+        for (GameActive game : activeGames.values()) {
+            if (game.getGameOver()) {
+                final Long gameID = game.getGameID();
+                this.notifySubscribers(this.toJSON(new StatusCodeGameover(gameID)));
+
+                activeGames.remove(gameID);
+                getGameLogger().info("Game #" + gameID + " is ended");
+            }
         }
     }
 }

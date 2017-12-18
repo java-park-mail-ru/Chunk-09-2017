@@ -30,7 +30,7 @@ public final class PlayerBot extends PlayerAbstractActive {
                 return BotLogic.highLogic(field, getPlayerID());
             default:
                 LOGGER.error("Level " + level + " of the bot is not recognized");
-                return null;
+                return BotLogic.lowLogic(field, getPlayerID());
         }
     }
 
