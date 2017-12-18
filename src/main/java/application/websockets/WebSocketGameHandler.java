@@ -20,6 +20,8 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 
 @Component
@@ -30,6 +32,8 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
     private final Logger logger = LoggerFactory.getLogger(WebSocketGameHandler.class);
     private final ObjectMapper mapper;
 
+    private final ConcurrentSkipListSet<Long> userSessions;
+
 
     WebSocketGameHandler(GameSocketHandlerLobby lobby,
                          GameSocketHandlerPlay play,
@@ -38,6 +42,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
         this.gameSocketHandlerLobby = lobby;
         this.gameSocketHandlerPlay = play;
         this.mapper = mapper;
+        this.userSessions = new ConcurrentSkipListSet<>();
     }
 
 
@@ -50,9 +55,18 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
                     new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED))));
             session.close(CloseStatus.NOT_ACCEPTABLE);
             logger.warn(GameSocketStatusCode.NOT_AUTHORIZED.toString());
-        } else {
-            logger.info("Succesfull connect: userID=" + userID + ", session=" + session);
+            return;
         }
+        if (userSessions.contains(userID)) {
+            session.sendMessage(new TextMessage(mapper.writeValueAsString(
+                    new StatusCodeError(GameSocketStatusCode.DOUBLE_CONNECTION))));
+            session.close(CloseStatus.NOT_ACCEPTABLE);
+            logger.warn("UserID #" + userID + ": "
+                    + GameSocketStatusCode.DOUBLE_CONNECTION.toString());
+            return;
+        }
+        userSessions.add(userID);
+        logger.info("Succesfull connect: userID=" + userID + ", session=" + session);
     }
 
     @Override
@@ -87,6 +101,9 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
         logger.info("Disconnect: " + session);
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
+        if (userID != null) {
+            userSessions.remove(userID);
+        }
         if (userID == null || gameID == null) {
             return;
         }

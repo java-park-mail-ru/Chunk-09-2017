@@ -82,7 +82,6 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
             kickBot(session, jsonNode);
             return;
         }
-
         if (code.equals(GameSocketStatusCode.KICK_PLAYER.getValue())) {
             kickPlayer(session, jsonNode);
             return;

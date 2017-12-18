@@ -27,7 +27,7 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
 
     private final ConcurrentHashMap<Long, GameActive> activeGames;
     private final CopyOnWriteArraySet<WebSocketSession> subscribers;
-    private final ScheduledExecutorService executor;
+    private ScheduledExecutorService executor;
 
     private final UserService userService;
 
@@ -35,7 +35,7 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         super(mapper);
         this.activeGames = new ConcurrentHashMap<>();
         this.subscribers = new CopyOnWriteArraySet<>();
-        this.executor = Executors.newScheduledThreadPool(2);
+        this.executor = Executors.newScheduledThreadPool(GameTools.EXECUTOR_THREADS_COUNT);
         this.userService = userService;
 
         executor.scheduleWithFixedDelay(

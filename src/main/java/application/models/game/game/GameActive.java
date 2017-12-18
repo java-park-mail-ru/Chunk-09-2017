@@ -53,10 +53,10 @@ public final class GameActive extends GameAbstract {
 
         notifyPlayers(new StatusCodeBegin(this));
 
-        future = executor.schedule(task, GameTools.FIRST_ROUND_TIME_SEC, TimeUnit.SECONDS);
+        future = executor.schedule(task, 2 * GameTools.ROUND_TIME_SEC, TimeUnit.SECONDS);
     }
 
-    public synchronized Boolean makeStep(Step step) throws GameExceptionDestroyActive {
+    public synchronized Boolean makeStep(Step step) {
 
         future.cancel(false);
 
