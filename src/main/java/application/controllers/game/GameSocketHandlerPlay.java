@@ -31,14 +31,15 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
 
     private final UserService userService;
 
-    GameSocketHandlerPlay(UserService userService, ObjectMapper mapper) {
+    GameSocketHandlerPlay(UserService userService, ObjectMapper mapper,
+                          ScheduledExecutorService executor) {
         super(mapper);
         this.activeGames = new ConcurrentHashMap<>();
         this.subscribers = new CopyOnWriteArraySet<>();
-        this.executor = Executors.newScheduledThreadPool(GameTools.EXECUTOR_THREADS_COUNT);
+        this.executor = executor;
         this.userService = userService;
 
-        executor.scheduleWithFixedDelay(
+        this.executor.scheduleWithFixedDelay(
                 this::destroyFinishedGames,
                 GameTools.TIME_BETWEEN_CHECKS_MIN,
                 GameTools.TIME_BETWEEN_CHECKS_MIN,
@@ -134,9 +135,15 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
             sendMessage(session, toJSON(new StatusCodeErrorAttr(GameTools.STEP_ATTR)));
             return;
         }
+        if (!jsonNode.hasNonNull(GameTools.STEP_ID_ATTR)) {
+            payload = toJSON(new StatusCodeErrorAttr(GameTools.STEP_ID_ATTR));
+            sendMessage(session, payload);
+            throw new GameException(payload);
+        }
+        final Long stepID = jsonNode.get(GameTools.STEP_ID_ATTR).asLong();
 
         // Совершить ход
-        if (!game.makeStep(step)) {
+        if (!game.makeStep(step, stepID)) {
             payload = this.toJSON(new StatusCodeError(GameSocketStatusCode.FALSE));
             this.sendMessage(session, payload);
         }
