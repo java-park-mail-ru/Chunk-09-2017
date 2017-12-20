@@ -69,8 +69,9 @@ public final class GameActive extends GameAbstract {
         }
 
         future.cancel(false);
-        if (Thread.currentThread().getName().equals(GameTools.THREAD_NAME + stepCount)) {
-            notifyPlayers(new StatusCodeTimeout(GameSocketStatusCode.TIMEOUT, currentPlayerID));
+        if (THREAD_LOCAL.get() != null && THREAD_LOCAL.get() == stepCount) {
+            notifyPlayers(new StatusCodeTimeout(
+                    GameSocketStatusCode.TIMEOUT, currentPlayerID));
         }
         notifyPlayers(new StatusCodeStep(step));
         ++stepCount;
@@ -195,18 +196,17 @@ public final class GameActive extends GameAbstract {
         return watchers;
     }
 
+    private static final ThreadLocal<Long> THREAD_LOCAL = new ThreadLocal<>();
+
     private final class Task extends Thread {
 
-        private final Long taskStepID;
-
         Task(Long taskStepID) {
-            this.taskStepID = taskStepID;
+            THREAD_LOCAL.set(taskStepID);
         }
 
         @Override
         public void run() {
-            Thread.currentThread().setName(GameTools.THREAD_NAME + taskStepID);
-            makeStep(BotLogic.lowLogic(getField(), currentPlayerID), taskStepID);
+            makeStep(BotLogic.lowLogic(getField(), currentPlayerID), THREAD_LOCAL.get());
         }
     }
 }

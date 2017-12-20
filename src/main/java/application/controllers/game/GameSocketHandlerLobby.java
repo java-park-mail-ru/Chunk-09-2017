@@ -152,8 +152,6 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
     private void connectToGame(final WebSocketSession session, JsonNode jsonNode) {
 
-        unsubscribe(session);
-
         // Проверка 301
         Long gameID = (Long) session.getAttributes().get("gameID");
         if (gameID != null) {
@@ -183,6 +181,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
             return;
         }
 
+        unsubscribe(session);
         game.addGamer(gamer);
 
         // Передать игроку полную инфу об игре

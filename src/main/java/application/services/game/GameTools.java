@@ -41,7 +41,7 @@ public class GameTools {
     public static final String KICK_USER_ATTR = "userID";
     public static final String STEP_ID_ATTR = "stepID";
     public static final String KICK_BOT_ATTR = "botID";
-    public static final String BOT_LEVEL_ATTR = "lvlbot";
+    public static final String BOT_LEVEL_ATTR = "botlvl";
     public static final String STEP_ATTR = "step";
     public static final String MAX_X_ATTR = "maxX";
     public static final String MAX_Y_ATTR = "maxY";
@@ -49,7 +49,6 @@ public class GameTools {
     public static final long ROUND_TIME_SEC = 30;
     public static final long TIME_BETWEEN_CHECKS_MIN = 1;
     public static final int EXECUTOR_THREADS_COUNT = 2;
-    public static final String THREAD_NAME = "timeoutThread-";
 
     public static final Random RANDOM = new Random(new Date().getTime());
 
