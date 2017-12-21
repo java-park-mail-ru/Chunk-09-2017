@@ -138,6 +138,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         );
 
         final GamePrepare newGame = new GamePrepare(field, newGameID, numberOfPlayers, masterID);
+        newGame.setObserver(this::destroy);
         newGame.addGamer(master);
         sendMessage(session, toJSON(
                 new StatusCodeLobbyInfoVerbose(GameSocketStatusCode.CREATE_GAME, newGame)));

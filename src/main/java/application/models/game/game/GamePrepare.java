@@ -1,6 +1,5 @@
 package application.models.game.game;
 
-import application.exceptions.game.GameExceptionDestroyPrepare;
 import application.models.game.field.Field;
 import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
@@ -72,12 +71,13 @@ public final class GamePrepare extends GameAbstract {
         synchronized (this) {
             if (userID.equals(masterID)) {
                 final Optional<PlayerGamer> newMaster = gamers.values().stream().findFirst();
-                if (!newMaster.isPresent()) {
-                    throw new GameExceptionDestroyPrepare(getGameID());
+                if (newMaster.isPresent()) {
+                    masterID = newMaster.get().getUserID();
+                    notifyPlayers(new StatusCodeSendID(
+                            GameSocketStatusCode.CHANGE_MASTER, masterID));
+                } else {
+                    getObserver().afterGameOver(getGameID());
                 }
-                masterID = newMaster.get().getUserID();
-                notifyPlayers(new StatusCodeSendID(
-                        GameSocketStatusCode.CHANGE_MASTER, masterID));
             }
         }
     }

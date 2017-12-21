@@ -22,7 +22,6 @@ public final class GameActive extends GameAbstract {
     private volatile long stepCount;
     private final ScheduledExecutorService executor;
     private ScheduledFuture future;
-    private GameFinishObserver observer;
 
     private final ConcurrentHashMap<Integer /*playerID*/, PlayerAbstractActive> gamers;
     private final ConcurrentHashMap<Long /*userID*/, PlayerWatcher> watchers;
@@ -54,10 +53,6 @@ public final class GameActive extends GameAbstract {
         stepCount = 0L;
         future = executor.schedule(new Task(stepCount),
                 2 * GameTools.ROUND_TIME_SEC, TimeUnit.SECONDS);
-    }
-
-    public void setObserver(GameFinishObserver observer) {
-        this.observer = observer;
     }
 
     public synchronized Boolean makeStep(Step step, Long stepID) {
@@ -103,19 +98,19 @@ public final class GameActive extends GameAbstract {
         if (gamers.get(currentPlayerID) instanceof PlayerBot) {
             final PlayerBot bot = (PlayerBot) gamers.get(currentPlayerID);
             makeStep(bot.generateStep(getField()), stepCount);
+            future.cancel(false);
             if (gameOver.get()) {
                 return true;
             }
-            future.cancel(false);
         }
 
         // Если игрок оффлайн, то делаем за него рандомный ход
         if (!gamers.get(currentPlayerID).getOnline()) {
             makeStep(BotLogic.lowLogic(getField(), currentPlayerID), stepCount);
+            future.cancel(false);
             if (gameOver.get()) {
                 return true;
             }
-            future.cancel(false);
         }
 
         future = executor.schedule(new Task(stepCount),
@@ -183,7 +178,7 @@ public final class GameActive extends GameAbstract {
         });
         gamers.clear();
 
-        observer.gameGinished(getGameID());
+        getObserver().afterGameOver(getGameID());
     }
 
     @JsonIgnore
@@ -223,9 +218,5 @@ public final class GameActive extends GameAbstract {
             THREAD_LOCAL.set(stepID);
             makeStep(BotLogic.lowLogic(getField(), currentPlayerID), THREAD_LOCAL.get());
         }
-    }
-
-    public interface GameFinishObserver {
-        void gameGinished(Long gameID);
     }
 }

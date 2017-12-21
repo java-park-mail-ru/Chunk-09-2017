@@ -3,8 +3,6 @@ package application.websockets;
 import application.controllers.game.GameSocketHandlerLobby;
 import application.controllers.game.GameSocketHandlerPlay;
 import application.exceptions.game.GameException;
-import application.exceptions.game.GameExceptionDestroyActive;
-import application.exceptions.game.GameExceptionDestroyPrepare;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserTools;
@@ -83,12 +81,6 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
                 gameSocketHandlerPlay.handler(code, jsonNode, session);
                 return;
             }
-        } catch (GameExceptionDestroyPrepare destroy) {
-            gameSocketHandlerLobby.destroy(destroy.getGameID());
-
-        } catch (GameExceptionDestroyActive destroy) {
-            gameSocketHandlerPlay.destroy(destroy.getGameID());
-
         } catch (GameException clientError) {
             logger.info(clientError.getMessage());
         }
@@ -106,15 +98,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
         if (userID == null || gameID == null) {
             return;
         }
-        try {
-            gameSocketHandlerLobby.emergencyDiconnect(session, userID, gameID);
-            gameSocketHandlerPlay.emergencyDiconnect(session, userID, gameID);
-
-        } catch (GameExceptionDestroyPrepare destroy) {
-            gameSocketHandlerLobby.destroy(destroy.getGameID());
-
-        } catch (GameExceptionDestroyActive destroy) {
-            gameSocketHandlerPlay.destroy(destroy.getGameID());
-        }
+        gameSocketHandlerLobby.emergencyDiconnect(session, userID, gameID);
+        gameSocketHandlerPlay.emergencyDiconnect(session, userID, gameID);
     }
 }
