@@ -90,7 +90,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
             gameSocketHandlerPlay.destroy(destroy.getGameID());
 
         } catch (GameException clientError) {
-            logger.info(clientError.getError());
+            logger.info(clientError.getMessage());
         }
     }
 

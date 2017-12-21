@@ -38,13 +38,6 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
         this.subscribers = new CopyOnWriteArraySet<>();
         this.executor = executor;
         this.userService = userService;
-
-        this.executor.scheduleWithFixedDelay(
-                this::destroyFinishedGames,
-                GameTools.TIME_BETWEEN_CHECKS_MIN,
-                GameTools.TIME_BETWEEN_CHECKS_MIN,
-                TimeUnit.MINUTES
-        );
     }
 
     @Override
@@ -91,7 +84,9 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
     }
 
     void addGame(GamePrepare readyGame) {
-        activeGames.put(readyGame.getGameID(), new GameActive(readyGame, executor));
+        final GameActive newGame = new GameActive(readyGame, executor);
+        newGame.setObserver(this::destroy);
+        activeGames.put(readyGame.getGameID(), newGame);
 
         // Оповещение подписчиков
         final String payload = this.toJSON(
@@ -268,20 +263,6 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
                     new StatusCodeGameover(destroyingGame.getGameID())));
             activeGames.remove(gameID);
             getGameLogger().info("Game #" + gameID + " is ended");
-        }
-    }
-
-
-    private void destroyFinishedGames() {
-
-        for (GameActive game : activeGames.values()) {
-            if (game.getGameOver()) {
-                final Long gameID = game.getGameID();
-                this.notifySubscribers(this.toJSON(new StatusCodeGameover(gameID)));
-
-                activeGames.remove(gameID);
-                getGameLogger().info("Game #" + gameID + " is ended");
-            }
         }
     }
 }
