@@ -46,7 +46,9 @@ public enum GameSocketStatusCode {
     FALSE(306, "Invalid active step"),
     TURN(307, "It is not your turn"),
     ATTR(308, "Missing required attributes"),
-    FULL(309, "All places in the active are already occupied");
+    FULL(309, "All places in the active are already occupied"),
+    NOT_MEMBER(310, "You are not a member of any of the games"),
+    DOUBLE_CONNECTION(311, "You are already connected");
 
 
     GameSocketStatusCode(int value, String reasonPhrase) {

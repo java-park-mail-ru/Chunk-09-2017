@@ -23,6 +23,8 @@ public abstract class GameAbstract {
     @JsonIgnore
     private final Logger gameLogger = LoggerFactory.getLogger(GameAbstract.class);
 
+    private GameOverObserver observer;
+
 
     protected GameAbstract(@NotNull Long gameID, @NotNull Field gameField,
                            @NotNull Integer numberOfPlayers) {
@@ -55,5 +57,17 @@ public abstract class GameAbstract {
 
     public Field getField() {
         return field;
+    }
+
+    public void setObserver(GameOverObserver observer) {
+        this.observer = observer;
+    }
+
+    public GameOverObserver getObserver() {
+        return observer;
+    }
+
+    public interface GameOverObserver {
+        void afterGameOver(Long gameID);
     }
 }

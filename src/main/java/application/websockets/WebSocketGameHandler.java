@@ -3,11 +3,9 @@ package application.websockets;
 import application.controllers.game.GameSocketHandlerLobby;
 import application.controllers.game.GameSocketHandlerPlay;
 import application.exceptions.game.GameException;
-import application.exceptions.game.GameExceptionDestroy;
 import application.services.game.GameSocketStatusCode;
 import application.services.game.GameTools;
 import application.services.user.UserTools;
-import application.views.game.active.StatusCodeWhoami;
 import application.views.game.error.StatusCodeError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +18,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 
 @Component
@@ -30,6 +29,8 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
     private final Logger logger = LoggerFactory.getLogger(WebSocketGameHandler.class);
     private final ObjectMapper mapper;
 
+    private final ConcurrentSkipListSet<Long> userSessions;
+
 
     WebSocketGameHandler(GameSocketHandlerLobby lobby,
                          GameSocketHandlerPlay play,
@@ -38,6 +39,7 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
         this.gameSocketHandlerLobby = lobby;
         this.gameSocketHandlerPlay = play;
         this.mapper = mapper;
+        this.userSessions = new ConcurrentSkipListSet<>();
     }
 
 
@@ -50,12 +52,18 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
                     new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED))));
             session.close(CloseStatus.NOT_ACCEPTABLE);
             logger.warn(GameSocketStatusCode.NOT_AUTHORIZED.toString());
-        } else {
-            session.sendMessage(new TextMessage(
-                    mapper.writeValueAsString(new StatusCodeWhoami(userID, null))
-            ));
-            logger.info("Succesfull connect: userID=" + userID + ", session=" + session);
+            return;
         }
+        if (userSessions.contains(userID)) {
+            session.sendMessage(new TextMessage(mapper.writeValueAsString(
+                    new StatusCodeError(GameSocketStatusCode.DOUBLE_CONNECTION))));
+            session.close(CloseStatus.NOT_ACCEPTABLE);
+            logger.warn("UserID #" + userID + ": "
+                    + GameSocketStatusCode.DOUBLE_CONNECTION.toString());
+            return;
+        }
+        userSessions.add(userID);
+        logger.info("Succesfull connect: userID=" + userID + ", session=" + session);
     }
 
     @Override
@@ -73,10 +81,8 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
                 gameSocketHandlerPlay.handler(code, jsonNode, session);
                 return;
             }
-        } catch (GameExceptionDestroy destroy) {
-            gameSocketHandlerLobby.destroy(destroy.getGameID());
         } catch (GameException clientError) {
-            logger.info(clientError.getError());
+            logger.info(clientError.getMessage());
         }
     }
 
@@ -86,6 +92,9 @@ public class WebSocketGameHandler extends AbstractWebSocketHandler {
         logger.info("Disconnect: " + session);
         final Long userID = (Long) session.getAttributes().get(UserTools.USER_ID_ATTR);
         final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
+        if (userID != null) {
+            userSessions.remove(userID);
+        }
         if (userID == null || gameID == null) {
             return;
         }

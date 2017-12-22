@@ -11,9 +11,10 @@ public final class GameInformationCompact extends GameInformation {
 
     public GameInformationCompact(GamePrepare game) {
         super(game);
-        masterUsername = game.getGamers().get(game.getMasterID()).getUsername();
         realSize = game.getGamers().size();
         botSize = game.getBots().size();
+        masterUsername = realSize != 0
+                ? game.getGamers().get(game.getMasterID()).getUsername() : "none";
     }
 
 

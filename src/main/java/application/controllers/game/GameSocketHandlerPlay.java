@@ -20,21 +20,23 @@ import org.springframework.web.socket.WebSocketSession;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.*;
 
 @Component
 public final class GameSocketHandlerPlay extends GameSocketHandler {
 
     private final ConcurrentHashMap<Long, GameActive> activeGames;
     private final CopyOnWriteArraySet<WebSocketSession> subscribers;
+    private ScheduledExecutorService executor;
 
     private final UserService userService;
 
-    GameSocketHandlerPlay(UserService userService, ObjectMapper mapper) {
+    GameSocketHandlerPlay(UserService userService, ObjectMapper mapper,
+                          ScheduledExecutorService executor) {
         super(mapper);
         this.activeGames = new ConcurrentHashMap<>();
         this.subscribers = new CopyOnWriteArraySet<>();
+        this.executor = executor;
         this.userService = userService;
     }
 
@@ -82,7 +84,9 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
     }
 
     void addGame(GamePrepare readyGame) {
-        activeGames.put(readyGame.getGameID(), new GameActive(readyGame));
+        final GameActive newGame = new GameActive(readyGame, executor);
+        newGame.setObserver(this::destroy);
+        activeGames.put(readyGame.getGameID(), newGame);
 
         // Оповещение подписчиков
         final String payload = this.toJSON(
@@ -119,26 +123,24 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
 
         // Вытащить аттрибуты
         final Step step;
-
         try {
             step = getMapper().readValue(
                     jsonNode.get(GameTools.STEP_ATTR).toString(), Step.class);
-
         } catch (IOException ignore) {
             sendMessage(session, toJSON(new StatusCodeErrorAttr(GameTools.STEP_ATTR)));
             return;
         }
+        if (!jsonNode.hasNonNull(GameTools.STEP_ID_ATTR)) {
+            payload = toJSON(new StatusCodeErrorAttr(GameTools.STEP_ID_ATTR));
+            sendMessage(session, payload);
+            throw new GameException(payload);
+        }
+        final Long stepID = jsonNode.get(GameTools.STEP_ID_ATTR).asLong();
 
         // Совершить ход
-        if (!game.makeStep(step)) {
-            if (!game.getGameOver()) {
-                payload = this.toJSON(new StatusCodeError(GameSocketStatusCode.FALSE));
-                this.sendMessage(session, payload);
-            } else {
-                payload = this.toJSON(new StatusCodeGameover(game.getGameID()));
-                this.notifySubscribers(payload);
-                activeGames.remove(gameID);
-            }
+        if (!game.makeStep(step, stepID)) {
+            payload = this.toJSON(new StatusCodeError(GameSocketStatusCode.FALSE));
+            this.sendMessage(session, payload);
         }
     }
 
@@ -247,5 +249,20 @@ public final class GameSocketHandlerPlay extends GameSocketHandler {
                 this.unsubscribe(websession);
             }
         });
+    }
+
+    public void destroy(Long gameID) {
+
+        final GameActive destroyingGame = activeGames.get(gameID);
+        if (destroyingGame == null) {
+            return;
+        }
+
+        if (destroyingGame.getGameOver()) {
+            this.notifySubscribers(this.toJSON(
+                    new StatusCodeGameover(destroyingGame.getGameID())));
+            activeGames.remove(gameID);
+            getGameLogger().info("Game #" + gameID + " is ended");
+        }
     }
 }

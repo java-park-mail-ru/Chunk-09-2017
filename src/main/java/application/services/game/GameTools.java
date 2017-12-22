@@ -28,8 +28,8 @@ public class GameTools {
             "Bob", "John", "Foo", "Bar", "Doctor", "Master",
             "Loki", "Thor", "Batman", "Gandalf", "Dahaka",
             "Java-Man", "Spider-Man", "Tony Stark", "Pennywise",
-            "Джевгенец", "Лапища", "п/п-к Пряхин", "Lucky",
-            "Титаевский", "Арсека", "Grandmaster", "Эрнестович"
+            "Lucky", "Grandmaster", "Dr.Strange", "I am Groot",
+            "Star Lord", "Rocket", "Thanos", "Ostapenko"
     );
 
     public static final int BOT_LEVEL_LOW = 1;
@@ -39,12 +39,15 @@ public class GameTools {
     public static final String NUMBER_OF_PLAYERS = "numberOfPlayers";
     public static final String GAME_ID_ATTR = "gameID";
     public static final String KICK_USER_ATTR = "userID";
+    public static final String STEP_ID_ATTR = "stepID";
     public static final String KICK_BOT_ATTR = "botID";
-    public static final String BOT_LEVEL_ATTR = "lvlbot";
+    public static final String BOT_LEVEL_ATTR = "botlvl";
     public static final String STEP_ATTR = "step";
     public static final String MAX_X_ATTR = "maxX";
     public static final String MAX_Y_ATTR = "maxY";
 
+    public static final long ROUND_TIME_SEC = 30;
+    public static final int EXECUTOR_THREADS_COUNT = 2;
 
     public static final Random RANDOM = new Random(new Date().getTime());
 

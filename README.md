@@ -3,7 +3,7 @@
 ## It Is Not Defense
 >***Поглощай или будь поглощен<br>***
 
-## [Frontend](https://chunk-frontend.herokuapp.com/)<=>[Backend](https://backend-java-spring.herokuapp.com/)
+## [Frontend](https://guardians-game.ru/)<=>[Backend](https://backend-java-spring.herokuapp.com/)
 
 ## Members
 * Андрей Савосин

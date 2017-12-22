@@ -9,7 +9,6 @@ import application.services.game.GameTools;
 import application.services.game.GameSocketStatusCode;
 import application.services.user.UserService;
 import application.services.user.UserTools;
-import application.views.game.StatusCodeSendID;
 import application.views.game.lobby.*;
 import application.views.game.error.StatusCodeErrorAttr;
 import application.views.game.active.StatusCodeWhoami;
@@ -83,7 +82,6 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
             kickBot(session, jsonNode);
             return;
         }
-
         if (code.equals(GameSocketStatusCode.KICK_PLAYER.getValue())) {
             kickPlayer(session, jsonNode);
             return;
@@ -140,21 +138,20 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         );
 
         final GamePrepare newGame = new GamePrepare(field, newGameID, numberOfPlayers, masterID);
+        newGame.setObserver(this::destroy);
+        newGame.addGamer(master);
         sendMessage(session, toJSON(
                 new StatusCodeLobbyInfoVerbose(GameSocketStatusCode.CREATE_GAME, newGame)));
-        newGame.addGamer(master);
         preparingGames.put(newGameID, newGame);
 
 
         // Оповестить подписчиков
         this.notifySubscribers(toJSON(
                 new StatusCodeLobbyInfoCompact(GameSocketStatusCode.NEW_GAME, newGame)));
-        getGameLogger().info("Create prepare Game #" + newGameID);
+        getGameLogger().info("Game #" + newGameID + " is preparing");
     }
 
     private void connectToGame(final WebSocketSession session, JsonNode jsonNode) {
-
-        unsubscribe(session);
 
         // Проверка 301
         Long gameID = (Long) session.getAttributes().get("gameID");
@@ -185,6 +182,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
             return;
         }
 
+        unsubscribe(session);
         game.addGamer(gamer);
 
         // Передать игроку полную инфу об игре
@@ -265,8 +263,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
         }
 
         playController.addGame(preparingGames.remove(game.getGameID()));
-        notifySubscribers(toJSON(
-                new StatusCodeSendID(GameSocketStatusCode.DELETE_GAME, game.getGameID())));
+        notifySubscribers(toJSON(new StatusCodeLobbyDelete(game.getGameID())));
     }
 
     public void destroy(Long gameID) {
@@ -337,7 +334,7 @@ public final class GameSocketHandlerLobby extends GameSocketHandler {
 
         final Long gameID = (Long) session.getAttributes().get(GameTools.GAME_ID_ATTR);
         if (gameID == null) {
-            payload = toJSON(new StatusCodeError(GameSocketStatusCode.NOT_AUTHORIZED));
+            payload = toJSON(new StatusCodeError(GameSocketStatusCode.NOT_MEMBER));
             sendMessage(session, payload);
             throw new GameException(payload);
         }

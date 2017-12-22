@@ -1,6 +1,5 @@
 package application.models.game.game;
 
-import application.exceptions.game.GameExceptionDestroy;
 import application.models.game.field.Field;
 import application.models.game.player.PlayerBot;
 import application.models.game.player.PlayerGamer;
@@ -60,19 +59,25 @@ public final class GamePrepare extends GameAbstract {
         if (removeGamer == null) {
             return;
         }
-        removeGamer.getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
         notifyPlayers(new StatusCodeSendID(GameSocketStatusCode.REMOVE_PLAYER, userID));
+
+        if (removeGamer.getSession().isOpen()) {
+            removeGamer.getSession().getAttributes().remove(GameTools.GAME_ID_ATTR);
+            this.sendMessageToPlayer(removeGamer,
+                    new StatusCodeSendID(GameSocketStatusCode.REMOVE_PLAYER, userID));
+        }
 
         // Если удаленный игрок оказался master'ом
         synchronized (this) {
             if (userID.equals(masterID)) {
                 final Optional<PlayerGamer> newMaster = gamers.values().stream().findFirst();
-                if (!newMaster.isPresent()) {
-                    throw new GameExceptionDestroy(getGameID());
+                if (newMaster.isPresent()) {
+                    masterID = newMaster.get().getUserID();
+                    notifyPlayers(new StatusCodeSendID(
+                            GameSocketStatusCode.CHANGE_MASTER, masterID));
+                } else {
+                    getObserver().afterGameOver(getGameID());
                 }
-                masterID = newMaster.get().getUserID();
-                notifyPlayers(new StatusCodeSendID(
-                        GameSocketStatusCode.CHANGE_MASTER, masterID));
             }
         }
     }
